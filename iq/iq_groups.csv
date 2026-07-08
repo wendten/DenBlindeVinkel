@@ -1,0 +1,5 @@
+id,name,mean,sd,population,color,active
+white,Hvide,100,15,700000000,#48d4ff,1
+black,Sorte,72,15,1000000000,#ff4f7a,1
+jewish,Jøder,114,15,16000000,#ffc14d,1
+arabere,Arabisk Supercluster,83,15,16000000,#2ee59d,1

@@ -1,0 +1,3056 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IQ normalfordeling - grupper, PDF og CDF</title>
+  <style>
+    :root {
+      --bg: #070a12;
+      --panel: rgba(14, 20, 34, 0.88);
+      --panel-strong: rgba(20, 29, 48, 0.98);
+      --line: rgba(255, 255, 255, 0.12);
+      --line-strong: rgba(255, 255, 255, 0.28);
+      --text: #f4f7fb;
+      --muted: #9aa7bc;
+      --muted-2: #6f7e96;
+      --blue: #48d4ff;
+      --orange: #ff8a4c;
+      --pink: #ff4f7a;
+      --yellow: #ffc14d;
+      --green: #2ee59d;
+      --purple: #c084fc;
+      --radius: 22px;
+      --shadow: 0 26px 80px rgba(0, 0, 0, 0.45);
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(72, 212, 255, 0.16), transparent 28%),
+        radial-gradient(circle at 82% 10%, rgba(255, 79, 122, 0.16), transparent 30%),
+        radial-gradient(circle at 58% 88%, rgba(255, 193, 77, 0.10), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1960px, calc(100vw - 14px));
+      margin: 0 auto;
+      padding: 22px 0 44px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      color: var(--yellow);
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: clamp(38px, 5vw, 76px);
+      line-height: 0.92;
+      margin: 0;
+      letter-spacing: -0.065em;
+      max-width: 1120px;
+    }
+
+    .hero p {
+      margin: 14px 0 0;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: clamp(15px, 1.4vw, 20px);
+      line-height: 1.48;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+      min-width: 360px;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.24);
+    }
+
+    .btn.primary {
+      background: var(--text);
+      color: #07101f;
+      border-color: var(--text);
+      font-weight: 900;
+    }
+
+    .btn.danger {
+      background: rgba(255, 79, 122, 0.16);
+      border-color: rgba(255, 79, 122, 0.38);
+    }
+
+    .btn.active {
+      background: rgba(72, 212, 255, 0.16);
+      border-color: rgba(72, 212, 255, 0.44);
+      color: #dff7ff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 390px) minmax(680px, 1fr) minmax(320px, 430px);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .left-column,
+    .right-column {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+    }
+
+    .panel-inner {
+      padding: 18px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 21px;
+      letter-spacing: -0.03em;
+    }
+
+    .section-note {
+      margin: -4px 0 14px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-rows: auto auto;
+      min-height: 780px;
+    }
+
+    .chart-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 0;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-pill,
+    .select-pill,
+    .toggle-pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .select-pill option {
+      background: #101827;
+      color: #fff;
+    }
+
+    .input-pill {
+      width: 112px;
+    }
+
+    .toggle-pill {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      user-select: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 850;
+      color: var(--muted);
+    }
+
+    .toggle-pill input {
+      width: 16px;
+      height: 16px;
+      accent-color: #ffffff;
+    }
+
+    .chart-shell {
+      position: relative;
+      margin: 16px 12px 0;
+      min-height: 620px;
+      height: 620px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06), transparent 34%),
+        linear-gradient(120deg, rgba(84, 183, 255, 0.07), transparent 46%, rgba(255, 79, 122, 0.07)),
+        rgba(2, 6, 14, 0.52);
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 12px 18px 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      box-shadow: 0 0 16px currentColor;
+    }
+
+    .group-list,
+    .threshold-list,
+    .metric-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .group-card,
+    .threshold-card,
+    .metric-card,
+    .note-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      padding: 12px;
+    }
+
+    .group-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .group-top {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .active-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #ffffff;
+    }
+
+    .group-name-input {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 950;
+      outline: none;
+      padding: 4px 0 6px;
+    }
+
+    .color-input {
+      width: 40px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+    }
+
+    .group-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field label {
+      color: var(--muted-2);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      font-weight: 900;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      padding: 8px 10px;
+      outline: none;
+      font-size: 12px;
+    }
+
+    .small-danger {
+      border: 1px solid rgba(255, 79, 122, 0.35);
+      color: #ffc2d0;
+      background: rgba(255, 79, 122, 0.10);
+      border-radius: 999px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .group-action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .group-action-bar .btn {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .sort-header {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 0;
+      text-align: left;
+      font: inherit;
+      font-weight: 900;
+    }
+
+    .sort-header::after {
+      content: "↕";
+      color: var(--muted-2);
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .sort-header.sorted-asc::after {
+      content: "↑";
+      color: var(--yellow);
+    }
+
+    .sort-header.sorted-desc::after {
+      content: "↓";
+      color: var(--yellow);
+    }
+
+    .threshold-card {
+      cursor: pointer;
+      transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+    }
+
+    .threshold-card:hover,
+    .threshold-card.active {
+      transform: translateY(-1px);
+      background: rgba(72, 212, 255, 0.10);
+      border-color: rgba(72, 212, 255, 0.38);
+    }
+
+    .threshold-card strong,
+    .metric-card strong,
+    .note-card strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .threshold-card p,
+    .metric-card p,
+    .note-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.38;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .summary-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      padding: 12px;
+    }
+
+    .summary-card .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 900;
+    }
+
+    .summary-card .value {
+      margin-top: 8px;
+      font-size: 29px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.035);
+      max-height: 520px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 9px 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(20, 29, 48, 0.98);
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    td {
+      color: var(--muted);
+    }
+
+    .table-name {
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .table-overall td {
+      color: #dff7ff;
+      background: rgba(72, 212, 255, 0.08);
+      font-weight: 900;
+    }
+
+    .csv-area {
+      display: grid;
+      gap: 10px;
+    }
+
+    .csv-preview {
+      width: 100%;
+      min-height: 160px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--text);
+      padding: 12px;
+      resize: vertical;
+      outline: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .file-input {
+      max-width: 100%;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+
+
+    .panel-inner.collapsible-section {
+      position: relative;
+    }
+
+    .collapsible-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 0 12px;
+    }
+
+    .collapsible-section-header .section-title {
+      margin: 0;
+    }
+
+    .collapsible-section-toggle,
+    .group-collapse-button {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 950;
+      line-height: 1;
+      transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+    }
+
+    .collapsible-section-toggle:hover,
+    .group-collapse-button:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.26);
+    }
+
+    .collapsible-section.collapsed .collapsible-section-body {
+      display: none;
+    }
+
+    .collapsible-section.collapsed {
+      padding-bottom: 12px;
+    }
+
+    .chart-shell,
+    #distributionCanvas {
+      touch-action: none;
+      user-select: none;
+    }
+
+    #distributionCanvas {
+      cursor: crosshair;
+    }
+
+    #distributionCanvas.dragging-threshold {
+      cursor: ew-resize;
+    }
+
+    .group-top {
+      grid-template-columns: auto auto minmax(0, 1fr) auto;
+    }
+
+    .group-card.collapsed {
+      gap: 0;
+    }
+
+    .group-card.collapsed .group-body {
+      display: none;
+    }
+
+    .group-card.selected {
+      border-color: rgba(255, 193, 77, 0.72);
+      background: rgba(255, 193, 77, 0.10);
+      box-shadow: 0 0 0 1px rgba(255, 193, 77, 0.20), 0 18px 42px rgba(0, 0, 0, 0.26);
+    }
+
+    .group-body {
+      display: grid;
+      gap: 10px;
+    }
+
+    .settings-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .settings-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .settings-grid select,
+    .settings-grid input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      padding: 9px 10px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .settings-grid select option {
+      background: #101827;
+      color: #fff;
+    }
+
+    .settings-toggles,
+    .settings-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .settings-actions .btn {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .settings-zoom-panel {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.035);
+      padding: 12px;
+    }
+
+    .settings-zoom-panel.hidden {
+      display: none;
+    }
+
+    .legend-item.selected {
+      color: #fff;
+      font-weight: 950;
+    }
+
+    .table-selected td {
+      color: #fff7dc;
+      background: rgba(255, 193, 77, 0.10);
+      font-weight: 900;
+    }
+
+
+
+    .app {
+      position: relative;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 80px;
+      padding-left: 158px;
+    }
+
+    .app-logo {
+      position: absolute;
+      top: -30px;
+      left: 8px;
+      width: 138px;
+      height: 138px;
+      object-fit: contain;
+      display: block;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      z-index: 30;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    body.intro-done .app-logo {
+      opacity: 1;
+    }
+
+    body.intro-active .app {
+      filter: blur(18px);
+      transition: filter 1s ease;
+    }
+
+    body.intro-complete .app {
+      filter: blur(0);
+    }
+
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    .intro-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 10, 18, 0.38);
+      backdrop-filter: blur(18px);
+      opacity: 1;
+      transition: opacity 1.05s ease, backdrop-filter 1.05s ease;
+    }
+
+    body.intro-complete .intro-backdrop {
+      opacity: 0;
+      backdrop-filter: blur(0px);
+    }
+
+    .intro-logo-button {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: min(750px, 82vmin);
+      height: min(750px, 82vmin);
+      transform: translate(-50%, -50%);
+      display: block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      cursor: pointer;
+      z-index: 220;
+      pointer-events: auto;
+      transition:
+        left 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        top 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        width 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        height 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        transform 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        opacity 0.24s ease;
+    }
+
+    .intro-logo-button:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: 6px;
+      border-radius: 18px;
+    }
+
+    body.intro-complete .intro-logo-button {
+      cursor: default;
+    }
+
+    body.intro-done .intro-logo-button {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .intro-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      filter: drop-shadow(0 30px 80px rgba(0, 0, 0, 0.35));
+    }
+
+    @media (max-width: 1500px) {
+      .layout {
+        grid-template-columns: minmax(300px, 390px) minmax(0, 1fr);
+      }
+
+      .right-column {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout,
+      .right-column,
+      .chart-toolbar,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+
+
+      .hero {
+        min-height: 112px;
+        padding-left: 126px;
+      }
+
+      .app-logo {
+        width: 108px;
+        height: 108px;
+        top: 0;
+        left: 4px;
+      }
+      .hero-actions {
+        justify-content: flex-start;
+        min-width: 0;
+      }
+
+      .chart-shell {
+        min-height: 520px;
+        height: 520px;
+      }
+
+      .group-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="intro-active">
+
+  <div aria-hidden="false" class="intro-overlay" id="introOverlay">
+    <div class="intro-backdrop"></div>
+    <button aria-label="Åbn siden" class="intro-logo-button" id="introLogoButton" type="button">
+      <img alt="Logo" class="intro-logo" draggable="false" height="750" src="logo.png" width="750" />
+    </button>
+  </div>
+  <main class="app" id="app">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">IQ normalfordeling</div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn primary" id="addGroupButton" type="button">Tilføj gruppe</button>
+        <button class="btn" id="exportCsvButton" type="button">Eksportér CSV</button>
+        <button class="btn danger" id="resetButton" type="button">Nulstil data</button>
+      </div>
+      <img alt="Logo" class="app-logo" height="128" src="logo.png" width="128" />
+    </header>
+
+    <section class="layout">
+      <aside class="left-column">
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">Grupper</h2>
+            <p class="section-note">Alle værdier kan ændres direkte. Aktiv styrer om gruppen indgår i plot og tærskelberegning.</p>
+            <div class="group-action-bar" aria-label="Gruppehandlinger">
+              <button class="btn" id="collapseAllGroupsButton" type="button">Kollapsér alle</button>
+              <button class="btn" id="expandAllGroupsButton" type="button">Udvid alle</button>
+              <button class="btn" id="selectAllGroupsButton" type="button">Vælg alle</button>
+              <button class="btn" id="deselectAllGroupsButton" type="button">Fravælg alle</button>
+            </div>
+            <div class="group-list" id="groupList"></div>
+          </div>
+        </article>
+      </aside>
+
+      <article class="panel stage">
+        <div class="chart-shell">
+          <canvas id="distributionCanvas" width="1200" height="720" aria-label="IQ normalfordeling"></canvas>
+        </div>
+
+        <div class="legend" id="legend"></div>
+
+        <div class="panel-inner">
+          <h2 class="section-title">Tærskelresultat</h2>
+          <p class="section-note">Resultatet viser andel under tærsklen som percentil, andel over tærsklen og eventuelt antal personer over tærsklen. IQ-linjen kan trækkes direkte i både PDF- og CDF-grafen.</p>
+          <div class="summary-grid">
+            <div class="summary-card">
+              <div class="label">Aktive kurver</div>
+              <div class="value" id="activeGroupCount">0</div>
+            </div>
+            <div class="summary-card">
+              <div class="label">Samlet percentil</div>
+              <div class="value" id="overallPercentile">-</div>
+            </div>
+            <div class="summary-card">
+              <div class="label">Over tærskel</div>
+              <div class="value" id="overallAbove">-</div>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top: 14px;">
+            <table>
+              <thead>
+                <tr>
+                  <th><button class="sort-header" data-result-sort="name" type="button">Gruppe / kurve</button></th>
+                  <th><button class="sort-header" data-result-sort="mean" type="button">Mean</button></th>
+                  <th><button class="sort-header" data-result-sort="sd" type="button">SD</button></th>
+                  <th><button class="sort-header" data-result-sort="population" type="button">Befolkning</button></th>
+                  <th><button class="sort-header" data-result-sort="percentile" type="button">Percentil ved tærskel</button></th>
+                  <th><button class="sort-header" data-result-sort="above" type="button">Over tærskel</button></th>
+                  <th><button class="sort-header" data-result-sort="countAbove" type="button">Antal over tærskel</button></th>
+                </tr>
+              </thead>
+              <tbody id="resultTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+
+      <aside class="right-column">
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">Settings</h2>
+            <p class="section-note">Indstillingerne her styrer graf, tærskel, kønsvarians og zoom. Automatisk zoom kan slås fra for manuel x- og y-skala.</p>
+            <div class="settings-grid">
+              <div class="settings-row">
+                <div class="field">
+                  <label for="thresholdInput">IQ-tærskel</label>
+                  <input id="thresholdInput" type="number" min="0" max="200" step="0.1" value="140" />
+                </div>
+                <div class="field">
+                  <label for="sexVarianceInput">Kønsvarians %</label>
+                  <input id="sexVarianceInput" type="number" min="0" max="100" step="0.1" value="13.333" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="plotModeSelect">Plotvisning</label>
+                <select id="plotModeSelect" aria-label="Plotvisning">
+                  <option value="both">PDF + CDF</option>
+                  <option value="pdf">PDF</option>
+                  <option value="cdf">CDF</option>
+                </select>
+              </div>
+              <div class="settings-toggles">
+                <label class="toggle-pill">
+                  <input id="populationToggle" type="checkbox" checked />
+                  Vægt med befolkning
+                </label>
+                <label class="toggle-pill">
+                  <input id="sexSplitToggle" type="checkbox" />
+                  Split mænd og kvinder
+                </label>
+                <label class="toggle-pill">
+                  <input id="overallCurveToggle" type="checkbox" checked />
+                  Samlet kurve
+                </label>
+                <label class="toggle-pill">
+                  <input id="autoZoomToggle" type="checkbox" checked />
+                  Automatisk zoom
+                </label>
+              </div>
+              <div class="settings-zoom-panel hidden" id="manualZoomPanel">
+                <div class="settings-row">
+                  <div class="field">
+                    <label for="pdfMinYInput">PDF min y</label>
+                    <input id="pdfMinYInput" type="number" step="any" value="0" />
+                  </div>
+                  <div class="field">
+                    <label for="pdfMaxYInput">PDF max y</label>
+                    <input id="pdfMaxYInput" type="number" step="any" value="0.03" />
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div class="field">
+                    <label for="cdfMinYInput">CDF min y</label>
+                    <input id="cdfMinYInput" type="number" step="any" value="0" />
+                  </div>
+                  <div class="field">
+                    <label for="cdfMaxYInput">CDF max y</label>
+                    <input id="cdfMaxYInput" type="number" step="any" value="1" />
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div class="field">
+                    <label for="manualMinXInput">Min x</label>
+                    <input id="manualMinXInput" type="number" step="0.1" value="40" />
+                  </div>
+                  <div class="field">
+                    <label for="manualMaxXInput">Max x</label>
+                    <input id="manualMaxXInput" type="number" step="0.1" value="160" />
+                  </div>
+                </div>
+              </div>
+              <div class="settings-actions">
+                <button class="btn" data-threshold="140" type="button">Geni 140</button>
+                <button class="btn" data-threshold="130" type="button">Mensa 130</button>
+                <button class="btn" data-threshold="87" type="button">Produktivitet 87</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">CSV</h2>
+            <p class="section-note">CSV-formatet er: id, name, mean, sd, population, color, active.</p>
+            <div class="csv-area">
+              <input class="file-input" id="csvFileInput" type="file" accept=".csv,text/csv" />
+              <button class="btn" id="applyCsvButton" type="button">Indlæs CSV fra tekstfelt</button>
+              <textarea class="csv-preview" id="csvTextArea" spellcheck="false"></textarea>
+            </div>
+          </div>
+        </article>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    class CsvUtility {
+      static parse(csvText) {
+        const text = String(csvText || "").replace(/^\uFEFF/, "");
+        const delimiter = CsvUtility.detectDelimiter(text);
+        const rows = [];
+        let row = [];
+        let cell = "";
+        let inQuotes = false;
+
+        for (let index = 0; index < text.length; index += 1) {
+          const char = text[index];
+          const next = text[index + 1];
+
+          if (char === '"') {
+            if (inQuotes && next === '"') {
+              cell += '"';
+              index += 1;
+            } else {
+              inQuotes = !inQuotes;
+            }
+            continue;
+          }
+
+          if (!inQuotes && char === delimiter) {
+            row.push(cell);
+            cell = "";
+            continue;
+          }
+
+          if (!inQuotes && (char === "\n" || char === "\r")) {
+            if (char === "\r" && next === "\n") {
+              index += 1;
+            }
+            row.push(cell);
+            if (row.some((value) => CsvUtility.clean(value) !== "")) {
+              rows.push(row);
+            }
+            row = [];
+            cell = "";
+            continue;
+          }
+
+          cell += char;
+        }
+
+        row.push(cell);
+        if (row.some((value) => CsvUtility.clean(value) !== "")) {
+          rows.push(row);
+        }
+
+        return rows;
+      }
+
+      static detectDelimiter(csvText) {
+        const firstLine = String(csvText || "").split(/\r?\n/, 1)[0] || "";
+        const semicolons = (firstLine.match(/;/g) || []).length;
+        const commas = (firstLine.match(/,/g) || []).length;
+        return semicolons > commas ? ";" : ",";
+      }
+
+      static clean(value) {
+        return String(value ?? "").replace(/^\uFEFF/, "").trim();
+      }
+
+      static recordsFromRows(rows) {
+        if (!rows || rows.length === 0) {
+          return [];
+        }
+        const headers = rows[0].map((header) => CsvUtility.clean(header));
+        return rows.slice(1).map((row) => {
+          const record = {};
+          for (let index = 0; index < headers.length; index += 1) {
+            record[headers[index]] = CsvUtility.clean(row[index] || "");
+          }
+          return record;
+        });
+      }
+
+      static stringifyRecords(records, headers) {
+        const delimiter = ",";
+        const rows = [headers];
+        for (const record of records) {
+          rows.push(headers.map((header) => record[header] ?? ""));
+        }
+        return rows.map((row) => row.map((value) => CsvUtility.escape(value, delimiter)).join(delimiter)).join("\r\n") + "\r\n";
+      }
+
+      static escape(value, delimiter) {
+        const text = String(value ?? "");
+        if (text.includes('"') || text.includes("\n") || text.includes("\r") || text.includes(delimiter)) {
+          return '"' + text.replace(/"/g, '""') + '"';
+        }
+        return text;
+      }
+    }
+
+    class IqGroup {
+      constructor(id, name, mean, sd, population, color, active) {
+        this.id = id;
+        this.name = name;
+        this.mean = mean;
+        this.sd = sd;
+        this.population = population;
+        this.color = color;
+        this.active = active;
+      }
+
+      clone() {
+        return new IqGroup(this.id, this.name, this.mean, this.sd, this.population, this.color, this.active);
+      }
+    }
+
+    class IqDataStore {
+      constructor() {
+        this.storageKey = "iq-distribution-model-v1";
+        this.groups = [];
+        this.thresholds = [
+          { id: "genius", name: "Geni", value: 140, description: "IQ 140 og derover." },
+          { id: "mensa", name: "Mensa", value: 130, description: "IQ 130 og derover." },
+          { id: "productivity", name: "Produktivitetstærskel", value: 87, description: "IQ 87 og derover." }
+        ];
+        this.defaultCsv = `id,name,mean,sd,population,color,active\nwhite,Hvide,100,15,700000000,#48d4ff,1\nblack,Sorte,72,15,1000000000,#ff4f7a,1\njewish,Jøder,114,15,16000000,#ffc14d,1\nmuslim,Muslimer,83,15,16000000,#2ee59d,1\n`;
+      }
+
+      initialize() {
+        const saved = this.loadSavedCsvText();
+        this.loadFromCsvText(saved || this.defaultCsv);
+      }
+
+      loadSavedCsvText() {
+        try {
+          return window.localStorage.getItem(this.storageKey) || "";
+        } catch (error) {
+          console.warn("Kunne ikke læse localStorage", error);
+          return "";
+        }
+      }
+
+      save() {
+        try {
+          window.localStorage.setItem(this.storageKey, this.exportToCsvText());
+        } catch (error) {
+          console.warn("Kunne ikke gemme localStorage", error);
+        }
+      }
+
+      reset() {
+        try {
+          window.localStorage.removeItem(this.storageKey);
+        } catch (error) {
+          console.warn("Kunne ikke nulstille localStorage", error);
+        }
+        this.loadFromCsvText(this.defaultCsv);
+      }
+
+      loadFromCsvText(csvText) {
+        const rows = CsvUtility.parse(csvText);
+        const records = CsvUtility.recordsFromRows(rows);
+        const groups = records.map((record, index) => this.createGroupFromRecord(record, index)).filter((group) => group !== null);
+        if (groups.length === 0) {
+          throw new Error("CSV indeholder ingen gyldige grupper.");
+        }
+        this.groups = groups;
+        this.save();
+      }
+
+      createGroupFromRecord(record, index) {
+        const fallbackId = "group_" + (index + 1);
+        const id = this.slug(record.id || record.name || fallbackId) || fallbackId;
+        const name = CsvUtility.clean(record.name) || this.prettyName(id);
+        const mean = this.parseNumber(record.mean, 100);
+        const sd = Math.max(0.1, this.parseNumber(record.sd, 15));
+        const population = Math.max(0, this.parseNumber(record.population, 0));
+        const color = this.normalizeColor(record.color, this.defaultColor(index));
+        const active = this.parseActive(record.active, true);
+        return new IqGroup(id, name, mean, sd, population, color, active);
+      }
+
+      parseNumber(value, fallback) {
+        const normalized = String(value ?? "").replace(/'/g, "").replace(/\s/g, "").replace(",", ".");
+        const number = Number(normalized);
+        return Number.isFinite(number) ? number : fallback;
+      }
+
+      parseActive(value, fallback) {
+        const normalized = CsvUtility.clean(value).toLowerCase();
+        if (["1", "true", "ja", "yes", "y", "x", "active"].includes(normalized)) {
+          return true;
+        }
+        if (["0", "false", "nej", "no", "n", "inactive"].includes(normalized)) {
+          return false;
+        }
+        return fallback;
+      }
+
+      normalizeColor(value, fallback) {
+        const color = CsvUtility.clean(value);
+        if (/^#[0-9a-f]{6}$/i.test(color) || /^#[0-9a-f]{3}$/i.test(color)) {
+          return color;
+        }
+        return fallback;
+      }
+
+      defaultColor(index) {
+        const palette = ["#48d4ff", "#ff4f7a", "#ffc14d", "#2ee59d", "#c084fc", "#ff8a4c", "#7dd3fc", "#86efac"];
+        return palette[index % palette.length];
+      }
+
+      slug(value) {
+        return String(value || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/æ/g, "ae")
+          .replace(/ø/g, "oe")
+          .replace(/å/g, "aa")
+          .replace(/[^a-z0-9]+/g, "_")
+          .replace(/^_+|_+$/g, "");
+      }
+
+      prettyName(id) {
+        return String(id || "")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (letter) => letter.toUpperCase());
+      }
+
+      exportToCsvText() {
+        const headers = ["id", "name", "mean", "sd", "population", "color", "active"];
+        const records = this.groups.map((group) => ({
+          id: group.id,
+          name: group.name,
+          mean: this.formatRawNumber(group.mean),
+          sd: this.formatRawNumber(group.sd),
+          population: this.formatRawNumber(group.population),
+          color: group.color,
+          active: group.active ? "1" : "0"
+        }));
+        return CsvUtility.stringifyRecords(records, headers);
+      }
+
+      formatRawNumber(value) {
+        if (!Number.isFinite(value)) {
+          return "0";
+        }
+        return String(Number(value.toFixed(4)));
+      }
+
+      getActiveGroups() {
+        return this.groups.filter((group) => group.active);
+      }
+
+      getGroupById(id) {
+        return this.groups.find((group) => group.id === id) || null;
+      }
+
+      addGroup() {
+        const index = this.groups.length + 1;
+        const group = new IqGroup("gruppe_" + index, "Ny gruppe " + index, 100, 15, 1000000, this.defaultColor(index), true);
+        this.groups.push(group);
+        this.save();
+        return group;
+      }
+
+      deleteGroup(id) {
+        this.groups = this.groups.filter((group) => group.id !== id);
+        if (this.groups.length === 0) {
+          this.addGroup();
+        }
+        this.save();
+      }
+
+      updateGroup(id, patch) {
+        const group = this.getGroupById(id);
+        if (!group) {
+          return;
+        }
+        if (Object.prototype.hasOwnProperty.call(patch, "name")) {
+          group.name = String(patch.name || "").trim() || group.name;
+        }
+        if (Object.prototype.hasOwnProperty.call(patch, "mean")) {
+          group.mean = this.parseNumber(patch.mean, group.mean);
+        }
+        if (Object.prototype.hasOwnProperty.call(patch, "sd")) {
+          group.sd = Math.max(0.1, this.parseNumber(patch.sd, group.sd));
+        }
+        if (Object.prototype.hasOwnProperty.call(patch, "population")) {
+          group.population = Math.max(0, this.parseNumber(patch.population, group.population));
+        }
+        if (Object.prototype.hasOwnProperty.call(patch, "color")) {
+          group.color = this.normalizeColor(patch.color, group.color);
+        }
+        if (Object.prototype.hasOwnProperty.call(patch, "active")) {
+          group.active = Boolean(patch.active);
+        }
+        this.save();
+      }
+    }
+
+    class NormalDistribution {
+      static pdf(x, mean, sd) {
+        const z = (x - mean) / sd;
+        return Math.exp(-0.5 * z * z) / (sd * Math.sqrt(2 * Math.PI));
+      }
+
+      static cdf(x, mean, sd) {
+        return 0.5 * (1 + NormalDistribution.erf((x - mean) / (sd * Math.sqrt(2))));
+      }
+
+      static erf(x) {
+        const sign = x >= 0 ? 1 : -1;
+        const absolute = Math.abs(x);
+        const a1 = 0.254829592;
+        const a2 = -0.284496736;
+        const a3 = 1.421413741;
+        const a4 = -1.453152027;
+        const a5 = 1.061405429;
+        const p = 0.3275911;
+        const t = 1 / (1 + p * absolute);
+        const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absolute * absolute);
+        return sign * y;
+      }
+    }
+
+    class IqDistributionModel {
+      constructor(dataStore) {
+        this.dataStore = dataStore;
+      }
+
+      createComponents(options) {
+        const usePopulationWeights = Boolean(options && options.usePopulationWeights);
+        const useSexSplit = Boolean(options && options.useSexSplit);
+        const sexVariancePercent = this.normalizeSexVariancePercent(options && options.sexVariancePercent);
+        const groups = this.dataStore.getActiveGroups();
+        const components = [];
+
+        for (const group of groups) {
+          const baseWeight = usePopulationWeights ? group.population : 1;
+          if (useSexSplit) {
+            const femaleSd = this.getSexAdjustedSd(group.sd, sexVariancePercent, -0.5);
+            const maleSd = this.getSexAdjustedSd(group.sd, sexVariancePercent, 0.5);
+            components.push(this.createComponentFromGroup(group, "female", "kvinder", femaleSd, group.population * 0.5, baseWeight * 0.5, [7, 5]));
+            components.push(this.createComponentFromGroup(group, "male", "mænd", maleSd, group.population * 0.5, baseWeight * 0.5, []));
+          } else {
+            components.push(this.createComponentFromGroup(group, "combined", "samlet", group.sd, group.population, baseWeight, []));
+          }
+        }
+
+        return components;
+      }
+
+      normalizeSexVariancePercent(value) {
+        const number = Number(String(value ?? "0").replace(",", "."));
+        if (!Number.isFinite(number)) {
+          return 0;
+        }
+        return Math.max(0, Math.min(100, number));
+      }
+
+      getSexAdjustedSd(baseSd, sexVariancePercent, halfDirection) {
+        const sd = Number(baseSd || 0);
+        const multiplier = 1 + (sexVariancePercent / 100) * halfDirection;
+        return Math.max(0.1, sd * multiplier);
+      }
+
+      createComponentFromGroup(group, sexId, sexLabel, sd, population, weight, dash) {
+        const isCombined = sexId === "combined";
+        return {
+          id: isCombined ? group.id : group.id + "_" + sexId,
+          groupId: group.id,
+          label: isCombined ? group.name : group.name + " " + sexLabel,
+          groupName: group.name,
+          sex: isCombined ? "Samlet" : sexLabel.charAt(0).toUpperCase() + sexLabel.slice(1),
+          mean: group.mean,
+          sd,
+          population,
+          weight,
+          color: group.color,
+          dash: dash || []
+        };
+      }
+
+      getTotalWeight(components) {
+        return components.reduce((sum, component) => sum + Math.max(0, component.weight), 0);
+      }
+
+      getComponentWeightShare(component, components) {
+        const totalWeight = this.getTotalWeight(components);
+        if (totalWeight <= 0) {
+          return 0;
+        }
+        return Math.max(0, component.weight) / totalWeight;
+      }
+
+      componentPdf(x, component, components, options) {
+        const rawPdf = NormalDistribution.pdf(x, component.mean, component.sd);
+        if (options && options.usePopulationWeights) {
+          return this.getComponentWeightShare(component, components) * rawPdf;
+        }
+        return rawPdf;
+      }
+
+      mixturePdf(x, components) {
+        const totalWeight = this.getTotalWeight(components);
+        if (totalWeight <= 0) {
+          return 0;
+        }
+        return components.reduce((sum, component) => sum + (component.weight / totalWeight) * NormalDistribution.pdf(x, component.mean, component.sd), 0);
+      }
+
+      mixtureCdf(x, components) {
+        const totalWeight = this.getTotalWeight(components);
+        if (totalWeight <= 0) {
+          return 0;
+        }
+        return components.reduce((sum, component) => sum + (component.weight / totalWeight) * NormalDistribution.cdf(x, component.mean, component.sd), 0);
+      }
+
+      componentCdfDisplay(x, component, options) {
+        const cdf = NormalDistribution.cdf(x, component.mean, component.sd);
+        if (options && options.usePopulationWeights) {
+          return Math.max(0, component.population) * cdf;
+        }
+        return cdf;
+      }
+
+      mixtureCdfDisplay(x, components, options) {
+        if (options && options.usePopulationWeights) {
+          return components.reduce((sum, component) => sum + Math.max(0, component.population) * NormalDistribution.cdf(x, component.mean, component.sd), 0);
+        }
+        return this.mixtureCdf(x, components);
+      }
+
+      getCdfDisplayMaxY(components, options) {
+        if (options && options.usePopulationWeights) {
+          const showOverallCurve = !options || options.showOverallCurve !== false;
+          if (showOverallCurve) {
+            const totalPopulation = components.reduce((sum, component) => sum + Math.max(0, component.population), 0);
+            return Math.max(1, totalPopulation);
+          }
+          const maxComponentPopulation = components.reduce((max, component) => Math.max(max, Math.max(0, component.population)), 0);
+          return Math.max(1, maxComponentPopulation);
+        }
+        return 1;
+      }
+
+      getXRange(components, thresholds) {
+        if (components.length === 0) {
+          return { min: 40, max: 160 };
+        }
+        const thresholdValues = (thresholds || []).map((threshold) => threshold.value ?? threshold).filter((value) => Number.isFinite(value));
+        let min = Math.min(...components.map((component) => component.mean - component.sd * 4), ...thresholdValues);
+        let max = Math.max(...components.map((component) => component.mean + component.sd * 4), ...thresholdValues);
+        min = Math.max(0, Math.floor((min - 5) / 5) * 5);
+        max = Math.ceil((max + 5) / 5) * 5;
+        if (max - min < 80) {
+          const center = (min + max) * 0.5;
+          min = Math.max(0, center - 40);
+          max = center + 40;
+        }
+        return { min, max };
+      }
+
+      summarizeThreshold(threshold, options) {
+        const components = this.createComponents(options);
+        const usePopulationWeights = Boolean(options && options.usePopulationWeights);
+        const totalPopulation = components.reduce((sum, component) => sum + component.population, 0);
+        const overallCdf = this.mixtureCdf(threshold, components);
+        const overallAbove = 1 - overallCdf;
+        const overallCountAbove = usePopulationWeights ? totalPopulation * overallAbove : null;
+        const groupRows = components.map((component) => this.summarizeComponentThreshold(component, threshold));
+
+        return {
+          threshold,
+          activeGroupCount: components.length,
+          totalPopulation,
+          overallPercentile: overallCdf,
+          overallAbove,
+          overallCountAbove,
+          groupRows
+        };
+      }
+
+      summarizeComponentThreshold(component, threshold) {
+        const cdf = NormalDistribution.cdf(threshold, component.mean, component.sd);
+        const above = 1 - cdf;
+        return {
+          id: component.id,
+          groupId: component.groupId,
+          name: component.label,
+          mean: component.mean,
+          sd: component.sd,
+          meanLabel: this.formatNumber(component.mean, 1),
+          sdLabel: this.formatNumber(component.sd, 1),
+          population: component.population,
+          percentile: cdf,
+          above,
+          countAbove: component.population * above
+        };
+      }
+
+      formatNumber(value, digits) {
+        return Number(value).toLocaleString("da-DK", {
+          maximumFractionDigits: digits,
+          minimumFractionDigits: 0
+        });
+      }
+    }
+
+    class IqDistributionChart {
+      constructor(canvas, model) {
+        this.canvas = canvas;
+        this.context = canvas.getContext("2d");
+        this.model = model;
+        this.pixelRatio = window.devicePixelRatio || 1;
+        this.options = {
+          threshold: 140,
+          plotMode: "both",
+          usePopulationWeights: true,
+          useSexSplit: false,
+          showOverallCurve: true,
+          useAutoZoom: true,
+          manualMinX: 40,
+          manualMaxX: 160,
+          pdfMinY: 0,
+          pdfMaxY: 0.03,
+          cdfMinY: 0,
+          cdfMaxY: 1,
+          sexVariancePercent: 13.333,
+          selectedGroupId: null
+        };
+        this.onThresholdChange = null;
+        this.onGroupSelect = null;
+        this.isDraggingThreshold = false;
+        this.dragPointerId = null;
+        this.latestComponents = [];
+        this.latestRange = { min: 40, max: 160 };
+        this.latestAreas = { pdf: null, cdf: null };
+        this.latestPlotScales = { pdf: null, cdf: null };
+        this.thresholdHitTolerance = 16;
+        this.componentHitTolerance = 18;
+        this.bindPointerEvents();
+        this.resizeObserver = new ResizeObserver(() => this.resize());
+        this.resizeObserver.observe(this.canvas.parentElement);
+        this.resize();
+      }
+
+      setThresholdChangeHandler(handler) {
+        this.onThresholdChange = typeof handler === "function" ? handler : null;
+      }
+
+      setGroupSelectHandler(handler) {
+        this.onGroupSelect = typeof handler === "function" ? handler : null;
+      }
+
+      setOptions(options) {
+        this.options = { ...this.options, ...options };
+        this.render();
+      }
+
+      bindPointerEvents() {
+        this.canvas.addEventListener("pointerdown", (event) => this.handlePointerDown(event));
+        this.canvas.addEventListener("pointermove", (event) => this.handlePointerMove(event));
+        this.canvas.addEventListener("pointerup", (event) => this.handlePointerUp(event));
+        this.canvas.addEventListener("pointercancel", (event) => this.handlePointerUp(event));
+        this.canvas.addEventListener("pointerleave", (event) => this.handlePointerLeave(event));
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        const width = Math.max(320, Math.floor(rect.width));
+        const height = Math.max(360, Math.floor(rect.height));
+        this.canvas.width = Math.floor(width * this.pixelRatio);
+        this.canvas.height = Math.floor(height * this.pixelRatio);
+        this.canvas.style.width = width + "px";
+        this.canvas.style.height = height + "px";
+        this.context.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+        this.render();
+      }
+
+      render() {
+        const ctx = this.context;
+        const width = this.canvas.width / this.pixelRatio;
+        const height = this.canvas.height / this.pixelRatio;
+        ctx.clearRect(0, 0, width, height);
+        ctx.save();
+        ctx.fillStyle = "rgba(2, 6, 14, 0.10)";
+        ctx.fillRect(0, 0, width, height);
+        ctx.restore();
+
+        const components = this.model.createComponents(this.options);
+        this.latestComponents = components;
+        this.latestPlotScales = { pdf: null, cdf: null };
+        if (components.length === 0) {
+          this.latestAreas = { pdf: null, cdf: null };
+          this.drawEmptyState(ctx, width, height);
+          return;
+        }
+
+        const autoRange = this.model.getXRange(components, [{ value: this.options.threshold }]);
+        const range = this.getXRange(autoRange);
+        const areas = this.getPlotAreas(width, height, this.options.plotMode);
+        this.latestRange = range;
+        this.latestAreas = areas;
+
+        if (this.options.plotMode === "pdf" || this.options.plotMode === "both") {
+          this.drawPdfPlot(ctx, areas.pdf, components, range);
+        }
+        if (this.options.plotMode === "cdf" || this.options.plotMode === "both") {
+          this.drawCdfPlot(ctx, areas.cdf, components, range);
+        }
+      }
+
+      getXRange(autoRange) {
+        if (this.options.useAutoZoom !== false) {
+          return { ...autoRange };
+        }
+        const min = this.readFiniteNumber(this.options.manualMinX, autoRange.min);
+        const max = this.readFiniteNumber(this.options.manualMaxX, autoRange.max);
+        return this.normalizeRange(min, max, autoRange);
+      }
+
+      getPlotYScale(plotType, autoMinY, autoMaxY) {
+        if (this.options.useAutoZoom !== false) {
+          return this.normalizeYScale(autoMinY, autoMaxY);
+        }
+        const minKey = plotType === "cdf" ? "cdfMinY" : "pdfMinY";
+        const maxKey = plotType === "cdf" ? "cdfMaxY" : "pdfMaxY";
+        const minY = this.readFiniteNumber(this.options[minKey], autoMinY);
+        const maxY = this.readFiniteNumber(this.options[maxKey], autoMaxY);
+        return this.normalizeYScale(minY, maxY);
+      }
+
+      readFiniteNumber(value, fallback) {
+        const number = Number(String(value).replace(",", "."));
+        return Number.isFinite(number) ? number : fallback;
+      }
+
+      normalizeRange(min, max, fallback) {
+        if (!Number.isFinite(min) || !Number.isFinite(max)) {
+          return { ...fallback };
+        }
+        if (max <= min) {
+          const span = Math.max(1, Math.abs(min) * 0.05);
+          return { min, max: min + span };
+        }
+        return { min, max };
+      }
+
+      normalizeYScale(minY, maxY) {
+        const normalizedMin = Number.isFinite(minY) ? minY : 0;
+        const normalizedMax = Number.isFinite(maxY) ? maxY : normalizedMin + 1;
+        if (normalizedMax <= normalizedMin) {
+          const span = Math.max(0.001, Math.abs(normalizedMin) * 0.05);
+          return { minY: normalizedMin, maxY: normalizedMin + span };
+        }
+        return { minY: normalizedMin, maxY: normalizedMax };
+      }
+
+      getPlotAreas(width, height, mode) {
+        const leftMargin = this.options.usePopulationWeights ? 104 : 58;
+        const margin = { left: leftMargin, right: 28, top: 30, bottom: 44 };
+        if (mode === "both") {
+          const gap = 44;
+          const areaHeight = (height - margin.top - margin.bottom - gap) / 2;
+          return {
+            pdf: { x: margin.left, y: margin.top, width: width - margin.left - margin.right, height: areaHeight, title: "PDF" },
+            cdf: { x: margin.left, y: margin.top + areaHeight + gap, width: width - margin.left - margin.right, height: areaHeight, title: "CDF" }
+          };
+        }
+        const area = { x: margin.left, y: margin.top, width: width - margin.left - margin.right, height: height - margin.top - margin.bottom, title: mode.toUpperCase() };
+        return mode === "pdf" ? { pdf: area, cdf: null } : { pdf: null, cdf: area };
+      }
+
+      drawEmptyState(ctx, width, height) {
+        ctx.save();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.72)";
+        ctx.font = "900 22px Inter, system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Ingen aktive grupper", width * 0.5, height * 0.5 - 12);
+        ctx.fillStyle = "rgba(154, 167, 188, 0.95)";
+        ctx.font = "13px Inter, system-ui, sans-serif";
+        ctx.fillText("Slå mindst én gruppe til for at vise PDF og CDF.", width * 0.5, height * 0.5 + 18);
+        ctx.restore();
+      }
+
+      drawPdfPlot(ctx, area, components, range) {
+        if (!area) {
+          return;
+        }
+        const autoMaxPdf = this.findMaxPdf(components, range);
+        const scale = this.getPlotYScale("pdf", 0, autoMaxPdf);
+        this.latestPlotScales.pdf = scale;
+        this.drawGrid(ctx, area, range, scale.minY, scale.maxY, "PDF");
+        this.drawThreshold(ctx, area, range, this.options.threshold, "PDF");
+        this.drawComponentFunctions(ctx, area, components, range, scale.minY, scale.maxY, "pdf");
+        if (this.options.showOverallCurve) {
+          this.drawFunction(ctx, area, range, scale.minY, scale.maxY, "#ffffff", [], (x) => this.model.mixturePdf(x, components), 3.4, 0.92);
+        }
+      }
+
+      drawCdfPlot(ctx, area, components, range) {
+        if (!area) {
+          return;
+        }
+        const autoMaxCdf = this.model.getCdfDisplayMaxY(components, this.options);
+        const scale = this.getPlotYScale("cdf", 0, autoMaxCdf);
+        this.latestPlotScales.cdf = scale;
+        this.drawGrid(ctx, area, range, scale.minY, scale.maxY, "CDF");
+        this.drawThreshold(ctx, area, range, this.options.threshold, "CDF");
+        this.drawComponentFunctions(ctx, area, components, range, scale.minY, scale.maxY, "cdf");
+        if (this.options.showOverallCurve) {
+          this.drawFunction(ctx, area, range, scale.minY, scale.maxY, "#ffffff", [], (x) => this.model.mixtureCdfDisplay(x, components, this.options), 3.4, 0.92);
+        }
+        this.drawSelectedCdfIntersections(ctx, area, components, range, scale);
+      }
+
+      drawComponentFunctions(ctx, area, components, range, minY, maxY, plotType) {
+        const selected = this.getSelectedComponents(components);
+        const selectedIds = new Set(selected.map((component) => component.id));
+        for (const component of components) {
+          if (selectedIds.has(component.id)) {
+            continue;
+          }
+          this.drawFunction(ctx, area, range, minY, maxY, component.color, component.dash, (x) => this.getComponentY(x, component, components, plotType), 2, 0.70);
+        }
+        for (const component of selected) {
+          this.drawFunction(ctx, area, range, minY, maxY, component.color, component.dash, (x) => this.getComponentY(x, component, components, plotType), 4, 1);
+        }
+      }
+
+      drawSelectedCdfIntersections(ctx, area, components, range, scale) {
+        const selected = this.getSelectedComponents(components);
+        if (selected.length === 0) {
+          return;
+        }
+        const threshold = this.options.threshold;
+        const px = this.mapX(threshold, area, range);
+        if (px < area.x || px > area.x + area.width) {
+          return;
+        }
+        const placements = this.createCdfIntersectionLabelPlacements(selected, threshold, area, range, scale);
+        ctx.save();
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.font = "900 11px Inter, system-ui, sans-serif";
+        for (const placement of placements) {
+          const component = placement.component;
+          ctx.fillStyle = component.color;
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(px, placement.pointY, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          if (Math.abs(placement.labelY - placement.pointY) > 2) {
+            ctx.save();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.38)";
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(px + 7, placement.pointY);
+            ctx.lineTo(placement.labelX - 4, placement.labelY);
+            ctx.stroke();
+            ctx.restore();
+          }
+          ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+          ctx.fillText(placement.text, placement.labelX, placement.labelY);
+        }
+        ctx.restore();
+      }
+
+      createCdfIntersectionLabelPlacements(selected, threshold, area, range, scale) {
+        const minimumLabelDistance = 17;
+        const labelPadding = 8;
+        const labelX = Math.min(this.mapX(threshold, area, range) + 10, area.x + area.width - 190);
+        const placements = selected.map((component) => {
+          const cdfValue = this.model.componentCdfDisplay(threshold, component, this.options);
+          const pointY = this.mapY(cdfValue, area, scale.minY, scale.maxY);
+          return {
+            component,
+            cdfValue,
+            pointY,
+            labelY: pointY,
+            labelX,
+            text: component.label + " " + this.formatCdfValue(cdfValue)
+          };
+        }).sort((left, right) => left.pointY - right.pointY);
+
+        if (placements.length <= 1) {
+          return placements;
+        }
+
+        for (let index = 1; index < placements.length; index += 1) {
+          const previous = placements[index - 1];
+          const current = placements[index];
+          if (current.labelY - previous.labelY < minimumLabelDistance) {
+            current.labelY = previous.labelY + minimumLabelDistance;
+          }
+        }
+
+        const lowerBound = area.y + area.height - labelPadding;
+        const overflow = placements[placements.length - 1].labelY - lowerBound;
+        if (overflow > 0) {
+          for (const placement of placements) {
+            placement.labelY -= overflow;
+          }
+        }
+
+        const upperBound = area.y + labelPadding;
+        const underflow = upperBound - placements[0].labelY;
+        if (underflow > 0) {
+          for (const placement of placements) {
+            placement.labelY += underflow;
+          }
+        }
+
+        return placements;
+      }
+
+      getSelectedComponents(components) {
+        const selectedGroupId = this.options.selectedGroupId;
+        if (!selectedGroupId) {
+          return [];
+        }
+        return components.filter((component) => component.groupId === selectedGroupId);
+      }
+
+      getComponentY(x, component, components, plotType) {
+        if (plotType === "pdf") {
+          return this.model.componentPdf(x, component, components, this.options);
+        }
+        return this.model.componentCdfDisplay(x, component, this.options);
+      }
+
+      findMaxPdf(components, range) {
+        let maxPdf = 0;
+        const steps = 260;
+        const showOverallCurve = this.options.showOverallCurve !== false;
+        for (let index = 0; index <= steps; index += 1) {
+          const x = range.min + (range.max - range.min) * (index / steps);
+          if (showOverallCurve) {
+            maxPdf = Math.max(maxPdf, this.model.mixturePdf(x, components));
+          }
+          for (const component of components) {
+            maxPdf = Math.max(maxPdf, this.model.componentPdf(x, component, components, this.options));
+          }
+        }
+        return Math.max(0.01, maxPdf * 1.12);
+      }
+
+      drawGrid(ctx, area, range, minY, maxY, label) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.10)";
+        ctx.lineWidth = 1;
+        ctx.fillStyle = "rgba(154, 167, 188, 0.95)";
+        ctx.font = "12px Inter, system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+
+        const xStep = this.chooseXStep(range.max - range.min);
+        const firstX = Math.ceil(range.min / xStep) * xStep;
+        for (let x = firstX; x <= range.max; x += xStep) {
+          const px = this.mapX(x, area, range);
+          ctx.beginPath();
+          ctx.moveTo(px, area.y);
+          ctx.lineTo(px, area.y + area.height);
+          ctx.stroke();
+          ctx.fillText(String(Math.round(x)), px, area.y + area.height + 10);
+        }
+
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        const isCdf = label === "CDF";
+        const yTicks = [0, 0.25, 0.5, 0.75, 1].map((share) => minY + (maxY - minY) * share);
+        for (const y of yTicks) {
+          const py = this.mapY(y, area, minY, maxY);
+          ctx.beginPath();
+          ctx.moveTo(area.x, py);
+          ctx.lineTo(area.x + area.width, py);
+          ctx.stroke();
+          const text = isCdf ? this.formatCdfValue(y) : y.toFixed(3);
+          ctx.fillText(text, area.x - 9, py);
+        }
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.24)";
+        ctx.strokeRect(area.x, area.y, area.width, area.height);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
+        ctx.font = "900 13px Inter, system-ui, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        const displayLabel = label === "CDF" && this.options.usePopulationWeights ? "CDF, befolkning" : label;
+        ctx.fillText(displayLabel, area.x, area.y - 10);
+        ctx.restore();
+      }
+
+      chooseXStep(width) {
+        if (width <= 80) {
+          return 10;
+        }
+        if (width <= 150) {
+          return 20;
+        }
+        return 25;
+      }
+
+      drawThreshold(ctx, area, range, threshold, label) {
+        const px = this.mapX(threshold, area, range);
+        if (px < area.x || px > area.x + area.width) {
+          return;
+        }
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 193, 77, 0.92)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([7, 5]);
+        ctx.beginPath();
+        ctx.moveTo(px, area.y);
+        ctx.lineTo(px, area.y + area.height);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "rgba(255, 193, 77, 0.96)";
+        ctx.font = "900 12px Inter, system-ui, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillText("IQ " + Number(threshold).toLocaleString("da-DK", { maximumFractionDigits: 1 }), px + 7, area.y + 7);
+        ctx.restore();
+      }
+
+      drawFunction(ctx, area, range, minY, maxY, color, dash, fn, lineWidth, alpha) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = alpha || 0.82;
+        ctx.lineWidth = lineWidth || 2;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.setLineDash(dash || []);
+        ctx.beginPath();
+        const steps = 420;
+        for (let index = 0; index <= steps; index += 1) {
+          const x = range.min + (range.max - range.min) * (index / steps);
+          const y = fn(x);
+          const px = this.mapX(x, area, range);
+          const py = this.mapY(y, area, minY, maxY);
+          if (index === 0) {
+            ctx.moveTo(px, py);
+          } else {
+            ctx.lineTo(px, py);
+          }
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      handlePointerDown(event) {
+        const point = this.getCanvasPoint(event);
+        const thresholdHit = this.getThresholdHit(point);
+        if (thresholdHit) {
+          event.preventDefault();
+          this.isDraggingThreshold = true;
+          this.dragPointerId = event.pointerId;
+          this.canvas.classList.add("dragging-threshold");
+          this.canvas.setPointerCapture(event.pointerId);
+          this.updateThresholdFromPoint(point, thresholdHit.area, thresholdHit.range);
+          return;
+        }
+        const componentHit = this.getComponentHit(point);
+        if (componentHit) {
+          event.preventDefault();
+          this.selectGroupFromChart(componentHit.component.groupId);
+        }
+      }
+
+      handlePointerMove(event) {
+        const point = this.getCanvasPoint(event);
+        if (this.isDraggingThreshold && this.dragPointerId === event.pointerId) {
+          event.preventDefault();
+          const area = this.getAreaAtPoint(point);
+          const activeArea = area || this.getFirstVisibleArea();
+          if (activeArea) {
+            this.updateThresholdFromPoint(point, activeArea, this.latestRange);
+          }
+          return;
+        }
+        const thresholdHit = this.getThresholdHit(point);
+        if (thresholdHit) {
+          this.canvas.style.cursor = "ew-resize";
+          return;
+        }
+        const componentHit = this.getComponentHit(point);
+        this.canvas.style.cursor = componentHit ? "pointer" : "crosshair";
+      }
+
+      handlePointerUp(event) {
+        if (!this.isDraggingThreshold || this.dragPointerId !== event.pointerId) {
+          return;
+        }
+        event.preventDefault();
+        this.isDraggingThreshold = false;
+        this.dragPointerId = null;
+        this.canvas.classList.remove("dragging-threshold");
+        this.canvas.style.cursor = "crosshair";
+        try {
+          this.canvas.releasePointerCapture(event.pointerId);
+        } catch (error) {
+          // Pointer capture may already be released by the browser.
+        }
+      }
+
+      handlePointerLeave(event) {
+        if (!this.isDraggingThreshold) {
+          this.canvas.style.cursor = "crosshair";
+        }
+      }
+
+      getCanvasPoint(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top
+        };
+      }
+
+      getThresholdHit(point) {
+        const area = this.getAreaAtPoint(point);
+        if (!area || this.latestComponents.length === 0) {
+          return null;
+        }
+        const px = this.mapX(this.options.threshold, area, this.latestRange);
+        if (Math.abs(point.x - px) > this.thresholdHitTolerance) {
+          return null;
+        }
+        return { area, range: this.latestRange };
+      }
+
+      getComponentHit(point) {
+        const area = this.getAreaAtPoint(point);
+        if (!area || this.latestComponents.length === 0) {
+          return null;
+        }
+        const plotType = this.getPlotTypeForArea(area);
+        const scale = this.latestPlotScales[plotType];
+        if (!plotType || !scale) {
+          return null;
+        }
+        const xValue = this.unmapX(point.x, area, this.latestRange);
+        if (!Number.isFinite(xValue) || xValue < this.latestRange.min || xValue > this.latestRange.max) {
+          return null;
+        }
+        let best = null;
+        for (const component of this.latestComponents) {
+          const yValue = this.getComponentY(xValue, component, this.latestComponents, plotType);
+          const py = this.mapY(yValue, area, scale.minY, scale.maxY);
+          const distance = Math.abs(point.y - py);
+          if (!best || distance < best.distance) {
+            best = { component, distance };
+          }
+        }
+        if (!best || best.distance > this.componentHitTolerance) {
+          return null;
+        }
+        return best;
+      }
+
+      getPlotTypeForArea(area) {
+        if (this.latestAreas.pdf === area) {
+          return "pdf";
+        }
+        if (this.latestAreas.cdf === area) {
+          return "cdf";
+        }
+        return null;
+      }
+
+      selectGroupFromChart(groupId) {
+        if (!groupId || !this.onGroupSelect) {
+          return;
+        }
+        this.onGroupSelect(groupId);
+      }
+
+      getAreaAtPoint(point) {
+        const areas = [this.latestAreas.pdf, this.latestAreas.cdf].filter(Boolean);
+        for (const area of areas) {
+          if (point.x >= area.x && point.x <= area.x + area.width && point.y >= area.y && point.y <= area.y + area.height) {
+            return area;
+          }
+        }
+        return null;
+      }
+
+      getFirstVisibleArea() {
+        return this.latestAreas.pdf || this.latestAreas.cdf || null;
+      }
+
+      updateThresholdFromPoint(point, area, range) {
+        const rawValue = this.unmapX(point.x, area, range);
+        const threshold = this.clamp(Math.round(rawValue * 10) / 10, 0, 200);
+        if (!Number.isFinite(threshold)) {
+          return;
+        }
+        if (this.onThresholdChange) {
+          this.onThresholdChange(threshold);
+        }
+      }
+
+      unmapX(pixel, area, range) {
+        return range.min + ((pixel - area.x) / area.width) * (range.max - range.min);
+      }
+
+      mapX(value, area, range) {
+        return area.x + ((value - range.min) / (range.max - range.min)) * area.width;
+      }
+
+      mapY(value, area, minY, maxY) {
+        return area.y + area.height - ((value - minY) / (maxY - minY)) * area.height;
+      }
+
+      clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      formatCdfValue(value) {
+        if (this.options.usePopulationWeights) {
+          return this.formatLargeNumber(value);
+        }
+        return this.formatPercent(value, 1);
+      }
+
+      formatPercent(value, digits) {
+        return (Number(value || 0) * 100).toLocaleString("da-DK", {
+          maximumFractionDigits: digits,
+          minimumFractionDigits: 0
+        }) + "%";
+      }
+
+      formatLargeNumber(value) {
+        const number = Math.round(Number(value || 0));
+        return number.toLocaleString("da-DK", {
+          maximumFractionDigits: 0
+        });
+      }
+    }
+
+    class CollapsibleSectionController {
+      constructor(root) {
+        this.root = root;
+      }
+
+      initialize() {
+        const sections = Array.from(this.root.querySelectorAll(".panel-inner"));
+        for (const section of sections) {
+          this.initializeSection(section);
+        }
+      }
+
+      initializeSection(section) {
+        if (section.classList.contains("collapsible-section")) {
+          return;
+        }
+        const title = section.querySelector(":scope > .section-title");
+        if (!title) {
+          return;
+        }
+
+        const header = document.createElement("div");
+        header.className = "collapsible-section-header";
+
+        const toggle = document.createElement("button");
+        toggle.className = "collapsible-section-toggle";
+        toggle.type = "button";
+        toggle.textContent = "▾";
+        toggle.setAttribute("aria-label", "Kollapsér sektion");
+
+        const body = document.createElement("div");
+        body.className = "collapsible-section-body";
+
+        section.insertBefore(header, title);
+        header.appendChild(title);
+        header.appendChild(toggle);
+
+        while (header.nextSibling) {
+          body.appendChild(header.nextSibling);
+        }
+        section.appendChild(body);
+        section.classList.add("collapsible-section");
+
+        toggle.addEventListener("click", () => {
+          const collapsed = !section.classList.contains("collapsed");
+          section.classList.toggle("collapsed", collapsed);
+          toggle.textContent = collapsed ? "▸" : "▾";
+          toggle.setAttribute("aria-label", collapsed ? "Udvid sektion" : "Kollapsér sektion");
+        });
+      }
+    }
+
+    class IqDistributionApp {
+      constructor() {
+        this.dataStore = new IqDataStore();
+        this.dataStore.initialize();
+        this.model = new IqDistributionModel(this.dataStore);
+        this.elements = this.queryElements();
+        this.collapsibleSections = new CollapsibleSectionController(document);
+        this.collapsibleSections.initialize();
+        this.chart = new IqDistributionChart(this.elements.distributionCanvas, this.model);
+        this.collapsedGroupIds = new Set();
+        this.state = {
+          threshold: 140,
+          plotMode: "both",
+          usePopulationWeights: true,
+          useSexSplit: false,
+          showOverallCurve: true,
+          useAutoZoom: true,
+          manualMinX: 40,
+          manualMaxX: 160,
+          pdfMinY: 0,
+          pdfMaxY: 0.03,
+          cdfMinY: 0,
+          cdfMaxY: 1,
+          sexVariancePercent: 13.333,
+          selectedGroupId: this.getInitialSelectedGroupId(),
+          resultSortKey: "name",
+          resultSortDirection: "asc"
+        };
+        this.chart.setThresholdChangeHandler((threshold) => this.setThresholdFromChart(threshold));
+        this.chart.setGroupSelectHandler((groupId) => this.selectGroup(groupId));
+        this.bindEvents();
+        this.render();
+      }
+
+      queryElements() {
+        return {
+          groupList: document.getElementById("groupList"),
+          thresholdList: document.getElementById("thresholdList"),
+          thresholdInput: document.getElementById("thresholdInput"),
+          sexVarianceInput: document.getElementById("sexVarianceInput"),
+          plotModeSelect: document.getElementById("plotModeSelect"),
+          populationToggle: document.getElementById("populationToggle"),
+          sexSplitToggle: document.getElementById("sexSplitToggle"),
+          overallCurveToggle: document.getElementById("overallCurveToggle"),
+          autoZoomToggle: document.getElementById("autoZoomToggle"),
+          manualZoomPanel: document.getElementById("manualZoomPanel"),
+          pdfMinYInput: document.getElementById("pdfMinYInput"),
+          pdfMaxYInput: document.getElementById("pdfMaxYInput"),
+          cdfMinYInput: document.getElementById("cdfMinYInput"),
+          cdfMaxYInput: document.getElementById("cdfMaxYInput"),
+          manualMinXInput: document.getElementById("manualMinXInput"),
+          manualMaxXInput: document.getElementById("manualMaxXInput"),
+          distributionCanvas: document.getElementById("distributionCanvas"),
+          legend: document.getElementById("legend"),
+          activeGroupCount: document.getElementById("activeGroupCount"),
+          overallPercentile: document.getElementById("overallPercentile"),
+          overallAbove: document.getElementById("overallAbove"),
+          resultTableBody: document.getElementById("resultTableBody"),
+          resultSortButtons: Array.from(document.querySelectorAll("[data-result-sort]")),
+          addGroupButton: document.getElementById("addGroupButton"),
+          exportCsvButton: document.getElementById("exportCsvButton"),
+          resetButton: document.getElementById("resetButton"),
+          collapseAllGroupsButton: document.getElementById("collapseAllGroupsButton"),
+          expandAllGroupsButton: document.getElementById("expandAllGroupsButton"),
+          selectAllGroupsButton: document.getElementById("selectAllGroupsButton"),
+          deselectAllGroupsButton: document.getElementById("deselectAllGroupsButton"),
+          csvTextArea: document.getElementById("csvTextArea"),
+          applyCsvButton: document.getElementById("applyCsvButton"),
+          csvFileInput: document.getElementById("csvFileInput")
+        };
+      }
+
+      bindEvents() {
+        this.elements.addGroupButton.addEventListener("click", () => {
+          const group = this.dataStore.addGroup();
+          this.state.selectedGroupId = group.id;
+          this.render();
+        });
+
+        this.elements.exportCsvButton.addEventListener("click", () => {
+          this.downloadCsv();
+        });
+
+        this.elements.resetButton.addEventListener("click", () => {
+          this.dataStore.reset();
+          this.collapsedGroupIds.clear();
+          this.state.threshold = 140;
+          this.state.sexVariancePercent = 13.333;
+          this.state.showOverallCurve = true;
+          this.state.useAutoZoom = true;
+          this.state.manualMinX = 40;
+          this.state.manualMaxX = 160;
+          this.state.pdfMinY = 0;
+          this.state.pdfMaxY = 0.03;
+          this.state.cdfMinY = 0;
+          this.state.cdfMaxY = 1;
+          this.state.selectedGroupId = this.getInitialSelectedGroupId();
+          this.elements.thresholdInput.value = "140";
+          this.elements.sexVarianceInput.value = "13.333";
+          this.elements.overallCurveToggle.checked = true;
+          this.elements.autoZoomToggle.checked = true;
+          this.render();
+        });
+
+        this.elements.collapseAllGroupsButton.addEventListener("click", () => this.collapseAllGroups());
+        this.elements.expandAllGroupsButton.addEventListener("click", () => this.expandAllGroups());
+        this.elements.selectAllGroupsButton.addEventListener("click", () => this.setAllGroupsActive(true));
+        this.elements.deselectAllGroupsButton.addEventListener("click", () => this.setAllGroupsActive(false));
+
+        for (const button of this.elements.resultSortButtons) {
+          button.addEventListener("click", () => this.setResultSort(button.dataset.resultSort));
+        }
+
+        this.elements.thresholdInput.addEventListener("input", () => {
+          this.state.threshold = this.readNumber(this.elements.thresholdInput.value, this.state.threshold);
+          this.renderChartAndResults();
+        });
+
+        this.elements.sexVarianceInput.addEventListener("input", () => {
+          this.state.sexVariancePercent = this.clamp(this.readNumber(this.elements.sexVarianceInput.value, this.state.sexVariancePercent), 0, 100);
+          this.renderChartAndResults();
+        });
+
+        this.elements.plotModeSelect.addEventListener("change", () => {
+          this.state.plotMode = this.elements.plotModeSelect.value;
+          this.renderChartAndResults();
+        });
+
+        this.elements.populationToggle.addEventListener("change", () => {
+          this.state.usePopulationWeights = this.elements.populationToggle.checked;
+          this.renderChartAndResults();
+        });
+
+        this.elements.sexSplitToggle.addEventListener("change", () => {
+          this.state.useSexSplit = this.elements.sexSplitToggle.checked;
+          this.renderChartAndResults();
+        });
+
+        this.elements.overallCurveToggle.addEventListener("change", () => {
+          this.state.showOverallCurve = this.elements.overallCurveToggle.checked;
+          this.renderChartAndResults();
+        });
+
+        this.elements.autoZoomToggle.addEventListener("change", () => {
+          if (!this.elements.autoZoomToggle.checked) {
+            this.captureCurrentZoomForManualInputs();
+          }
+          this.state.useAutoZoom = this.elements.autoZoomToggle.checked;
+          this.syncSettingsInputs();
+          this.renderChartAndResults();
+        });
+
+        this.bindManualZoomInput(this.elements.pdfMinYInput, "pdfMinY");
+        this.bindManualZoomInput(this.elements.pdfMaxYInput, "pdfMaxY");
+        this.bindManualZoomInput(this.elements.cdfMinYInput, "cdfMinY");
+        this.bindManualZoomInput(this.elements.cdfMaxYInput, "cdfMaxY");
+        this.bindManualZoomInput(this.elements.manualMinXInput, "manualMinX");
+        this.bindManualZoomInput(this.elements.manualMaxXInput, "manualMaxX");
+
+        document.querySelectorAll("[data-threshold]").forEach((button) => {
+          button.addEventListener("click", () => {
+            this.state.threshold = this.readNumber(button.dataset.threshold, this.state.threshold);
+            this.elements.thresholdInput.value = String(this.state.threshold);
+            this.renderChartAndResults();
+          });
+        });
+
+        this.elements.applyCsvButton.addEventListener("click", () => {
+          this.applyCsvText();
+        });
+
+        this.elements.csvFileInput.addEventListener("change", (event) => {
+          this.readCsvFile(event);
+        });
+      }
+
+      bindManualZoomInput(input, stateKey) {
+        if (!input || !stateKey) {
+          return;
+        }
+        input.addEventListener("input", () => {
+          this.state[stateKey] = this.readNumber(input.value, this.state[stateKey]);
+          this.renderChartAndResults();
+        });
+      }
+
+      captureCurrentZoomForManualInputs() {
+        const components = this.model.createComponents(this.state);
+        const autoRange = components.length > 0 ? this.model.getXRange(components, [{ value: this.state.threshold }]) : { min: 40, max: 160 };
+        const pdfScale = this.chart.latestPlotScales.pdf || {
+          minY: 0,
+          maxY: components.length > 0 ? this.chart.findMaxPdf(components, autoRange) : 0.03
+        };
+        const cdfScale = this.chart.latestPlotScales.cdf || {
+          minY: 0,
+          maxY: components.length > 0 ? this.model.getCdfDisplayMaxY(components, this.state) : 1
+        };
+        this.state.manualMinX = this.roundZoomValue(autoRange.min);
+        this.state.manualMaxX = this.roundZoomValue(autoRange.max);
+        this.state.pdfMinY = this.roundZoomValue(pdfScale.minY);
+        this.state.pdfMaxY = this.roundZoomValue(pdfScale.maxY);
+        this.state.cdfMinY = this.roundZoomValue(cdfScale.minY);
+        this.state.cdfMaxY = this.roundZoomValue(cdfScale.maxY);
+      }
+
+      roundZoomValue(value) {
+        const number = Number(value || 0);
+        if (Math.abs(number) >= 1000) {
+          return Math.round(number);
+        }
+        if (Math.abs(number) >= 1) {
+          return Number(number.toFixed(3));
+        }
+        return Number(number.toPrecision(4));
+      }
+
+      render() {
+        this.ensureSelectedGroupIsValid();
+        this.syncSettingsInputs();
+        this.renderGroups();
+        this.renderThresholds();
+        this.renderCsvText();
+        this.renderChartAndResults();
+      }
+
+      renderGroups() {
+        this.elements.groupList.innerHTML = "";
+        for (const group of this.dataStore.groups) {
+          this.elements.groupList.appendChild(this.createGroupCard(group));
+        }
+      }
+
+      createGroupCard(group) {
+        const card = document.createElement("div");
+        const isCollapsed = this.collapsedGroupIds.has(group.id);
+        const isSelected = this.state.selectedGroupId === group.id;
+        card.className = "group-card" + (isCollapsed ? " collapsed" : "") + (isSelected ? " selected" : "");
+        card.dataset.groupId = group.id;
+        card.title = "Klik for at vælge gruppen";
+        card.addEventListener("click", (event) => {
+          if (event.target.closest(".group-collapse-button, .active-checkbox, .color-input, .small-danger")) {
+            return;
+          }
+          this.selectGroup(group.id);
+        });
+
+        const top = document.createElement("div");
+        top.className = "group-top";
+
+        const collapse = document.createElement("button");
+        collapse.className = "group-collapse-button";
+        collapse.type = "button";
+        collapse.textContent = isCollapsed ? "▸" : "▾";
+        collapse.title = isCollapsed ? "Udvid gruppe" : "Kollapsér gruppe";
+        collapse.addEventListener("click", () => {
+          this.toggleGroupCollapsed(group.id);
+        });
+
+        const active = document.createElement("input");
+        active.className = "active-checkbox";
+        active.type = "checkbox";
+        active.checked = group.active;
+        active.title = "Aktiv";
+        active.addEventListener("change", () => {
+          this.updateGroup(group.id, { active: active.checked });
+          if (active.checked) {
+            this.selectGroup(group.id);
+          } else {
+            this.ensureSelectedGroupIsValid();
+          }
+        });
+
+        const name = document.createElement("input");
+        name.className = "group-name-input";
+        name.type = "text";
+        name.value = group.name;
+        name.addEventListener("focus", () => this.selectGroup(group.id));
+        name.addEventListener("change", () => this.updateGroup(group.id, { name: name.value }));
+
+        const color = document.createElement("input");
+        color.className = "color-input";
+        color.type = "color";
+        color.value = group.color;
+        color.addEventListener("input", () => this.updateGroup(group.id, { color: color.value }, false));
+        color.addEventListener("change", () => this.updateGroup(group.id, { color: color.value }));
+
+        top.appendChild(collapse);
+        top.appendChild(active);
+        top.appendChild(name);
+        top.appendChild(color);
+
+        const body = document.createElement("div");
+        body.className = "group-body";
+
+        const grid = document.createElement("div");
+        grid.className = "group-grid";
+        grid.appendChild(this.createNumberField("Mean", group.mean, (value) => this.updateGroup(group.id, { mean: value })));
+        grid.appendChild(this.createNumberField("SD", group.sd, (value) => this.updateGroup(group.id, { sd: value })));
+        grid.appendChild(this.createNumberField("Befolkning", group.population, (value) => this.updateGroup(group.id, { population: value })));
+
+        const remove = document.createElement("button");
+        remove.className = "small-danger";
+        remove.type = "button";
+        remove.textContent = "Slet gruppe";
+        remove.addEventListener("click", () => {
+          this.collapsedGroupIds.delete(group.id);
+          this.dataStore.deleteGroup(group.id);
+          if (this.state.selectedGroupId === group.id) {
+            this.state.selectedGroupId = this.getInitialSelectedGroupId();
+          }
+          this.render();
+        });
+
+        body.appendChild(grid);
+        body.appendChild(remove);
+        card.appendChild(top);
+        card.appendChild(body);
+        return card;
+      }
+
+      toggleGroupCollapsed(groupId) {
+        if (this.collapsedGroupIds.has(groupId)) {
+          this.collapsedGroupIds.delete(groupId);
+        } else {
+          this.collapsedGroupIds.add(groupId);
+        }
+        this.renderGroups();
+      }
+
+      collapseAllGroups() {
+        this.collapsedGroupIds = new Set(this.dataStore.groups.map((group) => group.id));
+        this.renderGroups();
+      }
+
+      expandAllGroups() {
+        this.collapsedGroupIds.clear();
+        this.renderGroups();
+      }
+
+      setAllGroupsActive(active) {
+        for (const group of this.dataStore.groups) {
+          this.dataStore.updateGroup(group.id, { active });
+        }
+        this.state.selectedGroupId = this.getInitialSelectedGroupId();
+        this.renderGroups();
+        this.renderCsvText();
+        this.renderChartAndResults();
+      }
+
+      createNumberField(labelText, value, onChange) {
+        const field = document.createElement("div");
+        field.className = "field";
+        const label = document.createElement("label");
+        label.textContent = labelText;
+        const input = document.createElement("input");
+        input.type = "number";
+        input.step = labelText === "Befolkning" ? "1" : "0.1";
+        input.value = String(value);
+        input.addEventListener("change", () => onChange(input.value));
+        field.appendChild(label);
+        field.appendChild(input);
+        return field;
+      }
+
+      updateGroup(id, patch, rerenderGroups) {
+        this.dataStore.updateGroup(id, patch);
+        if (rerenderGroups !== false) {
+          this.renderGroups();
+        }
+        this.renderCsvText();
+        this.renderChartAndResults();
+      }
+
+      selectGroup(groupId) {
+        if (!groupId || !this.dataStore.getGroupById(groupId)) {
+          return;
+        }
+        this.state.selectedGroupId = groupId;
+        this.renderGroups();
+        this.renderChartAndResults();
+      }
+
+      ensureSelectedGroupIsValid() {
+        if (this.state.selectedGroupId && this.dataStore.getGroupById(this.state.selectedGroupId)) {
+          return;
+        }
+        this.state.selectedGroupId = this.getInitialSelectedGroupId();
+      }
+
+      getInitialSelectedGroupId() {
+        const activeGroup = this.dataStore.getActiveGroups()[0];
+        if (activeGroup) {
+          return activeGroup.id;
+        }
+        return this.dataStore.groups[0] ? this.dataStore.groups[0].id : null;
+      }
+
+      syncSettingsInputs() {
+        this.elements.thresholdInput.value = String(this.state.threshold);
+        this.elements.sexVarianceInput.value = String(Number(this.state.sexVariancePercent.toFixed(3)));
+        this.elements.plotModeSelect.value = this.state.plotMode;
+        this.elements.populationToggle.checked = this.state.usePopulationWeights;
+        this.elements.sexSplitToggle.checked = this.state.useSexSplit;
+        this.elements.overallCurveToggle.checked = this.state.showOverallCurve;
+        this.elements.autoZoomToggle.checked = this.state.useAutoZoom;
+        this.elements.pdfMinYInput.value = String(this.state.pdfMinY);
+        this.elements.pdfMaxYInput.value = String(this.state.pdfMaxY);
+        this.elements.cdfMinYInput.value = String(this.state.cdfMinY);
+        this.elements.cdfMaxYInput.value = String(this.state.cdfMaxY);
+        this.elements.manualMinXInput.value = String(this.state.manualMinX);
+        this.elements.manualMaxXInput.value = String(this.state.manualMaxX);
+        this.elements.manualZoomPanel.classList.toggle("hidden", this.state.useAutoZoom);
+      }
+
+      renderThresholds() {
+        document.querySelectorAll("[data-threshold]").forEach((button) => {
+          const buttonThreshold = this.readNumber(button.dataset.threshold, NaN);
+          button.classList.toggle("active", Number(buttonThreshold) === Number(this.state.threshold));
+        });
+      }
+
+      renderCsvText() {
+        this.elements.csvTextArea.value = this.dataStore.exportToCsvText();
+      }
+
+      renderChartAndResults() {
+        this.ensureSelectedGroupIsValid();
+        this.renderThresholds();
+        this.chart.setOptions(this.state);
+        this.renderLegend();
+        this.renderSummary();
+      }
+
+      renderLegend() {
+        const components = this.model.createComponents(this.state);
+        this.elements.legend.innerHTML = "";
+        for (const component of components) {
+          const span = document.createElement("span");
+          const lineType = component.dash && component.dash.length > 0 ? " stiplet" : "";
+          const selectedClass = component.groupId === this.state.selectedGroupId ? " selected" : "";
+          span.className = "legend-item" + selectedClass;
+          span.innerHTML = `<span class="dot" style="background:${component.color};color:${component.color};"></span>${this.escapeHtml(component.label)}${lineType}`;
+          this.elements.legend.appendChild(span);
+        }
+        if (this.state.showOverallCurve) {
+          const total = document.createElement("span");
+          total.className = "legend-item";
+          total.innerHTML = `<span class="dot" style="background:#ffffff;color:#ffffff;"></span>Samlet kurve`;
+          this.elements.legend.appendChild(total);
+        }
+      }
+
+      renderSummary() {
+        const summary = this.model.summarizeThreshold(this.state.threshold, this.state);
+        this.elements.activeGroupCount.textContent = String(summary.activeGroupCount);
+        this.elements.overallPercentile.textContent = this.formatPercent(summary.overallPercentile, 2);
+        if (this.state.usePopulationWeights) {
+          this.elements.overallAbove.textContent = this.formatPercent(summary.overallAbove, 2) + " / " + this.formatLargeNumber(summary.overallCountAbove);
+        } else {
+          this.elements.overallAbove.textContent = this.formatPercent(summary.overallAbove, 2);
+        }
+        this.renderResultTable(summary);
+      }
+
+      renderResultTable(summary) {
+        this.elements.resultTableBody.innerHTML = "";
+        this.renderResultSortHeaders();
+        const rows = this.getSortedResultRows(summary.groupRows);
+        for (const row of rows) {
+          const tableRow = document.createElement("tr");
+          if (row.groupId === this.state.selectedGroupId) {
+            tableRow.className = "table-selected";
+          }
+          tableRow.innerHTML = `
+            <td class="table-name">${this.escapeHtml(row.name)}</td>
+            <td>${this.escapeHtml(row.meanLabel)}</td>
+            <td>${this.escapeHtml(row.sdLabel)}</td>
+            <td>${this.formatLargeNumber(row.population)}</td>
+            <td>${this.formatPercent(row.percentile, 3)}</td>
+            <td>${this.formatPercent(row.above, 3)}</td>
+            <td>${this.state.usePopulationWeights ? this.formatLargeNumber(row.countAbove) : "-"}</td>
+          `;
+          this.elements.resultTableBody.appendChild(tableRow);
+        }
+      }
+
+      renderResultSortHeaders() {
+        for (const button of this.elements.resultSortButtons) {
+          const key = button.dataset.resultSort;
+          const isActive = key === this.state.resultSortKey;
+          button.classList.toggle("sorted-asc", isActive && this.state.resultSortDirection === "asc");
+          button.classList.toggle("sorted-desc", isActive && this.state.resultSortDirection === "desc");
+          button.setAttribute("aria-sort", isActive ? (this.state.resultSortDirection === "asc" ? "ascending" : "descending") : "none");
+        }
+      }
+
+      getSortedResultRows(rows) {
+        const clonedRows = rows.slice();
+        clonedRows.sort((left, right) => this.compareResultRows(left, right));
+        return clonedRows;
+      }
+
+      compareResultRows(left, right) {
+        const direction = this.state.resultSortDirection === "desc" ? -1 : 1;
+        const leftValue = this.getResultSortValue(left, this.state.resultSortKey);
+        const rightValue = this.getResultSortValue(right, this.state.resultSortKey);
+        if (typeof leftValue === "string" || typeof rightValue === "string") {
+          return String(leftValue).localeCompare(String(rightValue), "da-DK", { numeric: true, sensitivity: "base" }) * direction;
+        }
+        const leftNumber = Number(leftValue || 0);
+        const rightNumber = Number(rightValue || 0);
+        if (leftNumber === rightNumber) {
+          return String(left.name).localeCompare(String(right.name), "da-DK", { numeric: true, sensitivity: "base" });
+        }
+        return (leftNumber - rightNumber) * direction;
+      }
+
+      getResultSortValue(row, key) {
+        if (key === "name") {
+          return row.name;
+        }
+        if (key === "mean") {
+          return row.mean;
+        }
+        if (key === "sd") {
+          return row.sd;
+        }
+        if (key === "population") {
+          return row.population;
+        }
+        if (key === "percentile") {
+          return row.percentile;
+        }
+        if (key === "above") {
+          return row.above;
+        }
+        if (key === "countAbove") {
+          return row.countAbove;
+        }
+        return row.name;
+      }
+
+      setResultSort(key) {
+        if (!key) {
+          return;
+        }
+        if (this.state.resultSortKey === key) {
+          this.state.resultSortDirection = this.state.resultSortDirection === "asc" ? "desc" : "asc";
+        } else {
+          this.state.resultSortKey = key;
+          this.state.resultSortDirection = key === "name" ? "asc" : "desc";
+        }
+        this.renderSummary();
+      }
+
+      setThresholdFromChart(threshold) {
+        this.state.threshold = threshold;
+        this.elements.thresholdInput.value = String(threshold);
+        this.renderChartAndResults();
+      }
+
+      applyCsvText() {
+        try {
+          this.dataStore.loadFromCsvText(this.elements.csvTextArea.value);
+          this.collapsedGroupIds.clear();
+          this.state.selectedGroupId = this.getInitialSelectedGroupId();
+          this.render();
+        } catch (error) {
+          alert(error.message || "CSV kunne ikke indlæses.");
+        }
+      }
+
+      readCsvFile(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.elements.csvTextArea.value = String(reader.result || "");
+          this.applyCsvText();
+        };
+        reader.onerror = () => alert("Kunne ikke læse CSV-filen.");
+        reader.readAsText(file, "utf-8");
+      }
+
+      async downloadCsv() {
+        const csv = this.dataStore.exportToCsvText();
+        const filename = "iq_groups.csv";
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+
+        this.elements.csvTextArea.value = csv;
+        const savedWithPicker = await this.trySaveCsvWithFilePicker(blob, filename);
+        if (savedWithPicker) {
+          this.showCsvExportStatus("CSV gemt som fil.");
+          return;
+        }
+
+        this.prepareManualCsvDownload(blob, filename, csv);
+      }
+
+      async trySaveCsvWithFilePicker(blob, filename) {
+        if (typeof window.showSaveFilePicker !== "function") {
+          return false;
+        }
+
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: filename,
+            types: [
+              {
+                description: "CSV-fil",
+                accept: {
+                  "text/csv": [".csv"]
+                }
+              }
+            ]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          return true;
+        } catch (error) {
+          if (error && error.name === "AbortError") {
+            return false;
+          }
+          console.warn("Direkte CSV-gemning virkede ikke", error);
+          return false;
+        }
+      }
+
+      prepareManualCsvDownload(blob, filename, csv) {
+        const status = this.getCsvExportStatusElement();
+        if (this.csvExportObjectUrl) {
+          URL.revokeObjectURL(this.csvExportObjectUrl);
+          this.csvExportObjectUrl = null;
+        }
+
+        const url = URL.createObjectURL(blob);
+        this.csvExportObjectUrl = url;
+        status.innerHTML = "";
+
+        const message = document.createElement("span");
+        message.textContent = "Hvis Brave blokerer automatisk download fra file://, så klik manuelt: ";
+
+        const link = document.createElement("a");
+        link.className = "btn primary";
+        link.href = url;
+        link.download = filename;
+        link.textContent = "Hent CSV";
+        link.style.display = "inline-flex";
+        link.style.marginLeft = "8px";
+        link.style.textDecoration = "none";
+
+        const copyButton = document.createElement("button");
+        copyButton.className = "btn";
+        copyButton.type = "button";
+        copyButton.textContent = "Kopiér CSV";
+        copyButton.style.marginLeft = "8px";
+        copyButton.addEventListener("click", () => this.copyCsvToClipboard(csv));
+
+        status.appendChild(message);
+        status.appendChild(link);
+        status.appendChild(copyButton);
+        this.elements.csvTextArea.focus();
+        this.elements.csvTextArea.select();
+      }
+
+      getCsvExportStatusElement() {
+        let status = document.getElementById("csvExportStatus");
+        if (status) {
+          return status;
+        }
+
+        status = document.createElement("div");
+        status.id = "csvExportStatus";
+        status.style.marginTop = "10px";
+        status.style.color = "var(--muted)";
+        status.style.fontSize = "12px";
+        status.style.lineHeight = "1.45";
+        status.style.display = "flex";
+        status.style.flexWrap = "wrap";
+        status.style.alignItems = "center";
+        status.style.gap = "6px";
+
+        const csvArea = this.elements.csvTextArea.closest(".csv-area");
+        if (csvArea) {
+          csvArea.appendChild(status);
+        } else {
+          this.elements.csvTextArea.insertAdjacentElement("afterend", status);
+        }
+        return status;
+      }
+
+      async copyCsvToClipboard(csv) {
+        try {
+          if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+            await navigator.clipboard.writeText(csv);
+          } else {
+            this.elements.csvTextArea.value = csv;
+            this.elements.csvTextArea.focus();
+            this.elements.csvTextArea.select();
+            document.execCommand("copy");
+          }
+          this.showCsvExportStatus("CSV kopieret til udklipsholderen. Gem teksten som iq_groups.csv, hvis download stadig blokeres.");
+        } catch (error) {
+          this.elements.csvTextArea.value = csv;
+          this.elements.csvTextArea.focus();
+          this.elements.csvTextArea.select();
+          this.showCsvExportStatus("CSV er markeret i tekstfeltet. Tryk Ctrl+C og gem den som iq_groups.csv.");
+        }
+      }
+
+      showCsvExportStatus(messageText) {
+        const status = this.getCsvExportStatusElement();
+        status.innerHTML = "";
+        const message = document.createElement("span");
+        message.textContent = messageText;
+        status.appendChild(message);
+      }
+
+      readNumber(value, fallback) {
+        const number = Number(String(value).replace(",", "."));
+        return Number.isFinite(number) ? number : fallback;
+      }
+
+      clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      formatNumber(value, digits) {
+        return Number(value || 0).toLocaleString("da-DK", {
+          maximumFractionDigits: digits,
+          minimumFractionDigits: 0
+        });
+      }
+
+      formatPercent(value, digits) {
+        return (Number(value || 0) * 100).toLocaleString("da-DK", {
+          maximumFractionDigits: digits,
+          minimumFractionDigits: 0
+        }) + "%";
+      }
+
+      formatLargeNumber(value) {
+        if (!Number.isFinite(value)) {
+          return "-";
+        }
+        return Math.round(value).toLocaleString("da-DK");
+      }
+
+      escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const app = new IqDistributionApp();
+      window.iqDistributionApp = app;
+      const body = document.body;
+      const introButton = document.getElementById("introLogoButton");
+      const introOverlay = document.getElementById("introOverlay");
+
+      const finishIntro = () => {
+        if (body.classList.contains("intro-complete")) {
+          return;
+        }
+
+        const targetLogo = document.querySelector(".app-logo");
+        if (introButton && targetLogo) {
+          const targetRect = targetLogo.getBoundingClientRect();
+          introButton.style.left = targetRect.left + "px";
+          introButton.style.top = targetRect.top + "px";
+          introButton.style.width = targetRect.width + "px";
+          introButton.style.height = targetRect.height + "px";
+          introButton.style.transform = "none";
+        }
+
+        body.classList.add("intro-complete");
+        window.setTimeout(() => {
+          body.classList.add("intro-done");
+          if (introOverlay) {
+            introOverlay.setAttribute("aria-hidden", "true");
+          }
+          if (app && app.chart && typeof app.chart.resize === "function") {
+            app.chart.resize();
+          }
+        }, 1080);
+      };
+
+      if (introButton) {
+        introButton.addEventListener("click", finishIntro);
+        introButton.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            finishIntro();
+          }
+        });
+      } else {
+        body.classList.remove("intro-active");
+      }
+    });
+  </script>
+</body>
+</html>

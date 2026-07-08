@@ -1,0 +1,3350 @@
+<!DOCTYPE html>
+
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Retssystemets fejlbalance</title>
+<style>
+    :root {
+      --bg: #070a12;
+      --panel: rgba(14, 20, 34, 0.84);
+      --panel-strong: rgba(20, 29, 48, 0.96);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f4f7fb;
+      --muted: #9aa7bc;
+      --muted-2: #6f7e96;
+      --innocent: #48d4ff;
+      --guilty: #ff8a4c;
+      --tp: #2ee59d;
+      --tn: #54b7ff;
+      --fp: #ff4f7a;
+      --fn: #ffc14d;
+      --innocent-rgb: 72, 212, 255;
+      --guilty-rgb: 255, 138, 76;
+      --tp-rgb: 46, 229, 157;
+      --tn-rgb: 84, 183, 255;
+      --fp-rgb: 255, 79, 122;
+      --fn-rgb: 255, 193, 77;
+      --accent: #ffffff;
+      --danger: #ff4f7a;
+      --warning: #ffc14d;
+      --ok: #2ee59d;
+      --radius: 22px;
+      --shadow: 0 26px 80px rgba(0, 0, 0, 0.45);
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body.contrast-mode {
+      --bg: #000000;
+      --panel: rgba(0, 0, 0, 0.92);
+      --panel-strong: rgba(12, 12, 12, 0.98);
+      --line: rgba(255, 255, 255, 0.30);
+      --text: #ffffff;
+      --muted: #d8d8d8;
+      --muted-2: #bdbdbd;
+      --innocent: #56b4e9;
+      --guilty: #e69f00;
+      --tp: #009e73;
+      --tn: #0072b2;
+      --fp: #d55e00;
+      --fn: #cc79a7;
+      --accent: #ffffff;
+      --danger: #d55e00;
+      --warning: #f0e442;
+      --ok: #009e73;
+      --innocent-rgb: 86, 180, 233;
+      --guilty-rgb: 230, 159, 0;
+      --tp-rgb: 0, 158, 115;
+      --tn-rgb: 0, 114, 178;
+      --fp-rgb: 213, 94, 0;
+      --fn-rgb: 204, 121, 167;
+    }
+
+    body.contrast-mode .dot,
+    body.contrast-mode .curve-color {
+      box-shadow: none;
+    }
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(72, 212, 255, 0.16), transparent 28%),
+        radial-gradient(circle at 78% 10%, rgba(255, 79, 122, 0.16), transparent 30%),
+        radial-gradient(circle at 60% 88%, rgba(255, 193, 77, 0.10), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1580px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 26px 0 46px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--warning);
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: clamp(34px, 5vw, 78px);
+      line-height: 0.92;
+      margin: 0;
+      letter-spacing: -0.065em;
+      max-width: 1100px;
+    }
+
+    .hero p {
+      margin: 14px 0 0;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: clamp(15px, 1.5vw, 20px);
+      line-height: 1.48;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+      min-width: 300px;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.24);
+    }
+
+    .btn.primary {
+      background: var(--text);
+      color: #07101f;
+      border-color: var(--text);
+      font-weight: 800;
+    }
+
+    .btn.danger {
+      background: rgba(255, 79, 122, 0.16);
+      border-color: rgba(255, 79, 122, 0.38);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.55fr) minmax(340px, 0.92fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .parameters-column {
+      grid-column: 1;
+      grid-row: 1;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .stage {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .right-column {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .scenario-panel,
+    .info-panel {
+      grid-column: 1 / -1;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+    }
+
+    .panel-inner {
+      padding: 18px;
+    }
+
+    .parameters-column .panel,
+    .parameters-column .panel-inner {
+      overflow: visible;
+    }
+
+    .stage {
+      min-height: 720px;
+      display: grid;
+      grid-template-rows: auto minmax(430px, 1fr) auto;
+    }
+
+    .stage-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px 0;
+    }
+
+    .stage-title h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .stage-title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .live-number {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .metric-mini {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .metric-mini .label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+
+    .metric-mini .value {
+      font-size: 28px;
+      line-height: 1.05;
+      margin-top: 6px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .canvas-shell {
+      position: relative;
+      margin: 16px 18px 0;
+      min-height: 450px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(84, 183, 255, 0.07), transparent 48%, rgba(255, 79, 122, 0.07)),
+        rgba(2, 6, 14, 0.52);
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 450px;
+      cursor: ew-resize;
+    }
+
+    .axis-label {
+      position: absolute;
+      bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.30);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .axis-label.left {
+      left: 14px;
+    }
+
+    .axis-label.right {
+      right: 14px;
+    }
+
+    .threshold-badge {
+      position: absolute;
+      top: 14px;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.92);
+      color: #07101f;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 900;
+      font-size: 13px;
+      pointer-events: none;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 12px 18px 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      box-shadow: 0 0 16px currentColor;
+    }
+
+    .dot.guilty {
+      color: var(--guilty);
+      background: var(--guilty);
+    }
+
+    .dot.innocent {
+      color: var(--innocent);
+      background: var(--innocent);
+    }
+
+    .dot.cut {
+      width: 18px;
+      height: 4px;
+      border-radius: 99px;
+      color: var(--accent);
+      background: var(--accent);
+    }
+
+    .right-column {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .matrix-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 128px;
+      background: rgba(255, 255, 255, 0.045);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .matrix-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.12;
+      background: var(--cell-color);
+      pointer-events: none;
+    }
+
+    .matrix-card .cell-kicker {
+      position: relative;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      font-weight: 900;
+    }
+
+    .matrix-card .cell-title {
+      position: relative;
+      margin-top: 8px;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .matrix-card .cell-number {
+      position: relative;
+      margin-top: 9px;
+      font-size: 34px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .matrix-card .cell-sub {
+      position: relative;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar-stack {
+      height: 28px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+      margin-top: 12px;
+    }
+
+    .bar-piece {
+      min-width: 1px;
+      transition: width 0.22s ease;
+    }
+
+    .bar-piece.tp {
+      background: var(--tp);
+    }
+
+    .bar-piece.tn {
+      background: var(--tn);
+    }
+
+    .bar-piece.fp {
+      background: var(--fp);
+    }
+
+    .bar-piece.fn {
+      background: var(--fn);
+    }
+
+    .bar-labels {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px 12px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bar-labels span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+    }
+
+    .control {
+      position: relative;
+      padding: 8px 0 34px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+      background: transparent;
+    }
+
+    .controls .control:last-child {
+      padding-bottom: 20px;
+      border-bottom: 0;
+    }
+
+    .control-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .control label {
+      flex: 1;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      font-size: 15px;
+      padding-right: 6px;
+    }
+
+    .control p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 28px;
+      background: transparent;
+      margin: 0;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 0;
+      margin-top: -8px;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 0;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+    }
+
+    .slider-bubble {
+      position: absolute;
+      transform: translateX(-50%);
+      min-width: 58px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(34, 42, 58, 0.96);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1;
+      font-weight: 900;
+      white-space: nowrap;
+      text-align: center;
+      pointer-events: none;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
+      z-index: 2;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .analysis-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      padding: 12px;
+    }
+
+    .analysis-card .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 900;
+    }
+
+    .analysis-card .value {
+      margin-top: 8px;
+      font-size: 27px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .analysis-card .note {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.32;
+    }
+
+    .verdict {
+      margin-top: 14px;
+      border-radius: 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .verdict h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .verdict p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.48;
+      font-size: 14px;
+    }
+
+    .script-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .script-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      padding: 13px;
+    }
+
+    .script-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .script-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.42;
+      font-size: 13px;
+    }
+
+
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .scenario-button {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 13px;
+      text-align: left;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.045);
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+      min-height: 88px;
+    }
+
+    .scenario-button:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.075);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .scenario-button.active {
+      border-color: rgba(255, 255, 255, 0.58);
+      background: rgba(255, 255, 255, 0.115);
+    }
+
+    .scenario-button strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .scenario-button span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.34;
+    }
+
+    .domain-explanation {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.045);
+      padding: 14px;
+      color: var(--muted);
+      line-height: 1.48;
+      font-size: 14px;
+    }
+
+    .domain-explanation strong {
+      color: var(--text);
+    }
+
+
+
+    .curve-panel {
+      grid-column: 1 / -1;
+    }
+
+    .curve-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 14px;
+    }
+
+    .curve-top p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 900px;
+    }
+
+    .curve-shell {
+      position: relative;
+      min-height: 430px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(84, 183, 255, 0.06), transparent 48%, rgba(255, 79, 122, 0.06)),
+        rgba(2, 6, 14, 0.52);
+      overflow: hidden;
+    }
+
+    #curveCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 430px;
+    }
+
+    .curve-toggles {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      justify-content: flex-end;
+      max-width: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 3px;
+    }
+
+    .curve-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 9px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.045);
+      font-size: 11px;
+      font-weight: 760;
+      user-select: none;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .curve-toggle input {
+      margin: 0;
+      accent-color: #ffffff;
+      cursor: pointer;
+      transform: scale(0.95);
+    }
+
+    .curve-name {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 720;
+    }
+
+    .curve-name:hover,
+    .curve-name:focus-visible {
+      color: var(--text);
+      outline: none;
+    }
+
+    .curve-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      background: var(--curve-color);
+      box-shadow: 0 0 12px var(--curve-color);
+    }
+
+    .curve-summary {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .curve-summary-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      padding: 12px;
+    }
+
+    .curve-summary-card .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 900;
+    }
+
+    .curve-summary-card .value {
+      margin-top: 8px;
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+    }
+
+    .curve-summary-card .note {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.32;
+    }
+
+
+    
+    .parameters-column .panel-inner {
+      padding: 16px 18px;
+    }
+
+    .legal-panel .section-title,
+    .parameter-main .section-title,
+    .damage-panel .section-title {
+      margin-bottom: 10px;
+    }
+
+    .damage-curve-shell,
+    #damageCurveCanvas {
+      min-height: 300px;
+    }
+
+    .damage-curve-summary {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 21px;
+      letter-spacing: -0.03em;
+    }
+
+    .text-muted {
+      color: var(--muted);
+    }
+
+    .callout {
+      border: 1px solid rgba(255, 193, 77, 0.34);
+      background: rgba(255, 193, 77, 0.08);
+      border-radius: 18px;
+      padding: 14px;
+      color: #ffe2a0;
+      line-height: 1.48;
+    }
+
+    .toggle-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.045);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .presenter .hero {
+      grid-template-columns: 1fr auto;
+      margin-bottom: 14px;
+    }
+
+    .presenter .hero p,
+    .presenter .toggle-row {
+      display: none;
+    }
+
+    .presenter .hero-actions {
+      display: flex;
+    }
+
+    .presenter h1 {
+      max-width: 1400px;
+      font-size: clamp(34px, 4.2vw, 62px);
+    }
+
+    .presenter .layout {
+      grid-template-columns: minmax(300px, 0.76fr) minmax(0, 1.42fr) minmax(340px, 0.88fr);
+    }
+
+    .presenter .stage {
+      min-height: 680px;
+    }
+
+    .presenter .canvas-shell {
+      min-height: 500px;
+    }
+
+    .presenter .stage canvas {
+      min-height: 500px;
+    }
+
+    .presenter .controls-panel,
+    .presenter .wide,
+    .presenter .curve-panel {
+      display: block;
+    }
+
+    @media (max-width: 1120px) {
+      .hero,
+      .layout,
+      
+    .parameters-column .panel-inner {
+      padding: 16px 18px;
+    }
+
+    .legal-panel .section-title,
+    .parameter-main .section-title,
+    .damage-panel .section-title {
+      margin-bottom: 10px;
+    }
+
+    .damage-curve-shell,
+    #damageCurveCanvas {
+      min-height: 300px;
+    }
+
+    .damage-curve-summary {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .wide {
+        grid-template-columns: 1fr;
+      }
+
+      .parameters-column,
+      .stage,
+      .right-column,
+      .scenario-panel,
+      .info-panel,
+      .curve-panel,
+      
+    .parameters-column .panel-inner {
+      padding: 16px 18px;
+    }
+
+    .legal-panel .section-title,
+    .parameter-main .section-title,
+    .damage-panel .section-title {
+      margin-bottom: 10px;
+    }
+
+    .damage-curve-shell,
+    #damageCurveCanvas {
+      min-height: 300px;
+    }
+
+    .damage-curve-summary {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .wide {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
+      .hero-actions {
+        justify-content: flex-start;
+        min-width: 0;
+      }
+
+      .live-number {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stage-top {
+        grid-template-columns: 1fr;
+      }
+
+      .analysis-grid,
+      .curve-summary,
+      .scenario-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .curve-top {
+        grid-template-columns: 1fr;
+      }
+
+      .curve-toggles {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .app {
+        width: min(100vw - 18px, 1580px);
+        padding-top: 12px;
+      }
+
+      .matrix-grid,
+      .live-number {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      .canvas-shell,
+      canvas,
+      .curve-shell,
+      #curveCanvas {
+        min-height: 360px;
+      }
+    }
+  
+
+    /* V2 layout cleanup */
+    .app {
+      position: relative;
+      width: min(1900px, calc(100vw - 20px));
+      padding-top: 20px;
+    }
+
+    .hero {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+    }
+
+    .hero-actions {
+      align-items: center;
+      min-width: 520px;
+    }
+
+    .app-logo {
+      position: absolute;
+      top: -10px;
+      left: 8px;
+      width: 138px;
+      height: 138px;
+      object-fit: contain;
+      display: block;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      z-index: 30;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    body.intro-done .app-logo {
+      opacity: 1;
+    }
+
+    body.intro-active .app {
+      filter: blur(18px);
+      transition: filter 1s ease;
+    }
+
+    body.intro-complete .app {
+      filter: blur(0);
+    }
+
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    .intro-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 10, 18, 0.38);
+      backdrop-filter: blur(18px);
+      opacity: 1;
+      transition: opacity 1.05s ease, backdrop-filter 1.05s ease;
+    }
+
+    body.intro-complete .intro-backdrop {
+      opacity: 0;
+      backdrop-filter: blur(0px);
+    }
+
+    .intro-logo-button {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 750px;
+      height: 750px;
+      transform: translate(-50%, -50%);
+      display: block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      cursor: pointer;
+      z-index: 220;
+      pointer-events: auto;
+      transition:
+        left 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        top 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        width 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        height 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        transform 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        opacity 0.24s ease;
+    }
+
+    .intro-logo-button:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: 6px;
+      border-radius: 18px;
+    }
+
+    body.intro-complete .intro-logo-button {
+      cursor: default;
+    }
+
+    body.intro-done .intro-logo-button {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .intro-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      filter: drop-shadow(0 30px 80px rgba(0, 0, 0, 0.35));
+    }
+
+    .top-select {
+      display: inline-grid;
+      gap: 5px;
+      min-width: 245px;
+    }
+
+    .top-select span {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      font-weight: 900;
+    }
+
+    .top-select select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      padding: 10px 38px 10px 13px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .top-select option {
+      background: #101827;
+      color: #ffffff;
+    }
+
+    .layout {
+      grid-template-columns: minmax(285px, 335px) minmax(760px, 1fr) minmax(350px, 405px);
+      gap: 16px;
+    }
+
+    .parameters-column {
+      grid-column: 1;
+      grid-row: 1;
+      gap: 16px;
+    }
+
+    .stage {
+      grid-column: 2;
+      grid-row: 1;
+      min-height: 0;
+      grid-template-rows: auto auto auto auto;
+    }
+
+    .right-column {
+      grid-column: 3;
+      grid-row: 1;
+      gap: 16px;
+    }
+
+    .canvas-shell {
+      min-height: 430px;
+      height: 430px;
+    }
+
+    .stage canvas {
+      min-height: 430px;
+      height: 430px;
+    }
+
+    .embedded-curve {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--line);
+      box-shadow: none;
+      background: transparent;
+      border-radius: 0;
+      overflow: visible;
+    }
+
+    .embedded-curve .curve-inner {
+      padding: 16px 18px 18px;
+    }
+
+    .embedded-curve .curve-top {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .embedded-curve .curve-top p {
+      display: none;
+    }
+
+    .embedded-curve .section-title {
+      margin-bottom: 0;
+      font-size: 18px;
+    }
+
+    .embedded-curve .curve-toggles {
+      justify-content: flex-start;
+      max-width: none;
+    }
+
+    .embedded-curve .curve-shell,
+    .embedded-curve #curveCanvas {
+      min-height: 320px;
+    }
+
+    .embedded-curve .curve-summary {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .control {
+      position: relative;
+      padding: 12px;
+    }
+
+    .control-head {
+      align-items: start;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .control label {
+      line-height: 1.15;
+    }
+
+    .control p {
+      display: none;
+    }
+
+    .help-icon {
+      align-self: start;
+      margin-left: auto;
+      margin-top: 2px;
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 950;
+      cursor: help;
+      position: relative;
+      padding: 0;
+      z-index: 5;
+    }
+
+    .help-icon::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      z-index: 40;
+      bottom: calc(100% + 10px);
+      right: 0;
+      width: min(330px, 78vw);
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-strong);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.36;
+      text-align: left;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity 0.12s ease, transform 0.12s ease;
+    }
+
+    .help-icon:hover::after,
+    .help-icon:focus-visible::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .analysis-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+
+
+    .share-total {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 12px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.055);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-align: center;
+    }
+
+    .configuration-panel .section-title {
+      margin-bottom: 10px;
+    }
+
+    .configuration-panel .verdict h3 {
+      font-size: 16px;
+    }
+
+    .configuration-panel .verdict p {
+      font-size: 13px;
+    }
+
+    .presenter .layout {
+      grid-template-columns: minmax(270px, 320px) minmax(760px, 1fr) minmax(330px, 380px);
+    }
+
+    .presenter .canvas-shell,
+    .presenter .stage canvas {
+      min-height: 430px;
+      height: 430px;
+    }
+
+    .presenter .embedded-curve .curve-shell,
+    .presenter .embedded-curve #curveCanvas {
+      min-height: 300px;
+    }
+
+    @media (max-width: 1280px) {
+      .layout,
+      .presenter .layout {
+        grid-template-columns: 320px minmax(0, 1fr);
+      }
+
+      .right-column {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout,
+      .presenter .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        min-width: 0;
+      }
+
+      .parameters-column,
+      .stage,
+      .right-column {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
+      .right-column {
+        grid-template-columns: 1fr;
+      }
+
+      .embedded-curve .curve-summary,
+      .analysis-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* V9 final graph height overrides */
+    .canvas-shell,
+    .presenter .canvas-shell {
+      min-height: 300px !important;
+      height: 300px !important;
+    }
+
+    .stage canvas,
+    .presenter .stage canvas,
+    #scatterCanvas {
+      min-height: 300px !important;
+      height: 300px !important;
+    }
+
+    .embedded-curve .curve-shell,
+    .embedded-curve #curveCanvas,
+    .presenter .embedded-curve .curve-shell,
+    .presenter .embedded-curve #curveCanvas {
+      min-height: 224px !important;
+      height: 224px !important;
+    }
+
+    .damage-curve-shell,
+    #damageCurveCanvas {
+      min-height: 210px !important;
+      height: 210px !important;
+    }
+
+</style>
+</head>
+<body class="intro-active">
+<div aria-hidden="false" class="intro-overlay" id="introOverlay">
+<div class="intro-backdrop"></div>
+<button aria-label="Åbn siden" class="intro-logo-button" id="introLogoButton" type="button">
+<img alt="Logo" class="intro-logo" draggable="false" height="750" src="logo.png" width="750"/>
+</button>
+</div>
+<main class="app" id="app">
+<header class="hero">
+<div class="hero-actions"><label class="top-select"><span>Sagstype</span><select aria-label="Vælg sagstype" id="crimePresetSelect"><option selected="selected" value="generic">Generel kriminalitet</option><option value="murder">Drab</option><option value="rape">Voldtægt</option><option value="violence">Grov vold</option><option value="economic">Økonomisk kriminalitet</option><option value="burglary">Indbrud</option><option value="gang">Bandevold</option><option value="corruption">Korruption</option></select></label>
+<button class="btn primary" id="presenterButton" type="button">Presenter-visning</button>
+<button class="btn" id="optimalButton" type="button">Find laveste samlede skade</button>
+<button class="btn danger" id="resetButton" type="button">Nulstil</button>
+</div>
+<img alt="Logo" class="app-logo" height="128" src="logo.png" width="128"/>
+</header>
+<section class="layout">
+<aside class="parameters-column">
+<article class="panel controls-panel legal-panel">
+<div class="panel-inner">
+<h2 class="section-title">Juridisk justerbare parametre</h2>
+<div class="controls"><div class="control">
+<div class="control-head">
+<label for="thresholdSlider">Beviskrav</label>
+<button aria-label="Angiver hvor stærk en sag skal være, før den ender med dom. Et højere krav reducerer falske domme, men kan også øge antallet af skyldige, der går fri." class="help-icon" data-tooltip="Angiver hvor stærk en sag skal være, før den ender med dom. Et højere krav reducerer falske domme, men kan også øge antallet af skyldige, der går fri." type="button">!</button></div>
+<input id="thresholdSlider" max="99" min="1" type="range" value="72"/><div class="slider-bubble" id="thresholdValue">72%</div>
+</div><div class="control">
+<div class="control-head">
+<label for="punishmentSlider">Strafniveau</label>
+<button aria-label="Højere strafniveau øger kun den beregnede afskrækkelseseffekt i skadesmodellen. Det ændrer ikke de andre slidere." class="help-icon" data-tooltip="Højere strafniveau øger kun den beregnede afskrækkelseseffekt i skadesmodellen. Det ændrer ikke de andre slidere." type="button">!</button></div>
+<input id="punishmentSlider" max="100" min="0" type="range" value="50"/><div class="slider-bubble" id="punishmentValue">50%</div>
+</div></div>
+</div>
+</article><article class="panel controls-panel parameter-main">
+<div class="panel-inner">
+<h2 class="section-title">Ikke-juridiske forhold</h2>
+<div class="controls">
+
+<div class="control">
+<div class="control-head">
+<label for="prevalenceSlider">Andel faktisk skyldige blandt sagerne</label>
+<button aria-label="Base rate. Hvis svage sager ofte ender i retten, falder andelen af faktisk skyldige, og risikoen for falske positive vokser." class="help-icon" data-tooltip="Base rate. Hvis svage sager ofte ender i retten, falder andelen af faktisk skyldige, og risikoen for falske positive vokser." type="button">!</button></div>
+<input id="prevalenceSlider" max="95" min="5" type="range" value="58"/><div class="slider-bubble" id="prevalenceValue">58%</div>
+</div>
+<div class="control">
+<div class="control-head">
+<label for="noiseSlider">Støj</label>
+<button aria-label="Støj i sagen. Højere værdi betyder mere overlap mellem skyldige og uskyldige og dermed flere fejl. Lavere værdi betyder klarere beviser og bedre adskillelse." class="help-icon" data-tooltip="Støj i sagen. Højere værdi betyder mere overlap mellem skyldige og uskyldige og dermed flere fejl. Lavere værdi betyder klarere beviser og bedre adskillelse." type="button">!</button></div>
+<input id="noiseSlider" max="100" min="0" type="range" value="68"/><div class="slider-bubble" id="noiseValue">68%</div>
+</div>
+
+<div class="control">
+<div class="control-head">
+<label for="casesSlider">Antal retlige sager i modellen</label>
+<button aria-label="Flere prikker gør mønsteret tydeligere, men kan være tungere at vise på ældre maskiner." class="help-icon" data-tooltip="Flere prikker gør mønsteret tydeligere, men kan være tungere at vise på ældre maskiner." type="button">!</button></div>
+<input id="casesSlider" max="900" min="80" step="20" type="range" value="360"/><div class="slider-bubble" id="casesValue">360</div>
+</div>
+</div>
+</div>
+</article>
+<article class="panel controls-panel damage-panel">
+<div class="panel-inner">
+<h2 class="section-title">Skadesmodel</h2>
+<div class="controls">
+<div class="control">
+<div class="control-head">
+<label for="falsePositiveCostSlider">Skade ved uskyldig dom</label>
+<button aria-label="Hvor alvorligt er det, at staten dømmer en uskyldig? Denne vægt bruges direkte på antallet af falske positive." class="help-icon" data-tooltip="Hvor alvorligt er det, at staten dømmer en uskyldig? Denne vægt bruges direkte på antallet af falske positive." type="button">!</button></div>
+<input id="falsePositiveCostSlider" max="60" min="1" type="range" value="10"/><div class="slider-bubble" id="falsePositiveCostValue">10x</div>
+</div>
+<div class="control">
+<div class="control-head">
+<label for="baseCrimeShareSlider">Grundskade</label>
+<button aria-label="Grundskade: den normale skade fra den samlede skyldpulje uden tilbagefalds- eller strafbehandling. Påvirker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="Grundskade: den normale skade fra den samlede skyldpulje uden tilbagefalds- eller strafbehandling. Påvirker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
+<input id="baseCrimeShareSlider" max="100" min="0" type="range" value="35"/><div class="slider-bubble" id="baseCrimeShareValue">35%</div>
+</div>
+<div class="control">
+<div class="control-head">
+<label for="repeatCrimeShareSlider">Tilbagefaldsskade</label>
+<button aria-label="Tilbagefaldsskade: lægger falske negative og rigtige positive ganget med strafniveau til skyldpuljen. Påvirker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="Tilbagefaldsskade: lægger falske negative og rigtige positive ganget med strafniveau til skyldpuljen. Påvirker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
+<input id="repeatCrimeShareSlider" max="100" min="0" type="range" value="40"/><div class="slider-bubble" id="repeatCrimeShareValue">40%</div>
+</div>
+<div class="control">
+<div class="control-head">
+<label for="deterrableCrimeShareSlider">Straffølsom skade</label>
+<button aria-label="Straffølsom skade: reducerer skyldpuljen med strafniveauet. Påvirker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="Straffølsom skade: reducerer skyldpuljen med strafniveauet. Påvirker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
+<input id="deterrableCrimeShareSlider" max="100" min="0" type="range" value="25"/><div class="slider-bubble" id="deterrableCrimeShareValue">25%</div>
+</div>
+</div>
+</div>
+</article>
+</aside>
+<article class="panel stage">
+<div class="stage-top">
+<div class="stage-title">
+<h2>Sager fordelt efter bevisstyrke</h2>
+<p>Orange er faktisk skyldig. Blå er faktisk uskyldig. Den hvide linje er <strong>beviskravet</strong>.</p>
+</div>
+<div class="live-number">
+<div class="metric-mini">
+<div class="label">Beviskrav</div>
+<div class="value" id="thresholdBig">72%</div>
+</div>
+<div class="metric-mini">
+<div class="label">Samlet skadepoint</div>
+<div class="value" id="harmBig">0</div>
+</div>
+</div>
+</div>
+<div class="canvas-shell" id="canvasShell">
+<canvas aria-label="Interaktiv scatterplot over retlige sager og sikkerhedskrav" height="300" id="scatterCanvas" width="1200"></canvas>
+<div class="threshold-badge" id="thresholdBadge">Beviskrav for Dom: 72%</div>
+<div class="axis-label left">Lav bevisstyrke, frifindes oftere</div>
+<div class="axis-label right">Høj bevisstyrke, dømmes oftere</div>
+</div>
+<div class="legend">
+<span class="legend-item"><span class="dot guilty"></span>Faktisk skyldig</span>
+<span class="legend-item"><span class="dot innocent"></span>Faktisk uskyldig</span>
+<span class="legend-item"><span class="dot cut"></span>Beviskrav</span>
+</div><section class="curve-panel embedded-curve">
+<div class="curve-inner">
+<div class="curve-top">
+<div>
+<h2 class="section-title">Kurver over beviskrav</h2>
+<p>
+                Her vises hvordan udfaldene ændrer sig, når beviskravet bevæger sig fra lavt til højt.
+                Den lodrette hvide linje er det aktuelle krav. Klik på et kurvenavn for at vise kun den kurve.
+              </p>
+</div>
+<div aria-label="Vælg kurver" class="curve-toggles">
+<div class="curve-toggle" style="--curve-color: var(--tp);">
+<input checked="" data-curve-key="tp" type="checkbox"/>
+<span class="curve-color"></span>
+<button class="curve-name" data-curve-name="tp" type="button">Rigtige positive</button>
+</div>
+<div class="curve-toggle" style="--curve-color: var(--tn);">
+<input checked="" data-curve-key="tn" type="checkbox"/>
+<span class="curve-color"></span>
+<button class="curve-name" data-curve-name="tn" type="button">Rigtige negative</button>
+</div>
+<div class="curve-toggle" style="--curve-color: var(--fp);">
+<input checked="" data-curve-key="fp" type="checkbox"/>
+<span class="curve-color"></span>
+<button class="curve-name" data-curve-name="fp" type="button">Falske positive</button>
+</div>
+<div class="curve-toggle" style="--curve-color: var(--fn);">
+<input checked="" data-curve-key="fn" type="checkbox"/>
+<span class="curve-color"></span>
+<button class="curve-name" data-curve-name="fn" type="button">Falske negative</button>
+</div>
+<div class="curve-toggle" style="--curve-color: #ffffff;">
+<input checked="" data-curve-key="correct" type="checkbox"/>
+<span class="curve-color"></span>
+<button class="curve-name" data-curve-name="correct" type="button">Nøjagtighed</button>
+</div>
+<div class="curve-toggle" style="--curve-color: #c084fc;">
+<input checked="" data-curve-key="wrong" type="checkbox"/>
+<span class="curve-color"></span>
+<button class="curve-name" data-curve-name="wrong" type="button">Fejlrate</button>
+</div>
+<div class="curve-toggle" style="--curve-color: #7dd3fc;">
+<input checked="" data-curve-key="precision" type="checkbox"/>
+<span class="curve-color"></span>
+<button class="curve-name" data-curve-name="precision" type="button">Præcision</button>
+</div>
+<div class="curve-toggle" style="--curve-color: #86efac;">
+<input checked="" data-curve-key="recall" type="checkbox"/>
+<span class="curve-color"></span>
+<button class="curve-name" data-curve-name="recall" type="button">Fangstrate</button>
+</div>
+</div>
+</div>
+<div class="curve-shell">
+<canvas aria-label="Kurver over beviskrav" height="224" id="curveCanvas" width="1400"></canvas>
+</div>
+<div class="curve-summary">
+<div class="curve-summary-card">
+<div class="label">Aktuelt krav</div>
+<div class="value" id="curveCurrentThreshold">0%</div>
+<div class="note">Den faste hvide linje</div>
+</div>
+<div class="curve-summary-card">
+<div class="label">Nøjagtighed</div>
+<div class="value" id="curveCorrectValue">0%</div>
+<div class="note">Rigtige positive + rigtige negative</div>
+</div>
+<div class="curve-summary-card">
+<div class="label">Fejlrate</div>
+<div class="value" id="curveWrongValue">0%</div>
+<div class="note">Falske positive + falske negative</div>
+</div>
+<div class="curve-summary-card">
+<div class="label">Præcision</div>
+<div class="value" id="curvePrecisionValue">0%</div>
+<div class="note">Andel dømte, der faktisk er skyldige</div>
+</div>
+<div class="curve-summary-card">
+<div class="label">Fangstrate</div>
+<div class="value" id="curveRecallValue">0%</div>
+<div class="note">Andel faktisk skyldige, der dømmes</div>
+</div>
+</div>
+</div>
+</section>
+<section class="damage-curve-panel embedded-curve">
+<div class="curve-inner">
+<div class="curve-top damage-curve-top">
+<div>
+<h2 class="section-title">Skadeskurve</h2>
+<p>Den samlede skadesmodel som funktion af beviskravet. Minimumspunktet flytter sig, når du ændrer skadesparametrene.</p>
+</div>
+</div>
+<div class="curve-shell damage-curve-shell">
+<canvas aria-label="Skadeskurve over beviskrav" height="210" id="damageCurveCanvas" width="1400"></canvas>
+</div>
+<div class="curve-summary damage-curve-summary">
+<div class="curve-summary-card">
+<div class="label">Aktuel skade</div>
+<div class="value" id="damageCurveCurrentHarm">0</div>
+<div class="note">Ved nuværende beviskrav</div>
+</div>
+<div class="curve-summary-card">
+<div class="label">Laveste skade</div>
+<div class="value" id="damageCurveOptimalHarm">0</div>
+<div class="note">Minimum på skadeskurven</div>
+</div>
+<div class="curve-summary-card">
+<div class="label">Laveste ved krav</div>
+<div class="value" id="damageCurveOptimalThreshold">0%</div>
+<div class="note">Beviskrav ved minimum</div>
+</div>
+<div class="curve-summary-card">
+<div class="label">Skadeforskel</div>
+<div class="value" id="damageCurveDelta">0</div>
+<div class="note">Aktuel skade minus minimum</div>
+</div>
+</div>
+</div>
+</section>
+</article>
+<aside class="right-column">
+<article class="panel">
+<div class="panel-inner">
+<h2 class="section-title">Confusion matrix</h2>
+<div class="matrix-grid">
+<div class="matrix-card" style="--cell-color: var(--tp);">
+<div class="cell-kicker">Dømt + faktisk skyldig</div>
+<div class="cell-title">Rigtig positiv</div>
+<div class="cell-number" id="tpCount">0</div>
+<div class="cell-sub" id="tpPercent">0%</div>
+</div>
+<div class="matrix-card" style="--cell-color: var(--fp);">
+<div class="cell-kicker">Dømt + faktisk uskyldig</div>
+<div class="cell-title">Falsk positiv</div>
+<div class="cell-number" id="fpCount">0</div>
+<div class="cell-sub" id="fpPercent">0%</div>
+</div>
+<div class="matrix-card" style="--cell-color: var(--fn);">
+<div class="cell-kicker">Frifundet + faktisk skyldig</div>
+<div class="cell-title">Falsk negativ</div>
+<div class="cell-number" id="fnCount">0</div>
+<div class="cell-sub" id="fnPercent">0%</div>
+</div>
+<div class="matrix-card" style="--cell-color: var(--tn);">
+<div class="cell-kicker">Frifundet + faktisk uskyldig</div>
+<div class="cell-title">Rigtig negativ</div>
+<div class="cell-number" id="tnCount">0</div>
+<div class="cell-sub" id="tnPercent">0%</div>
+</div>
+</div>
+<div aria-label="Fordeling af udfald" class="bar-stack">
+<div class="bar-piece tp" id="tpBar"></div>
+<div class="bar-piece fp" id="fpBar"></div>
+<div class="bar-piece fn" id="fnBar"></div>
+<div class="bar-piece tn" id="tnBar"></div>
+</div>
+<div class="bar-labels">
+<span><span class="dot" style="background: var(--tp); color: var(--tp);"></span>Rigtig positiv</span>
+<span><span class="dot" style="background: var(--fp); color: var(--fp);"></span>Falsk positiv</span>
+<span><span class="dot" style="background: var(--fn); color: var(--fn);"></span>Falsk negativ</span>
+<span><span class="dot" style="background: var(--tn); color: var(--tn);"></span>Rigtig negativ</span>
+</div>
+</div>
+</article>
+<article class="panel configuration-panel">
+<div class="panel-inner">
+<h2 class="section-title">Konfiguration</h2>
+<div class="analysis-grid">
+<div class="analysis-card">
+<div class="label">Dømte uskyldige</div>
+<div class="value" id="innocentConvicted">0</div>
+<div class="note">Falske positive</div>
+</div>
+<div class="analysis-card">
+<div class="label">Skyldige fri</div>
+<div class="value" id="guiltyReleased">0</div>
+<div class="note">Falske negative</div>
+</div>
+<div class="analysis-card">
+<div class="label">Dom præcision</div>
+<div class="value" id="precisionValue">0%</div>
+<div class="note">Andel dømte, der faktisk er skyldige</div>
+</div>
+<div class="analysis-card"><div class="label">Fangstrate</div><div class="value" id="recallValue">0%</div><div class="note">Recall: andel faktisk skyldige, der dømmes</div></div>
+<div class="analysis-card"><div class="label">Fejlrate</div><div class="value" id="errorRateValue">0%</div><div class="note">Falske positive + falske negative</div></div>
+<div class="analysis-card"><div class="label">Nøjagtighed</div><div class="value" id="accuracyValue">0%</div><div class="note">Accuracy: rigtige positive + rigtige negative</div></div></div>
+<div class="verdict">
+<h3 id="verdictTitle">Argumentet</h3>
+<p id="verdictText">
+                Flyt beviskravet for at se tradeoffet mellem at dømme uskyldige
+                og at lade skyldige gå fri.
+              </p>
+</div>
+</div>
+</article>
+</aside>
+</section>
+</main>
+<script>
+    class SeededRandom {
+      constructor(seed) {
+        this.seed = seed >>> 0;
+        this.nextGaussianSpare = null;
+      }
+
+      next() {
+        this.seed = (1664525 * this.seed + 1013904223) >>> 0;
+        return this.seed / 4294967296;
+      }
+
+      gaussian() {
+        if (this.nextGaussianSpare !== null) {
+          const spare = this.nextGaussianSpare;
+          this.nextGaussianSpare = null;
+          return spare;
+        }
+
+        let u = 0;
+        let v = 0;
+
+        while (u === 0) {
+          u = this.next();
+        }
+
+        while (v === 0) {
+          v = this.next();
+        }
+
+        const magnitude = Math.sqrt(-2.0 * Math.log(u));
+        const z0 = magnitude * Math.cos(2.0 * Math.PI * v);
+        const z1 = magnitude * Math.sin(2.0 * Math.PI * v);
+        this.nextGaussianSpare = z1;
+        return z0;
+      }
+    }
+
+    class CaseGenerator {
+      constructor() {
+        this.lastFingerprint = "";
+        this.cases = [];
+      }
+
+      generate(settings) {
+        const fingerprint = [
+          settings.caseCount,
+          settings.prevalence,
+          settings.evidenceQuality
+        ].join(":");
+
+        if (fingerprint === this.lastFingerprint && this.cases.length > 0) {
+          return this.cases;
+        }
+
+        this.lastFingerprint = fingerprint;
+        const random = new SeededRandom(93177 + settings.caseCount * 13 + Math.round(settings.prevalence * 1000));
+        const cases = [];
+
+        const evidenceQuality = settings.evidenceQuality ?? 0.62;
+        const evidenceNoise = this.clamp(1 - evidenceQuality, 0, 1);
+        const innocentAnchor = 0.005;
+        const guiltyAnchor = 0.995;
+
+        for (let i = 0; i < settings.caseCount; i += 1) {
+          const isGuilty = random.next() < settings.prevalence;
+          const anchoredScore = isGuilty ? guiltyAnchor : innocentAnchor;
+          const randomScore = random.next();
+          const mixedScore = anchoredScore * (1 - evidenceNoise) + randomScore * evidenceNoise;
+          const score = this.clamp(mixedScore, 0.005, 0.995);
+
+          cases.push({
+            id: i,
+            guilty: isGuilty,
+            score: score,
+            jitter: random.next(),
+            sizeJitter: random.next()
+          });
+        }
+
+        this.cases = cases;
+        return cases;
+      }
+
+      clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+    }
+
+    class ConfusionModel {
+      evaluate(cases, settings) {
+        const threshold = settings.threshold;
+        let tp = 0;
+        let tn = 0;
+        let fp = 0;
+        let fn = 0;
+
+        for (const item of cases) {
+          const convicted = item.score >= threshold;
+
+          if (convicted && item.guilty) {
+            tp += 1;
+          } else if (convicted && !item.guilty) {
+            fp += 1;
+          } else if (!convicted && item.guilty) {
+            fn += 1;
+          } else {
+            tn += 1;
+          }
+        }
+
+        const total = cases.length || 1;
+        const convictedTotal = tp + fp;
+        const releasedTotal = tn + fn;
+        const guiltyTotal = tp + fn;
+        const innocentTotal = tn + fp;
+
+        const punishment = settings.punishment ?? 0.50;
+        const baseShare = settings.baseCrimeShare ?? 0.35;
+        const repeatShare = settings.repeatCrimeShare ?? 0.40;
+        const deterrableShare = settings.deterrableCrimeShare ?? 0.25;
+        const crimeDamageUnit = settings.crimeDamageUnit ?? 10;
+        const punishmentGap = 1 - punishment;
+
+        const falsePositiveHarm = fp * settings.falsePositiveCost;
+        const baseGuiltyPool = guiltyTotal;
+        const repeatGuiltyPool = guiltyTotal + fn + tp * punishment;
+        const deterrableGuiltyPool = guiltyTotal * punishmentGap;
+
+        const baseCrimeHarm = baseGuiltyPool * baseShare * crimeDamageUnit;
+        const repeatCrimeHarm = repeatGuiltyPool * repeatShare * crimeDamageUnit;
+        const deterrableCrimeHarm = deterrableGuiltyPool * deterrableShare * crimeDamageUnit;
+
+        const harm =
+          falsePositiveHarm +
+          baseCrimeHarm +
+          repeatCrimeHarm +
+          deterrableCrimeHarm;
+
+        return {
+          tp,
+          tn,
+          fp,
+          fn,
+          total,
+          convictedTotal,
+          releasedTotal,
+          guiltyTotal,
+          innocentTotal,
+          precision: convictedTotal > 0 ? tp / convictedTotal : 0,
+          recall: guiltyTotal > 0 ? tp / guiltyTotal : 0,
+          falsePositiveRate: innocentTotal > 0 ? fp / innocentTotal : 0,
+          falseNegativeRate: guiltyTotal > 0 ? fn / guiltyTotal : 0,
+          harm,
+          falsePositiveHarm,
+          baseCrimeHarm,
+          repeatCrimeHarm,
+          deterrableCrimeHarm,
+          baseGuiltyPool,
+          repeatGuiltyPool,
+          deterrableGuiltyPool,
+          punishmentGap,
+          baseShare,
+          repeatShare,
+          deterrableShare
+        };
+      }
+
+      findOptimalThreshold(cases, settings) {
+        let bestThreshold = settings.threshold;
+        let bestResult = null;
+
+        for (let i = 1; i <= 99; i += 1) {
+          const trialSettings = Object.assign({}, settings, { threshold: i / 100 });
+          const result = this.evaluate(cases, trialSettings);
+
+          if (bestResult === null || result.harm < bestResult.harm) {
+            bestResult = result;
+            bestThreshold = trialSettings.threshold;
+          }
+        }
+
+        return {
+          threshold: bestThreshold,
+          result: bestResult
+        };
+      }
+    }
+
+    class SimulatorApp {
+      constructor(root) {
+        this.root = root;
+        this.generator = new CaseGenerator();
+        this.model = new ConfusionModel();
+        this.caseData = [];
+        this.currentCrimePreset = "generic";
+        this.isDraggingThreshold = false;
+
+        this.settings = this.createDefaultSettings();
+
+        this.elements = this.getElements();
+        this.bindEvents();
+        this.resizeCanvas();
+        this.regenerateAndRender();
+      }
+
+      getElements() {
+        return {
+          app: document.getElementById("app"),
+          scatterCanvas: document.getElementById("scatterCanvas"),
+          canvasShell: document.getElementById("canvasShell"),
+          thresholdBadge: document.getElementById("thresholdBadge"),
+          presenterButton: document.getElementById("presenterButton"),
+          optimalButton: document.getElementById("optimalButton"),
+          resetButton: document.getElementById("resetButton"),
+          crimePresetSelect: document.getElementById("crimePresetSelect"),
+
+          thresholdSlider: document.getElementById("thresholdSlider"),
+          prevalenceSlider: document.getElementById("prevalenceSlider"),
+          evidenceQualitySlider: document.getElementById("noiseSlider"),
+          punishmentSlider: document.getElementById("punishmentSlider"),
+          casesSlider: document.getElementById("casesSlider"),
+          falsePositiveCostSlider: document.getElementById("falsePositiveCostSlider"),
+          baseCrimeShareSlider: document.getElementById("baseCrimeShareSlider"),
+          repeatCrimeShareSlider: document.getElementById("repeatCrimeShareSlider"),
+          deterrableCrimeShareSlider: document.getElementById("deterrableCrimeShareSlider"),
+
+          thresholdValue: document.getElementById("thresholdValue"),
+          prevalenceValue: document.getElementById("prevalenceValue"),
+          evidenceQualityValue: document.getElementById("noiseValue"),
+          punishmentValue: document.getElementById("punishmentValue"),
+          casesValue: document.getElementById("casesValue"),
+          falsePositiveCostValue: document.getElementById("falsePositiveCostValue"),
+          baseCrimeShareValue: document.getElementById("baseCrimeShareValue"),
+          repeatCrimeShareValue: document.getElementById("repeatCrimeShareValue"),
+          deterrableCrimeShareValue: document.getElementById("deterrableCrimeShareValue"),
+
+          thresholdBig: document.getElementById("thresholdBig"),
+          harmBig: document.getElementById("harmBig"),
+
+          tpCount: document.getElementById("tpCount"),
+          fpCount: document.getElementById("fpCount"),
+          fnCount: document.getElementById("fnCount"),
+          tnCount: document.getElementById("tnCount"),
+          tpPercent: document.getElementById("tpPercent"),
+          fpPercent: document.getElementById("fpPercent"),
+          fnPercent: document.getElementById("fnPercent"),
+          tnPercent: document.getElementById("tnPercent"),
+
+          tpBar: document.getElementById("tpBar"),
+          fpBar: document.getElementById("fpBar"),
+          fnBar: document.getElementById("fnBar"),
+          tnBar: document.getElementById("tnBar"),
+
+          innocentConvicted: document.getElementById("innocentConvicted"),
+          guiltyReleased: document.getElementById("guiltyReleased"),
+          precisionValue: document.getElementById("precisionValue"),
+          recallValue: document.getElementById("recallValue"),
+          errorRateValue: document.getElementById("errorRateValue"),
+          accuracyValue: document.getElementById("accuracyValue"),
+          verdictTitle: document.getElementById("verdictTitle"),
+          verdictText: document.getElementById("verdictText"),
+
+          curveCanvas: document.getElementById("curveCanvas"),
+          damageCurveCanvas: document.getElementById("damageCurveCanvas"),
+          curveCurrentThreshold: document.getElementById("curveCurrentThreshold"),
+          curveCorrectValue: document.getElementById("curveCorrectValue"),
+          curveWrongValue: document.getElementById("curveWrongValue"),
+          curvePrecisionValue: document.getElementById("curvePrecisionValue"),
+          curveRecallValue: document.getElementById("curveRecallValue"),
+          damageCurveCurrentHarm: document.getElementById("damageCurveCurrentHarm"),
+          damageCurveOptimalHarm: document.getElementById("damageCurveOptimalHarm"),
+          damageCurveOptimalThreshold: document.getElementById("damageCurveOptimalThreshold"),
+          damageCurveDelta: document.getElementById("damageCurveDelta")
+        };
+      }
+
+      bindEvents() {
+        window.addEventListener("resize", () => {
+          this.resizeCanvas();
+          this.render();
+        });
+
+        this.elements.thresholdSlider.addEventListener("input", () => {
+          this.settings.threshold = this.sliderPercent(this.elements.thresholdSlider);
+          this.render();
+        });
+
+        this.elements.prevalenceSlider.addEventListener("input", () => {
+          this.settings.prevalence = this.sliderPercent(this.elements.prevalenceSlider);
+          this.regenerateAndRender();
+        });
+
+        this.elements.evidenceQualitySlider.addEventListener("input", () => {
+          this.settings.evidenceQuality = 1 - this.sliderPercent(this.elements.evidenceQualitySlider);
+          this.regenerateAndRender();
+        });
+
+        this.elements.punishmentSlider.addEventListener("input", () => {
+          this.settings.punishment = this.sliderPercent(this.elements.punishmentSlider);
+          this.render();
+        });
+
+        this.elements.casesSlider.addEventListener("input", () => {
+          this.settings.caseCount = Number(this.elements.casesSlider.value);
+          this.regenerateAndRender();
+        });
+
+        this.elements.falsePositiveCostSlider.addEventListener("input", () => {
+          this.settings.falsePositiveCost = Number(this.elements.falsePositiveCostSlider.value);
+          this.render();
+        });
+
+        this.elements.baseCrimeShareSlider.addEventListener("input", () => {
+          this.updateCrimeShare("baseCrimeShare", this.elements.baseCrimeShareSlider);
+        });
+
+        this.elements.repeatCrimeShareSlider.addEventListener("input", () => {
+          this.updateCrimeShare("repeatCrimeShare", this.elements.repeatCrimeShareSlider);
+        });
+
+        this.elements.deterrableCrimeShareSlider.addEventListener("input", () => {
+          this.updateCrimeShare("deterrableCrimeShare", this.elements.deterrableCrimeShareSlider);
+        });
+
+        this.elements.presenterButton.addEventListener("click", () => {
+          this.root.classList.toggle("presenter");
+          this.elements.presenterButton.textContent = this.root.classList.contains("presenter")
+            ? "Afslut presenter-visning"
+            : "Presenter-visning";
+          this.resizeCanvas();
+          this.render();
+        });
+
+        this.elements.optimalButton.addEventListener("click", () => {
+          const best = this.model.findOptimalThreshold(this.caseData, this.settings);
+          this.settings.threshold = best.threshold;
+          this.syncSlidersFromSettings();
+          this.render();
+        });
+
+        this.elements.resetButton.addEventListener("click", () => {
+          this.reset();
+        });
+
+        if (this.elements.crimePresetSelect) {
+          this.elements.crimePresetSelect.addEventListener("change", () => {
+            this.applyCrimePreset(this.elements.crimePresetSelect.value);
+          });
+        }
+
+        document.querySelectorAll("[data-curve-key]").forEach((toggle) => {
+          toggle.addEventListener("change", () => {
+            this.render();
+          });
+        });
+
+        document.querySelectorAll("[data-curve-name]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const targetKey = button.getAttribute("data-curve-name");
+            document.querySelectorAll("[data-curve-key]").forEach((toggle) => {
+              toggle.checked = toggle.getAttribute("data-curve-key") === targetKey;
+            });
+            this.render();
+          });
+        });
+
+        this.bindThresholdCanvas(this.elements.scatterCanvas);
+        this.bindThresholdCanvas(this.elements.curveCanvas);
+        this.bindThresholdCanvas(this.elements.damageCurveCanvas);
+
+        window.addEventListener("keydown", (event) => {
+          if (event.target && ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) {
+            return;
+          }
+
+          if (event.key === "ArrowLeft") {
+            this.settings.threshold = this.clamp(this.settings.threshold - 0.01, 0.01, 0.99);
+            this.syncSlidersFromSettings();
+            this.render();
+          }
+
+          if (event.key === "ArrowRight") {
+            this.settings.threshold = this.clamp(this.settings.threshold + 0.01, 0.01, 0.99);
+            this.syncSlidersFromSettings();
+            this.render();
+          }
+        });
+      }
+
+      sliderPercent(element) {
+        return Number(element.value) / 100;
+      }
+
+      percent(value) {
+        return `${Math.round(value * 100)}%`;
+      }
+
+      number(value) {
+        return new Intl.NumberFormat("da-DK").format(Math.round(value));
+      }
+
+      clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      updateSliderBubbles() {
+        this.updateSliderBubble(this.elements.thresholdSlider, this.elements.thresholdValue);
+        this.updateSliderBubble(this.elements.prevalenceSlider, this.elements.prevalenceValue);
+        this.updateSliderBubble(this.elements.evidenceQualitySlider, this.elements.evidenceQualityValue);
+        this.updateSliderBubble(this.elements.punishmentSlider, this.elements.punishmentValue);
+        this.updateSliderBubble(this.elements.casesSlider, this.elements.casesValue);
+        this.updateSliderBubble(this.elements.falsePositiveCostSlider, this.elements.falsePositiveCostValue);
+        this.updateSliderBubble(this.elements.baseCrimeShareSlider, this.elements.baseCrimeShareValue);
+        this.updateSliderBubble(this.elements.repeatCrimeShareSlider, this.elements.repeatCrimeShareValue);
+        this.updateSliderBubble(this.elements.deterrableCrimeShareSlider, this.elements.deterrableCrimeShareValue);
+      }
+
+      updateSliderBubble(slider, bubble) {
+        if (!slider || !bubble) {
+          return;
+        }
+
+        const min = Number(slider.min || 0);
+        const max = Number(slider.max || 100);
+        const value = Number(slider.value || 0);
+        const fraction = max === min ? 0 : (value - min) / (max - min);
+        const thumbWidth = 24;
+        const trackWidth = Math.max(0, slider.offsetWidth - thumbWidth);
+        const x = slider.offsetLeft + Math.max(0, Math.min(trackWidth, fraction * trackWidth)) + thumbWidth / 2;
+        const y = slider.offsetTop + slider.offsetHeight + 4;
+        bubble.style.left = `${x}px`;
+        bubble.style.top = `${y}px`;
+      }
+
+      createDefaultSettings() {
+        return {
+          threshold: 0.72,
+          prevalence: 0.58,
+          evidenceQuality: 0.62,
+          punishment: 0.50,
+          caseCount: 360,
+          falsePositiveCost: 10,
+          baseCrimeShare: 0.35,
+          repeatCrimeShare: 0.40,
+          deterrableCrimeShare: 0.25,
+          crimeDamageUnit: 10
+        };
+      }
+
+      updateCrimeShare(changedKey, slider) {
+        const keys = ["baseCrimeShare", "repeatCrimeShare", "deterrableCrimeShare"];
+        const otherKeys = keys.filter((key) => key !== changedKey);
+        const requested = this.clamp(Number(slider.value) / 100, 0, 1);
+        const remaining = 1 - requested;
+        const otherTotal = otherKeys.reduce((sum, key) => sum + (this.settings[key] ?? 0), 0);
+
+        this.settings[changedKey] = requested;
+
+        if (otherTotal <= 0.000001) {
+          for (const key of otherKeys) {
+            this.settings[key] = remaining / otherKeys.length;
+          }
+        } else {
+          for (const key of otherKeys) {
+            this.settings[key] = ((this.settings[key] ?? 0) / otherTotal) * remaining;
+          }
+        }
+
+        this.normalizeCrimeShares();
+        this.syncCrimeShareSliders();
+        this.render();
+      }
+
+      normalizeCrimeShares() {
+        const keys = ["baseCrimeShare", "repeatCrimeShare", "deterrableCrimeShare"];
+        let total = keys.reduce((sum, key) => sum + Math.max(0, this.settings[key] ?? 0), 0);
+
+        if (total <= 0.000001) {
+          this.settings.baseCrimeShare = 1 / 3;
+          this.settings.repeatCrimeShare = 1 / 3;
+          this.settings.deterrableCrimeShare = 1 / 3;
+          return;
+        }
+
+        for (const key of keys) {
+          this.settings[key] = Math.max(0, this.settings[key] ?? 0) / total;
+        }
+      }
+
+      getCrimeSharePercents() {
+        this.normalizeCrimeShares();
+        const entries = [
+          { key: "baseCrimeShare", value: this.settings.baseCrimeShare * 100 },
+          { key: "repeatCrimeShare", value: this.settings.repeatCrimeShare * 100 },
+          { key: "deterrableCrimeShare", value: this.settings.deterrableCrimeShare * 100 }
+        ];
+
+        for (const entry of entries) {
+          entry.integer = Math.floor(entry.value);
+          entry.remainder = entry.value - entry.integer;
+        }
+
+        let missing = 100 - entries.reduce((sum, entry) => sum + entry.integer, 0);
+        entries.sort((a, b) => b.remainder - a.remainder);
+
+        for (const entry of entries) {
+          if (missing <= 0) {
+            break;
+          }
+
+          entry.integer += 1;
+          missing -= 1;
+        }
+
+        return entries.reduce((result, entry) => {
+          result[entry.key] = entry.integer;
+          return result;
+        }, {});
+      }
+
+      syncCrimeShareSliders() {
+        const shares = this.getCrimeSharePercents();
+        this.elements.baseCrimeShareSlider.value = shares.baseCrimeShare;
+        this.elements.repeatCrimeShareSlider.value = shares.repeatCrimeShare;
+        this.elements.deterrableCrimeShareSlider.value = shares.deterrableCrimeShare;
+        this.elements.baseCrimeShareValue.textContent = `${shares.baseCrimeShare}%`;
+        this.elements.repeatCrimeShareValue.textContent = `${shares.repeatCrimeShare}%`;
+        this.elements.deterrableCrimeShareValue.textContent = `${shares.deterrableCrimeShare}%`;
+      }
+
+      applyCrimePreset(name) {
+        const presets = {
+          generic: {
+            label: "Generel kriminalitet",
+            threshold: 0.72,
+            prevalence: 0.58,
+            evidenceQuality: 0.67,
+            punishment: 0.50,
+            caseCount: 380,
+            falsePositiveCost: 10,
+            baseCrimeShare: 0.35,
+            repeatCrimeShare: 0.40,
+            deterrableCrimeShare: 0.25,
+            crimeDamageUnit: 10,
+            explanation: "Blandet kriminalitet med middel støj, middel gentagelsesrisiko og middel skade ved nye ofre."
+          },
+          murder: {
+            label: "Drab",
+            threshold: 0.82,
+            prevalence: 0.70,
+            evidenceQuality: 0.80,
+            punishment: 0.86,
+            caseCount: 260,
+            falsePositiveCost: 28,
+            baseCrimeShare: 0.50,
+            repeatCrimeShare: 0.25,
+            deterrableCrimeShare: 0.25,
+            crimeDamageUnit: 10,
+            explanation: "Drab har meget høj skade i begge fejlretninger. Derfor står både falske positive og falske negative tungt i skadesmodellen."
+          },
+          rape: {
+            label: "Voldtægt",
+            threshold: 0.78,
+            prevalence: 0.38,
+            evidenceQuality: 0.35,
+            punishment: 0.72,
+            caseCount: 420,
+            falsePositiveCost: 28,
+            baseCrimeShare: 0.45,
+            repeatCrimeShare: 0.35,
+            deterrableCrimeShare: 0.20,
+            crimeDamageUnit: 10,
+            explanation: "Voldtægt er et af de mest usikre scenarier i modellen. Mange sager afhænger af forklaringer, samtykkespørgsmål, kontekst, manglende tekniske beviser og stærk social skade i begge retninger. Derfor er både falske positive og falske negative sat højt, og støjen højere end i mere tekniske sager."
+          },
+          violence: {
+            label: "Grov vold",
+            threshold: 0.68,
+            prevalence: 0.62,
+            evidenceQuality: 0.65,
+            punishment: 0.58,
+            caseCount: 430,
+            falsePositiveCost: 13,
+            baseCrimeShare: 0.30,
+            repeatCrimeShare: 0.50,
+            deterrableCrimeShare: 0.20,
+            crimeDamageUnit: 10,
+            explanation: "Grov vold har relativt høj gentagelsesrisiko og ofte mere direkte bevismateriale end forklaringsbaserede sager."
+          },
+          economic: {
+            label: "Økonomisk kriminalitet",
+            threshold: 0.74,
+            prevalence: 0.56,
+            evidenceQuality: 0.66,
+            punishment: 0.46,
+            caseCount: 360,
+            falsePositiveCost: 12,
+            baseCrimeShare: 0.45,
+            repeatCrimeShare: 0.20,
+            deterrableCrimeShare: 0.35,
+            crimeDamageUnit: 10,
+            explanation: "Økonomisk kriminalitet har ofte dokumentbaserede beviser, men høj kompleksitet. Derfor er støjen relativt lav, mens fejl stadig kan opstå gennem tolkning og modelkompleksitet."
+          },
+          burglary: {
+            label: "Indbrud",
+            threshold: 0.62,
+            prevalence: 0.60,
+            evidenceQuality: 0.56,
+            punishment: 0.42,
+            caseCount: 520,
+            falsePositiveCost: 8,
+            baseCrimeShare: 0.25,
+            repeatCrimeShare: 0.55,
+            deterrableCrimeShare: 0.20,
+            crimeDamageUnit: 10,
+            explanation: "Indbrud har lavere skade pr. sag end drab og voldtægt, men høj volumen og høj gentagelsesrisiko kan gøre falske negativer dyre samlet set."
+          },
+          gang: {
+            label: "Bandevold",
+            threshold: 0.70,
+            prevalence: 0.68,
+            evidenceQuality: 0.53,
+            punishment: 0.82,
+            caseCount: 300,
+            falsePositiveCost: 15,
+            baseCrimeShare: 0.20,
+            repeatCrimeShare: 0.45,
+            deterrableCrimeShare: 0.35,
+            crimeDamageUnit: 10,
+            explanation: "Bandevold kombinerer høj skade, høj gentagelsesrisiko og lavere vidnesamarbejde. Svagt vidnesamarbejde kan gøre beviserne dårligere trods høj efterforskningsindsats."
+          },
+          corruption: {
+            label: "Korruption",
+            threshold: 0.78,
+            prevalence: 0.50,
+            evidenceQuality: 0.49,
+            punishment: 0.60,
+            caseCount: 240,
+            falsePositiveCost: 14,
+            baseCrimeShare: 0.35,
+            repeatCrimeShare: 0.20,
+            deterrableCrimeShare: 0.45,
+            crimeDamageUnit: 10,
+            explanation: "Korruption er ofte svær at opdage og bevise. Denne sagstype bør læses som et scenarie for indirekte samfundsskade snarere end som et simpelt offer-gerningsmand-forhold."
+          }
+        };
+
+        const preset = presets[name];
+
+        if (!preset) {
+          return;
+        }
+
+        const currentContrastMode = this.settings.contrastMode;
+        this.currentCrimePreset = name;
+        this.settings = Object.assign({}, this.createDefaultSettings(), preset, { contrastMode: currentContrastMode });
+        delete this.settings.label;
+        delete this.settings.explanation;
+
+        if (this.elements.crimePresetSelect) {
+          this.elements.crimePresetSelect.value = name;
+        }
+
+        if (this.elements.domainExplanation) {
+          this.elements.domainExplanation.innerHTML =
+            `<strong>${preset.label}:</strong> ${preset.explanation} ` +
+            `<br><br><strong>Enhed:</strong> Modellen bruger retlige sager, ikke alle begåede forbrydelser. Det passer bedst til confusion matrixen, fordi den måler afgørelsen: dom eller frifindelse.` +
+            `<br><br><strong>Modelgrænse:</strong> Den viser fejlbalancen og mekanikken, ikke en officiel statistik over konkrete domme.`;
+        }
+
+        this.syncSlidersFromSettings();
+        this.regenerateAndRender();
+      }
+
+      reset() {
+        this.settings = this.createDefaultSettings();
+
+        if (this.elements.crimePresetSelect) {
+          this.elements.crimePresetSelect.value = "generic";
+        }
+        this.syncSlidersFromSettings();
+        this.regenerateAndRender();
+      }
+
+      applyPreset(name) {
+        const presets = {
+          highProof: {
+            threshold: 0.88,
+            prevalence: 0.58,
+            evidenceQuality: 0.67,
+            punishment: 0.50,
+            caseCount: 360,
+            falsePositiveCost: 16,
+          },
+          lowProof: {
+            threshold: 0.46,
+            prevalence: 0.58,
+            evidenceQuality: 0.67,
+            punishment: 0.50,
+            caseCount: 360,
+            falsePositiveCost: 9,
+          },
+          badEvidence: {
+            threshold: 0.72,
+            prevalence: 0.58,
+            evidenceQuality: 0.29,
+            punishment: 0.50,
+            caseCount: 420,
+            falsePositiveCost: 12,
+          },
+          goodEvidence: {
+            threshold: 0.72,
+            prevalence: 0.58,
+            evidenceQuality: 0.88,
+            punishment: 0.50,
+            caseCount: 420,
+            falsePositiveCost: 12,
+          },
+          balanced: {
+            threshold: 0.68,
+            prevalence: 0.52,
+            evidenceQuality: 0.66,
+            punishment: 0.50,
+            caseCount: 380,
+            falsePositiveCost: 10,
+          }
+        };
+
+        if (!presets[name]) {
+          return;
+        }
+
+        this.settings = Object.assign({}, this.createDefaultSettings(), presets[name]);
+        this.syncSlidersFromSettings();
+        this.regenerateAndRender();
+      }
+
+      syncSlidersFromSettings() {
+        this.elements.thresholdSlider.value = Math.round(this.settings.threshold * 100);
+        this.elements.prevalenceSlider.value = Math.round(this.settings.prevalence * 100);
+        this.elements.evidenceQualitySlider.value = Math.round((1 - (this.settings.evidenceQuality ?? 0.62)) * 100);
+        this.elements.punishmentSlider.value = Math.round((this.settings.punishment ?? 0.50) * 100);
+        this.elements.casesSlider.value = this.settings.caseCount;
+        this.elements.falsePositiveCostSlider.value = this.settings.falsePositiveCost;
+        this.syncCrimeShareSliders();
+        this.updateSliderBubbles();
+      }
+
+      applyContrastMode() {
+      }
+
+      regenerateAndRender() {
+        this.caseData = this.generator.generate(this.settings);
+        this.render();
+      }
+
+      resizeCanvas() {
+        this.resizeCanvasElement(this.elements.scatterCanvas, 600, 300);
+        this.resizeCanvasElement(this.elements.curveCanvas, 700, 224);
+        this.resizeCanvasElement(this.elements.damageCurveCanvas, 700, 210);
+        this.updateSliderBubbles();
+      }
+
+      resizeCanvasElement(canvas, minWidth, minHeight) {
+        if (!canvas) {
+          return;
+        }
+
+        const rect = canvas.getBoundingClientRect();
+        const scale = window.devicePixelRatio || 1;
+        canvas.width = Math.max(minWidth, Math.floor(rect.width * scale));
+        canvas.height = Math.max(minHeight, Math.floor(rect.height * scale));
+      }
+
+      updateThresholdFromPointer(event, canvas = this.elements.scatterCanvas) {
+        if (!canvas) {
+          return;
+        }
+
+        const rect = canvas.getBoundingClientRect();
+        const localX = event.clientX - rect.left;
+        const threshold = this.clamp(localX / rect.width, 0.01, 0.99);
+        this.settings.threshold = threshold;
+        this.syncSlidersFromSettings();
+        this.render();
+      }
+
+      bindThresholdCanvas(canvas) {
+        if (!canvas) {
+          return;
+        }
+
+        canvas.addEventListener("pointerdown", (event) => {
+          this.isDraggingThreshold = true;
+          this.activeThresholdCanvas = canvas;
+          canvas.setPointerCapture(event.pointerId);
+          this.updateThresholdFromPointer(event, canvas);
+        });
+
+        canvas.addEventListener("pointermove", (event) => {
+          if (!this.isDraggingThreshold || this.activeThresholdCanvas !== canvas) {
+            return;
+          }
+
+          this.updateThresholdFromPointer(event, canvas);
+        });
+
+        canvas.addEventListener("pointerup", (event) => {
+          this.isDraggingThreshold = false;
+          this.activeThresholdCanvas = null;
+          canvas.releasePointerCapture(event.pointerId);
+        });
+
+        canvas.addEventListener("pointercancel", () => {
+          this.isDraggingThreshold = false;
+          this.activeThresholdCanvas = null;
+        });
+      }
+
+      render() {
+        const result = this.model.evaluate(this.caseData, this.settings);
+        this.renderControls(result);
+        this.renderMatrix(result);
+        this.renderNarration(result);
+        this.renderScatter(result);
+        this.renderCurveChart(result);
+        this.renderDamageCurveChart(result);
+      }
+
+      renderControls(result) {
+        this.elements.thresholdValue.textContent = this.percent(this.settings.threshold);
+        this.elements.prevalenceValue.textContent = this.percent(this.settings.prevalence);
+        this.elements.evidenceQualityValue.textContent = this.percent(1 - (this.settings.evidenceQuality ?? 0.62));
+        this.elements.punishmentValue.textContent = this.percent(this.settings.punishment ?? 0.50);
+        this.elements.casesValue.textContent = this.number(this.settings.caseCount);
+        this.elements.falsePositiveCostValue.textContent = `${this.settings.falsePositiveCost}x`;
+        this.syncCrimeShareSliders();
+
+        this.elements.thresholdBig.textContent = this.percent(this.settings.threshold);
+        this.elements.harmBig.textContent = this.number(result.harm);
+        this.updateSliderBubbles();
+      }
+
+      renderMatrix(result) {
+        this.elements.tpCount.textContent = this.number(result.tp);
+        this.elements.fpCount.textContent = this.number(result.fp);
+        this.elements.fnCount.textContent = this.number(result.fn);
+        this.elements.tnCount.textContent = this.number(result.tn);
+
+        this.elements.tpPercent.textContent = `${this.percent(result.tp / result.total)} af alle sager`;
+        this.elements.fpPercent.textContent = `${this.percent(result.fp / result.total)} af alle sager`;
+        this.elements.fnPercent.textContent = `${this.percent(result.fn / result.total)} af alle sager`;
+        this.elements.tnPercent.textContent = `${this.percent(result.tn / result.total)} af alle sager`;
+
+        this.elements.tpBar.style.width = `${(result.tp / result.total) * 100}%`;
+        this.elements.fpBar.style.width = `${(result.fp / result.total) * 100}%`;
+        this.elements.fnBar.style.width = `${(result.fn / result.total) * 100}%`;
+        this.elements.tnBar.style.width = `${(result.tn / result.total) * 100}%`;
+
+        this.elements.innocentConvicted.textContent = this.number(result.fp);
+        this.elements.guiltyReleased.textContent = this.number(result.fn);
+        this.elements.precisionValue.textContent = this.percent(result.precision);
+        if (this.elements.recallValue) {
+          this.elements.recallValue.textContent = this.percent(result.recall);
+        }
+
+        if (this.elements.errorRateValue) {
+          this.elements.errorRateValue.textContent = this.percent((result.fp + result.fn) / result.total);
+        }
+
+        if (this.elements.accuracyValue) {
+          this.elements.accuracyValue.textContent = this.percent((result.tp + result.tn) / result.total);
+        }
+      }
+
+      renderNarration(result) {
+        const falsePositivePressure = result.falsePositiveHarm;
+        const repeatCrimePressure = result.repeatCrimeHarm;
+        const thresholdText = this.percent(this.settings.threshold);
+        const fpText = this.number(result.fp);
+        const fnText = this.number(result.fn);
+
+        if (falsePositivePressure > repeatCrimePressure * 1.25) {
+          this.elements.verdictTitle.textContent = "Falske positive dominerer skaden";
+          this.elements.verdictText.textContent =
+            `Med et beviskrav på ${thresholdText} dømmes ${fpText} uskyldige i simuleringen. ` +
+            `Skaden fra uskyldige domme vejer højere end den beregnede skade fra skyldpuljen.`;
+        } else if (repeatCrimePressure > falsePositivePressure * 1.25) {
+          this.elements.verdictTitle.textContent = "Tilbagefaldsskaden dominerer";
+          this.elements.verdictText.textContent =
+            `Med et beviskrav på ${thresholdText} går ${fnText} skyldige fri i simuleringen. ` +
+            `Den del af skadesmodellen lægger falske negative og strafpåvirkede rigtige positive oven i skyldpuljen.`;
+        } else {
+          this.elements.verdictTitle.textContent = "Tradeoffet er tæt på balance";
+          this.elements.verdictText.textContent =
+            `Med et beviskrav på ${thresholdText} ligger skaden fra uskyldige domme og den beregnede skyldpulje nogenlunde i samme område. ` +
+            `Vægtene bestemmer hvordan skyldpuljen behandles: grundskade, tilbagefald og straffølsom reduktion.`;
+        }
+      }
+
+
+      renderCurveChart(currentResult) {
+        const canvas = this.elements.curveCanvas;
+
+        if (!canvas) {
+          return;
+        }
+
+        const context = canvas.getContext("2d");
+        const width = canvas.width;
+        const height = canvas.height;
+        const padding = {
+          left: 64 * (window.devicePixelRatio || 1),
+          right: 28 * (window.devicePixelRatio || 1),
+          top: 34 * (window.devicePixelRatio || 1),
+          bottom: 54 * (window.devicePixelRatio || 1)
+        };
+
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        const series = this.buildCurveSeries();
+        const active = this.getActiveCurveKeys();
+
+        context.clearRect(0, 0, width, height);
+        this.drawCurveBackground(context, width, height, padding, chartWidth, chartHeight);
+        this.drawCurveLines(context, series, active, padding, chartWidth, chartHeight);
+        this.drawCurveMarkers(context, padding, chartWidth, chartHeight);
+        this.drawCurveExtremumKnobs(context, series, active, padding, chartWidth, chartHeight);
+
+        const correct = (currentResult.tp + currentResult.tn) / currentResult.total;
+        const wrong = (currentResult.fp + currentResult.fn) / currentResult.total;
+
+        this.elements.curveCurrentThreshold.textContent = this.percent(this.settings.threshold);
+        this.elements.curveCorrectValue.textContent = this.percent(correct);
+        this.elements.curveWrongValue.textContent = this.percent(wrong);
+        if (this.elements.curvePrecisionValue) {
+          this.elements.curvePrecisionValue.textContent = this.percent(currentResult.precision);
+        }
+        if (this.elements.curveRecallValue) {
+          this.elements.curveRecallValue.textContent = this.percent(currentResult.recall);
+        }
+      }
+
+      getDamageCurveAxisMax() {
+        const total = this.caseData.length || this.settings.caseCount || 1;
+        const guiltyPotential = total * (this.settings.prevalence ?? 0.5);
+        const innocentPotential = total - guiltyPotential;
+        const fpMax = innocentPotential * (this.settings.falsePositiveCost ?? 10);
+        const guiltyMax = guiltyPotential * (this.settings.crimeDamageUnit ?? 10) * 3.0;
+        return Math.max(1, fpMax + guiltyMax);
+      }
+
+      renderDamageCurveChart(currentResult) {
+        const canvas = this.elements.damageCurveCanvas;
+
+        if (!canvas) {
+          return;
+        }
+
+        const context = canvas.getContext("2d");
+        const width = canvas.width;
+        const height = canvas.height;
+        const scale = window.devicePixelRatio || 1;
+        const padding = {
+          left: 72 * scale,
+          right: 24 * scale,
+          top: 24 * scale,
+          bottom: 50 * scale
+        };
+
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        const points = [];
+        let bestPoint = null;
+
+        for (let i = 1; i <= 99; i += 1) {
+          const threshold = i / 100;
+          const trialSettings = Object.assign({}, this.settings, { threshold: threshold });
+          const result = this.model.evaluate(this.caseData, trialSettings);
+          const point = { threshold: threshold, harm: result.harm };
+          points.push(point);
+
+          if (!bestPoint || point.harm < bestPoint.harm) {
+            bestPoint = point;
+          }
+        }
+
+        const maxHarm = this.getDamageCurveAxisMax();
+        context.clearRect(0, 0, width, height);
+
+        context.save();
+        context.fillStyle = "rgba(2, 6, 14, 0.35)";
+        context.fillRect(0, 0, width, height);
+        context.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        context.lineWidth = 1 * scale;
+
+        for (let i = 0; i <= 10; i += 1) {
+          const x = padding.left + (i / 10) * chartWidth;
+          context.beginPath();
+          context.moveTo(x, padding.top);
+          context.lineTo(x, padding.top + chartHeight);
+          context.stroke();
+        }
+
+        for (let j = 0; j <= 5; j += 1) {
+          const y = padding.top + (j / 5) * chartHeight;
+          context.beginPath();
+          context.moveTo(padding.left, y);
+          context.lineTo(padding.left + chartWidth, y);
+          context.stroke();
+        }
+
+        context.beginPath();
+        points.forEach((point, index) => {
+          const x = padding.left + point.threshold * chartWidth;
+          const y = padding.top + (1 - Math.min(1, point.harm / maxHarm)) * chartHeight;
+          if (index === 0) {
+            context.moveTo(x, y);
+          } else {
+            context.lineTo(x, y);
+          }
+        });
+        context.lineTo(padding.left + chartWidth, padding.top + chartHeight);
+        context.lineTo(padding.left, padding.top + chartHeight);
+        context.closePath();
+        const fill = context.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+        fill.addColorStop(0, 'rgba(255, 193, 77, 0.22)');
+        fill.addColorStop(1, 'rgba(255, 193, 77, 0.02)');
+        context.fillStyle = fill;
+        context.fill();
+
+        context.beginPath();
+        points.forEach((point, index) => {
+          const x = padding.left + point.threshold * chartWidth;
+          const y = padding.top + (1 - Math.min(1, point.harm / maxHarm)) * chartHeight;
+          if (index === 0) {
+            context.moveTo(x, y);
+          } else {
+            context.lineTo(x, y);
+          }
+        });
+        context.strokeStyle = 'rgba(255, 193, 77, 0.98)';
+        context.lineWidth = 3 * scale;
+        context.shadowColor = 'rgba(255, 193, 77, 0.65)';
+        context.shadowBlur = 10 * scale;
+        context.stroke();
+        context.shadowBlur = 0;
+
+        const currentX = padding.left + this.settings.threshold * chartWidth;
+        const currentY = padding.top + (1 - Math.min(1, currentResult.harm / maxHarm)) * chartHeight;
+        const optimalX = padding.left + bestPoint.threshold * chartWidth;
+        const optimalY = padding.top + (1 - Math.min(1, bestPoint.harm / maxHarm)) * chartHeight;
+
+        context.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+        context.lineWidth = 3 * scale;
+        context.beginPath();
+        context.moveTo(currentX, padding.top);
+        context.lineTo(currentX, padding.top + chartHeight);
+        context.stroke();
+
+        context.setLineDash([8 * scale, 8 * scale]);
+        context.strokeStyle = 'rgba(255, 193, 77, 0.95)';
+        context.lineWidth = 2 * scale;
+        context.beginPath();
+        context.moveTo(optimalX, padding.top);
+        context.lineTo(optimalX, padding.top + chartHeight);
+        context.stroke();
+        context.setLineDash([]);
+
+        context.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        context.beginPath();
+        context.arc(currentX, currentY, 5 * scale, 0, Math.PI * 2);
+        context.fill();
+
+        context.fillStyle = 'rgba(255, 193, 77, 0.98)';
+        context.beginPath();
+        context.arc(optimalX, optimalY, 5 * scale, 0, Math.PI * 2);
+        context.fill();
+
+        context.fillStyle = 'rgba(255, 255, 255, 0.62)';
+        context.font = `${12 * scale}px Inter, sans-serif`;
+        context.textAlign = 'right';
+        context.textBaseline = 'middle';
+        for (let j = 0; j <= 5; j += 1) {
+          const y = padding.top + (j / 5) * chartHeight;
+          const value = Math.round((1 - j / 5) * maxHarm);
+          context.fillText(this.number(value), padding.left - 10 * scale, y);
+        }
+
+        context.textAlign = 'center';
+        context.textBaseline = 'top';
+        for (let i = 0; i <= 5; i += 1) {
+          const value = i / 5;
+          const x = padding.left + value * chartWidth;
+          context.fillText(`${Math.round(value * 100)}%`, x, padding.top + chartHeight + 10 * scale);
+        }
+
+        context.fillStyle = 'rgba(255, 255, 255, 0.72)';
+        context.font = `${13 * scale}px Inter, sans-serif`;
+        context.fillText('Beviskrav', padding.left + chartWidth / 2, height - 18 * scale);
+
+        context.save();
+        context.translate(20 * scale, padding.top + chartHeight / 2);
+        context.rotate(-Math.PI / 2);
+        context.fillText('Samlet skade', 0, 0);
+        context.restore();
+
+        context.textBaseline = 'bottom';
+        context.fillStyle = 'rgba(255,255,255,0.92)';
+        context.fillText('Aktuel', currentX, padding.top - 6 * scale);
+        context.fillStyle = 'rgba(255,193,77,0.98)';
+        context.fillText('Minimum', optimalX, optimalY - 10 * scale);
+        context.restore();
+
+        this.elements.damageCurveCurrentHarm.textContent = this.number(currentResult.harm);
+        this.elements.damageCurveOptimalHarm.textContent = this.number(bestPoint.harm);
+        this.elements.damageCurveOptimalThreshold.textContent = this.percent(bestPoint.threshold);
+        this.elements.damageCurveDelta.textContent = this.number(currentResult.harm - bestPoint.harm);
+      }
+
+      buildCurveSeries() {
+        const definitions = {
+          tp: {
+            name: "Rigtige positive",
+            color: this.cssColor("--tp"),
+            values: []
+          },
+          tn: {
+            name: "Rigtige negative",
+            color: this.cssColor("--tn"),
+            values: []
+          },
+          fp: {
+            name: "Falske positive",
+            color: this.cssColor("--fp"),
+            values: []
+          },
+          fn: {
+            name: "Falske negative",
+            color: this.cssColor("--fn"),
+            values: []
+          },
+          correct: {
+            name: "Nøjagtighed",
+            color: "rgba(255, 255, 255, 0.96)",
+            values: []
+          },
+          wrong: {
+            name: "Fejlrate",
+            color: "rgba(192, 132, 252, 0.96)",
+            values: []
+          },
+          precision: {
+            name: "Præcision",
+            color: "rgba(125, 211, 252, 0.96)",
+            values: []
+          },
+          recall: {
+            name: "Fangstrate",
+            color: "rgba(134, 239, 172, 0.96)",
+            values: []
+          }
+        };
+
+        for (let i = 1; i <= 99; i += 1) {
+          const threshold = i / 100;
+          const trialSettings = Object.assign({}, this.settings, { threshold: threshold });
+          const result = this.model.evaluate(this.caseData, trialSettings);
+
+          definitions.tp.values.push({ threshold: threshold, value: result.tp / result.total });
+          definitions.tn.values.push({ threshold: threshold, value: result.tn / result.total });
+          definitions.fp.values.push({ threshold: threshold, value: result.fp / result.total });
+          definitions.fn.values.push({ threshold: threshold, value: result.fn / result.total });
+          definitions.correct.values.push({ threshold: threshold, value: (result.tp + result.tn) / result.total });
+          definitions.wrong.values.push({ threshold: threshold, value: (result.fp + result.fn) / result.total });
+          definitions.precision.values.push({ threshold: threshold, value: result.precision });
+          definitions.recall.values.push({ threshold: threshold, value: result.recall });
+        }
+
+        return definitions;
+      }
+
+      getActiveCurveKeys() {
+        const active = new Set();
+
+        document.querySelectorAll("[data-curve-key]").forEach((toggle) => {
+          if (toggle.checked) {
+            active.add(toggle.getAttribute("data-curve-key"));
+          }
+        });
+
+        return active;
+      }
+
+      cssColor(variableName) {
+        return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+      }
+
+      drawCurveBackground(context, width, height, padding, chartWidth, chartHeight) {
+        context.save();
+
+        context.fillStyle = "rgba(2, 6, 14, 0.35)";
+        context.fillRect(0, 0, width, height);
+
+        context.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        context.lineWidth = 1 * (window.devicePixelRatio || 1);
+
+        for (let i = 0; i <= 10; i += 1) {
+          const x = padding.left + (i / 10) * chartWidth;
+          context.beginPath();
+          context.moveTo(x, padding.top);
+          context.lineTo(x, padding.top + chartHeight);
+          context.stroke();
+        }
+
+        for (let j = 0; j <= 5; j += 1) {
+          const y = padding.top + (j / 5) * chartHeight;
+          context.beginPath();
+          context.moveTo(padding.left, y);
+          context.lineTo(padding.left + chartWidth, y);
+          context.stroke();
+        }
+
+        context.strokeStyle = "rgba(255, 255, 255, 0.28)";
+        context.lineWidth = 1.2 * (window.devicePixelRatio || 1);
+        context.beginPath();
+        context.moveTo(padding.left, padding.top);
+        context.lineTo(padding.left, padding.top + chartHeight);
+        context.lineTo(padding.left + chartWidth, padding.top + chartHeight);
+        context.stroke();
+
+        context.fillStyle = "rgba(255, 255, 255, 0.58)";
+        context.font = `${12 * (window.devicePixelRatio || 1)}px Inter, sans-serif`;
+        context.textAlign = "right";
+        context.textBaseline = "middle";
+
+        for (let j = 0; j <= 5; j += 1) {
+          const value = 1 - j / 5;
+          const y = padding.top + j / 5 * chartHeight;
+          context.fillText(`${Math.round(value * 100)}%`, padding.left - 10 * (window.devicePixelRatio || 1), y);
+        }
+
+        context.textAlign = "center";
+        context.textBaseline = "top";
+
+        for (let i = 0; i <= 5; i += 1) {
+          const value = i / 5;
+          const x = padding.left + value * chartWidth;
+          context.fillText(`${Math.round(value * 100)}%`, x, padding.top + chartHeight + 12 * (window.devicePixelRatio || 1));
+        }
+
+        context.fillStyle = "rgba(255, 255, 255, 0.72)";
+        context.font = `${13 * (window.devicePixelRatio || 1)}px Inter, sans-serif`;
+        context.fillText("Beviskrav", padding.left + chartWidth / 2, height - 20 * (window.devicePixelRatio || 1));
+
+        context.save();
+        context.translate(20 * (window.devicePixelRatio || 1), padding.top + chartHeight / 2);
+        context.rotate(-Math.PI / 2);
+        context.fillText("Andel af alle sager", 0, 0);
+        context.restore();
+
+        context.restore();
+      }
+
+      drawCurveLines(context, series, active, padding, chartWidth, chartHeight) {
+        context.save();
+
+        Object.entries(series).forEach(([key, definition]) => {
+          if (!active.has(key)) {
+            return;
+          }
+
+          context.beginPath();
+
+          definition.values.forEach((point, index) => {
+            const x = padding.left + point.threshold * chartWidth;
+            const y = padding.top + (1 - point.value) * chartHeight;
+
+            if (index === 0) {
+              context.moveTo(x, y);
+            } else {
+              context.lineTo(x, y);
+            }
+          });
+
+          context.lineWidth = (key === "correct" || key === "wrong" ? 3.2 : 2.4) * (window.devicePixelRatio || 1);
+          context.strokeStyle = definition.color;
+          context.shadowColor = definition.color;
+          context.shadowBlur = 8 * (window.devicePixelRatio || 1);
+          context.stroke();
+          context.shadowBlur = 0;
+        });
+
+        context.restore();
+      }
+
+      drawCurveMarkers(context, padding, chartWidth, chartHeight) {
+        const scale = window.devicePixelRatio || 1;
+        const currentX = padding.left + this.settings.threshold * chartWidth;
+
+        context.save();
+        context.strokeStyle = "rgba(255, 255, 255, 0.95)";
+        context.lineWidth = 3 * scale;
+        context.beginPath();
+        context.moveTo(currentX, padding.top);
+        context.lineTo(currentX, padding.top + chartHeight);
+        context.stroke();
+
+        context.fillStyle = "rgba(255, 255, 255, 0.92)";
+        context.font = `${12 * scale}px Inter, sans-serif`;
+        context.textAlign = "center";
+        context.textBaseline = "bottom";
+        context.fillText("Aktuelt", currentX, padding.top - 8 * scale);
+        context.restore();
+      }
+
+      drawCurveExtremumKnobs(context, series, active, padding, chartWidth, chartHeight) {
+        const scale = window.devicePixelRatio || 1;
+        context.save();
+
+        Object.entries(series).forEach(([key, definition]) => {
+          if (!active.has(key) || !definition.values || definition.values.length < 3) {
+            return;
+          }
+
+          const first = definition.values[0];
+          const last = definition.values[definition.values.length - 1];
+          const minPoint = definition.values.reduce((best, point) => point.value < best.value ? point : best, definition.values[0]);
+          const maxPoint = definition.values.reduce((best, point) => point.value > best.value ? point : best, definition.values[0]);
+
+          let targetPoint = null;
+          if (minPoint.value < first.value && minPoint.value < last.value) {
+            targetPoint = minPoint;
+          } else if (maxPoint.value > first.value && maxPoint.value > last.value) {
+            targetPoint = maxPoint;
+          }
+
+          if (!targetPoint) {
+            return;
+          }
+
+          const x = padding.left + targetPoint.threshold * chartWidth;
+          const y = padding.top + (1 - targetPoint.value) * chartHeight;
+          context.fillStyle = definition.color;
+          context.beginPath();
+          context.arc(x, y, 6 * scale, 0, Math.PI * 2);
+          context.fill();
+
+          context.fillStyle = "rgba(8, 15, 28, 0.96)";
+          context.beginPath();
+          context.arc(x, y, 3 * scale, 0, Math.PI * 2);
+          context.fill();
+        });
+
+        context.restore();
+      }
+
+      renderScatter(result) {
+        const canvas = this.elements.scatterCanvas;
+        const context = canvas.getContext("2d");
+        const width = canvas.width;
+        const height = canvas.height;
+        const scale = window.devicePixelRatio || 1;
+        const thresholdX = this.settings.threshold * width;
+
+        context.clearRect(0, 0, width, height);
+        this.drawBackground(context, width, height, thresholdX);
+        this.drawDots(context, width, height);
+        this.drawThreshold(context, width, height, thresholdX);
+        this.placeThresholdBadge();
+      }
+
+      drawBackground(context, width, height, thresholdX) {
+        context.save();
+
+        const innocentRgb = this.cssColor("--innocent-rgb");
+        const guiltyRgb = this.cssColor("--guilty-rgb");
+
+        const leftGradient = context.createLinearGradient(0, 0, thresholdX, 0);
+        leftGradient.addColorStop(0, `rgba(${innocentRgb}, 0.12)`);
+        leftGradient.addColorStop(1, `rgba(${innocentRgb}, 0.025)`);
+        context.fillStyle = leftGradient;
+        context.fillRect(0, 0, thresholdX, height);
+
+        const rightGradient = context.createLinearGradient(thresholdX, 0, width, 0);
+        rightGradient.addColorStop(0, `rgba(${guiltyRgb}, 0.035)`);
+        rightGradient.addColorStop(1, `rgba(${guiltyRgb}, 0.14)`);
+        context.fillStyle = rightGradient;
+        context.fillRect(thresholdX, 0, width - thresholdX, height);
+
+        context.strokeStyle = "rgba(255, 255, 255, 0.07)";
+        context.lineWidth = 1;
+
+        for (let i = 0; i <= 10; i += 1) {
+          const x = (i / 10) * width;
+          context.beginPath();
+          context.moveTo(x, 0);
+          context.lineTo(x, height);
+          context.stroke();
+        }
+
+        for (let j = 0; j <= 5; j += 1) {
+          const y = (j / 5) * height;
+          context.beginPath();
+          context.moveTo(0, y);
+          context.lineTo(width, y);
+          context.stroke();
+        }
+
+        context.fillStyle = "rgba(255, 255, 255, 0.08)";
+        context.font = `${Math.max(13, width / 85)}px Inter, sans-serif`;
+        context.textAlign = "center";
+        context.fillText("FRIFINDELSE", Math.max(115, thresholdX / 2), 42);
+        context.fillText("DOM", thresholdX + Math.max(80, (width - thresholdX) / 2), 42);
+
+        context.restore();
+      }
+
+      drawDots(context, width, height) {
+        const topPadding = height * 0.13;
+        const bottomPadding = height * 0.12;
+        const usableHeight = height - topPadding - bottomPadding;
+        const bandCount = Math.max(9, Math.floor(Math.sqrt(this.caseData.length) / 1.4));
+
+        context.save();
+
+        for (const item of this.caseData) {
+          const x = item.score * width;
+          const band = item.id % bandCount;
+          const bandCenter = topPadding + (band / Math.max(1, bandCount - 1)) * usableHeight;
+          const wobble = (item.jitter - 0.5) * (usableHeight / bandCount) * 0.72;
+          const y = bandCenter + wobble;
+          const convicted = item.score >= this.settings.threshold;
+          const baseSize = this.caseData.length > 650 ? 3.3 : 4.4;
+          const radius = baseSize + item.sizeJitter * 2.2;
+          const alpha = convicted ? 0.93 : 0.64;
+
+          context.beginPath();
+          context.arc(x, y, radius * (window.devicePixelRatio || 1), 0, Math.PI * 2);
+          const guiltyRgb = this.cssColor("--guilty-rgb");
+          const innocentRgb = this.cssColor("--innocent-rgb");
+          context.fillStyle = item.guilty
+            ? `rgba(${guiltyRgb}, ${alpha})`
+            : `rgba(${innocentRgb}, ${alpha})`;
+          context.fill();
+
+          if (convicted && !item.guilty) {
+            context.lineWidth = 1.5 * (window.devicePixelRatio || 1);
+            context.strokeStyle = `rgba(${this.cssColor("--fp-rgb")}, 0.95)`;
+            context.stroke();
+          }
+
+          if (!convicted && item.guilty) {
+            context.lineWidth = 1.5 * (window.devicePixelRatio || 1);
+            context.strokeStyle = `rgba(${this.cssColor("--fn-rgb")}, 0.95)`;
+            context.stroke();
+          }
+        }
+
+        context.restore();
+      }
+
+      drawThreshold(context, width, height, thresholdX) {
+        context.save();
+        context.shadowColor = "rgba(255, 255, 255, 0.55)";
+        context.shadowBlur = 18 * (window.devicePixelRatio || 1);
+        context.strokeStyle = "rgba(255, 255, 255, 0.95)";
+        context.lineWidth = 4 * (window.devicePixelRatio || 1);
+        context.beginPath();
+        context.moveTo(thresholdX, 0);
+        context.lineTo(thresholdX, height);
+        context.stroke();
+
+        context.shadowBlur = 0;
+        context.fillStyle = "rgba(255, 255, 255, 0.95)";
+        context.beginPath();
+        context.arc(thresholdX, height * 0.52, 8 * (window.devicePixelRatio || 1), 0, Math.PI * 2);
+        context.fill();
+        context.restore();
+      }
+
+      placeThresholdBadge() {
+        const shellRect = this.elements.canvasShell.getBoundingClientRect();
+        const x = this.settings.threshold * shellRect.width;
+        const minX = 62;
+        const maxX = shellRect.width - 62;
+        const clampedX = this.clamp(x, minX, maxX);
+        this.elements.thresholdBadge.style.left = `${clampedX}px`;
+        this.elements.thresholdBadge.textContent = `Beviskrav for Dom: ${this.percent(this.settings.threshold)}`;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      new SimulatorApp(document.getElementById("app"));
+
+      const body = document.body;
+      const introButton = document.getElementById("introLogoButton");
+      const introOverlay = document.getElementById("introOverlay");
+
+      const finishIntro = () => {
+        if (body.classList.contains("intro-complete")) {
+          return;
+        }
+
+        const targetLogo = document.querySelector(".app-logo");
+        if (introButton && targetLogo) {
+          const targetRect = targetLogo.getBoundingClientRect();
+          introButton.style.left = `${targetRect.left}px`;
+          introButton.style.top = `${targetRect.top}px`;
+          introButton.style.width = `${targetRect.width}px`;
+          introButton.style.height = `${targetRect.height}px`;
+          introButton.style.transform = "none";
+        }
+
+        body.classList.add("intro-complete");
+        window.setTimeout(() => {
+          body.classList.add("intro-done");
+          if (introOverlay) {
+            introOverlay.setAttribute("aria-hidden", "true");
+          }
+        }, 1080);
+      };
+
+      if (introButton) {
+        introButton.addEventListener("click", finishIntro);
+        introButton.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            finishIntro();
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
