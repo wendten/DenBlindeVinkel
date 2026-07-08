@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="da">
 <head>
@@ -1495,13 +1495,13 @@
 <body class="intro-active">
 <div aria-hidden="false" class="intro-overlay" id="introOverlay">
 <div class="intro-backdrop"></div>
-<button aria-label="Ã…bn siden" class="intro-logo-button" id="introLogoButton" type="button">
+<button aria-label="Åbn siden" class="intro-logo-button" id="introLogoButton" type="button">
 <img alt="Logo" class="intro-logo" draggable="false" height="750" src="../logo.png" width="750"/>
 </button>
 </div>
 <main class="app" id="app">
 <header class="hero">
-<div class="hero-actions"><label class="top-select"><span>Sagstype</span><select aria-label="VÃ¦lg sagstype" id="crimePresetSelect"><option selected="selected" value="generic">Generel kriminalitet</option><option value="murder">Drab</option><option value="rape">VoldtÃ¦gt</option><option value="violence">Grov vold</option><option value="economic">Ã˜konomisk kriminalitet</option><option value="burglary">Indbrud</option><option value="gang">Bandevold</option><option value="corruption">Korruption</option></select></label>
+<div class="hero-actions"><label class="top-select"><span>Sagstype</span><select aria-label="Vælg sagstype" id="crimePresetSelect"><option selected="selected" value="generic">Generel kriminalitet</option><option value="murder">Drab</option><option value="rape">Voldtægt</option><option value="violence">Grov vold</option><option value="economic">Økonomisk kriminalitet</option><option value="burglary">Indbrud</option><option value="gang">Bandevold</option><option value="corruption">Korruption</option></select></label>
 <button class="btn primary" id="presenterButton" type="button">Presenter-visning</button>
 <button class="btn" id="optimalButton" type="button">Find laveste samlede skade</button>
 <button class="btn danger" id="resetButton" type="button">Nulstil</button>
@@ -1516,12 +1516,12 @@
 <div class="controls"><div class="control">
 <div class="control-head">
 <label for="thresholdSlider">Beviskrav</label>
-<button aria-label="Angiver hvor stÃ¦rk en sag skal vÃ¦re, fÃ¸r den ender med dom. Et hÃ¸jere krav reducerer falske domme, men kan ogsÃ¥ Ã¸ge antallet af skyldige, der gÃ¥r fri." class="help-icon" data-tooltip="Angiver hvor stÃ¦rk en sag skal vÃ¦re, fÃ¸r den ender med dom. Et hÃ¸jere krav reducerer falske domme, men kan ogsÃ¥ Ã¸ge antallet af skyldige, der gÃ¥r fri." type="button">!</button></div>
+<button aria-label="Angiver hvor stærk en sag skal være, før den ender med dom. Et højere krav reducerer falske domme, men kan også øge antallet af skyldige, der går fri." class="help-icon" data-tooltip="Angiver hvor stærk en sag skal være, før den ender med dom. Et højere krav reducerer falske domme, men kan også øge antallet af skyldige, der går fri." type="button">!</button></div>
 <input id="thresholdSlider" max="99" min="1" type="range" value="72"/><div class="slider-bubble" id="thresholdValue">72%</div>
 </div><div class="control">
 <div class="control-head">
 <label for="punishmentSlider">Strafniveau</label>
-<button aria-label="HÃ¸jere strafniveau Ã¸ger kun den beregnede afskrÃ¦kkelseseffekt i skadesmodellen. Det Ã¦ndrer ikke de andre slidere." class="help-icon" data-tooltip="HÃ¸jere strafniveau Ã¸ger kun den beregnede afskrÃ¦kkelseseffekt i skadesmodellen. Det Ã¦ndrer ikke de andre slidere." type="button">!</button></div>
+<button aria-label="Højere strafniveau øger kun den beregnede afskrækkelseseffekt i skadesmodellen. Det ændrer ikke de andre slidere." class="help-icon" data-tooltip="Højere strafniveau øger kun den beregnede afskrækkelseseffekt i skadesmodellen. Det ændrer ikke de andre slidere." type="button">!</button></div>
 <input id="punishmentSlider" max="100" min="0" type="range" value="50"/><div class="slider-bubble" id="punishmentValue">50%</div>
 </div></div>
 </div>
@@ -1538,15 +1538,15 @@
 </div>
 <div class="control">
 <div class="control-head">
-<label for="noiseSlider">StÃ¸j</label>
-<button aria-label="StÃ¸j i sagen. HÃ¸jere vÃ¦rdi betyder mere overlap mellem skyldige og uskyldige og dermed flere fejl. Lavere vÃ¦rdi betyder klarere beviser og bedre adskillelse." class="help-icon" data-tooltip="StÃ¸j i sagen. HÃ¸jere vÃ¦rdi betyder mere overlap mellem skyldige og uskyldige og dermed flere fejl. Lavere vÃ¦rdi betyder klarere beviser og bedre adskillelse." type="button">!</button></div>
+<label for="noiseSlider">Støj</label>
+<button aria-label="Støj i sagen. Højere værdi betyder mere overlap mellem skyldige og uskyldige og dermed flere fejl. Lavere værdi betyder klarere beviser og bedre adskillelse." class="help-icon" data-tooltip="Støj i sagen. Højere værdi betyder mere overlap mellem skyldige og uskyldige og dermed flere fejl. Lavere værdi betyder klarere beviser og bedre adskillelse." type="button">!</button></div>
 <input id="noiseSlider" max="100" min="0" type="range" value="68"/><div class="slider-bubble" id="noiseValue">68%</div>
 </div>
 
 <div class="control">
 <div class="control-head">
 <label for="casesSlider">Antal retlige sager i modellen</label>
-<button aria-label="Flere prikker gÃ¸r mÃ¸nsteret tydeligere, men kan vÃ¦re tungere at vise pÃ¥ Ã¦ldre maskiner." class="help-icon" data-tooltip="Flere prikker gÃ¸r mÃ¸nsteret tydeligere, men kan vÃ¦re tungere at vise pÃ¥ Ã¦ldre maskiner." type="button">!</button></div>
+<button aria-label="Flere prikker gør mønsteret tydeligere, men kan være tungere at vise på ældre maskiner." class="help-icon" data-tooltip="Flere prikker gør mønsteret tydeligere, men kan være tungere at vise på ældre maskiner." type="button">!</button></div>
 <input id="casesSlider" max="900" min="80" step="20" type="range" value="360"/><div class="slider-bubble" id="casesValue">360</div>
 </div>
 </div>
@@ -1559,25 +1559,25 @@
 <div class="control">
 <div class="control-head">
 <label for="falsePositiveCostSlider">Skade ved uskyldig dom</label>
-<button aria-label="Hvor alvorligt er det, at staten dÃ¸mmer en uskyldig? Denne vÃ¦gt bruges direkte pÃ¥ antallet af falske positive." class="help-icon" data-tooltip="Hvor alvorligt er det, at staten dÃ¸mmer en uskyldig? Denne vÃ¦gt bruges direkte pÃ¥ antallet af falske positive." type="button">!</button></div>
+<button aria-label="Hvor alvorligt er det, at staten dømmer en uskyldig? Denne vægt bruges direkte på antallet af falske positive." class="help-icon" data-tooltip="Hvor alvorligt er det, at staten dømmer en uskyldig? Denne vægt bruges direkte på antallet af falske positive." type="button">!</button></div>
 <input id="falsePositiveCostSlider" max="60" min="1" type="range" value="10"/><div class="slider-bubble" id="falsePositiveCostValue">10x</div>
 </div>
 <div class="control">
 <div class="control-head">
 <label for="baseCrimeShareSlider">Grundskade</label>
-<button aria-label="Grundskade: den normale skade fra den samlede skyldpulje uden tilbagefalds- eller strafbehandling. PÃ¥virker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="Grundskade: den normale skade fra den samlede skyldpulje uden tilbagefalds- eller strafbehandling. PÃ¥virker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
+<button aria-label="Grundskade: den normale skade fra den samlede skyldpulje uden tilbagefalds- eller strafbehandling. Påvirker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="Grundskade: den normale skade fra den samlede skyldpulje uden tilbagefalds- eller strafbehandling. Påvirker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
 <input id="baseCrimeShareSlider" max="100" min="0" type="range" value="35"/><div class="slider-bubble" id="baseCrimeShareValue">35%</div>
 </div>
 <div class="control">
 <div class="control-head">
 <label for="repeatCrimeShareSlider">Tilbagefaldsskade</label>
-<button aria-label="Tilbagefaldsskade: lÃ¦gger falske negative og rigtige positive ganget med strafniveau til skyldpuljen. PÃ¥virker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="Tilbagefaldsskade: lÃ¦gger falske negative og rigtige positive ganget med strafniveau til skyldpuljen. PÃ¥virker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
+<button aria-label="Tilbagefaldsskade: lægger falske negative og rigtige positive ganget med strafniveau til skyldpuljen. Påvirker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="Tilbagefaldsskade: lægger falske negative og rigtige positive ganget med strafniveau til skyldpuljen. Påvirker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
 <input id="repeatCrimeShareSlider" max="100" min="0" type="range" value="40"/><div class="slider-bubble" id="repeatCrimeShareValue">40%</div>
 </div>
 <div class="control">
 <div class="control-head">
-<label for="deterrableCrimeShareSlider">StraffÃ¸lsom skade</label>
-<button aria-label="StraffÃ¸lsom skade: reducerer skyldpuljen med strafniveauet. PÃ¥virker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="StraffÃ¸lsom skade: reducerer skyldpuljen med strafniveauet. PÃ¥virker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
+<label for="deterrableCrimeShareSlider">Straffølsom skade</label>
+<button aria-label="Straffølsom skade: reducerer skyldpuljen med strafniveauet. Påvirker skadeskurven, ikke udfaldskurverne." class="help-icon" data-tooltip="Straffølsom skade: reducerer skyldpuljen med strafniveauet. Påvirker skadeskurven, ikke udfaldskurverne." type="button">!</button></div>
 <input id="deterrableCrimeShareSlider" max="100" min="0" type="range" value="25"/><div class="slider-bubble" id="deterrableCrimeShareValue">25%</div>
 </div>
 </div>
@@ -1588,7 +1588,7 @@
 <div class="stage-top">
 <div class="stage-title">
 <h2>Sager fordelt efter bevisstyrke</h2>
-<p>Orange er faktisk skyldig. BlÃ¥ er faktisk uskyldig. Den hvide linje er <strong>beviskravet</strong>.</p>
+<p>Orange er faktisk skyldig. Blå er faktisk uskyldig. Den hvide linje er <strong>beviskravet</strong>.</p>
 </div>
 <div class="live-number">
 <div class="metric-mini">
@@ -1605,7 +1605,7 @@
 <canvas aria-label="Interaktiv scatterplot over retlige sager og sikkerhedskrav" height="300" id="scatterCanvas" width="1200"></canvas>
 <div class="threshold-badge" id="thresholdBadge">Beviskrav for Dom: 72%</div>
 <div class="axis-label left">Lav bevisstyrke, frifindes oftere</div>
-<div class="axis-label right">HÃ¸j bevisstyrke, dÃ¸mmes oftere</div>
+<div class="axis-label right">Høj bevisstyrke, dømmes oftere</div>
 </div>
 <div class="legend">
 <span class="legend-item"><span class="dot guilty"></span>Faktisk skyldig</span>
@@ -1617,11 +1617,11 @@
 <div>
 <h2 class="section-title">Kurver over beviskrav</h2>
 <p>
-                Her vises hvordan udfaldene Ã¦ndrer sig, nÃ¥r beviskravet bevÃ¦ger sig fra lavt til hÃ¸jt.
-                Den lodrette hvide linje er det aktuelle krav. Klik pÃ¥ et kurvenavn for at vise kun den kurve.
+                Her vises hvordan udfaldene ændrer sig, når beviskravet bevæger sig fra lavt til højt.
+                Den lodrette hvide linje er det aktuelle krav. Klik på et kurvenavn for at vise kun den kurve.
               </p>
 </div>
-<div aria-label="VÃ¦lg kurver" class="curve-toggles">
+<div aria-label="Vælg kurver" class="curve-toggles">
 <div class="curve-toggle" style="--curve-color: var(--tp);">
 <input checked="" data-curve-key="tp" type="checkbox"/>
 <span class="curve-color"></span>
@@ -1645,7 +1645,7 @@
 <div class="curve-toggle" style="--curve-color: #ffffff;">
 <input checked="" data-curve-key="correct" type="checkbox"/>
 <span class="curve-color"></span>
-<button class="curve-name" data-curve-name="correct" type="button">NÃ¸jagtighed</button>
+<button class="curve-name" data-curve-name="correct" type="button">Nøjagtighed</button>
 </div>
 <div class="curve-toggle" style="--curve-color: #c084fc;">
 <input checked="" data-curve-key="wrong" type="checkbox"/>
@@ -1655,7 +1655,7 @@
 <div class="curve-toggle" style="--curve-color: #7dd3fc;">
 <input checked="" data-curve-key="precision" type="checkbox"/>
 <span class="curve-color"></span>
-<button class="curve-name" data-curve-name="precision" type="button">PrÃ¦cision</button>
+<button class="curve-name" data-curve-name="precision" type="button">Præcision</button>
 </div>
 <div class="curve-toggle" style="--curve-color: #86efac;">
 <input checked="" data-curve-key="recall" type="checkbox"/>
@@ -1674,7 +1674,7 @@
 <div class="note">Den faste hvide linje</div>
 </div>
 <div class="curve-summary-card">
-<div class="label">NÃ¸jagtighed</div>
+<div class="label">Nøjagtighed</div>
 <div class="value" id="curveCorrectValue">0%</div>
 <div class="note">Rigtige positive + rigtige negative</div>
 </div>
@@ -1684,14 +1684,14 @@
 <div class="note">Falske positive + falske negative</div>
 </div>
 <div class="curve-summary-card">
-<div class="label">PrÃ¦cision</div>
+<div class="label">Præcision</div>
 <div class="value" id="curvePrecisionValue">0%</div>
-<div class="note">Andel dÃ¸mte, der faktisk er skyldige</div>
+<div class="note">Andel dømte, der faktisk er skyldige</div>
 </div>
 <div class="curve-summary-card">
 <div class="label">Fangstrate</div>
 <div class="value" id="curveRecallValue">0%</div>
-<div class="note">Andel faktisk skyldige, der dÃ¸mmes</div>
+<div class="note">Andel faktisk skyldige, der dømmes</div>
 </div>
 </div>
 </div>
@@ -1701,7 +1701,7 @@
 <div class="curve-top damage-curve-top">
 <div>
 <h2 class="section-title">Skadeskurve</h2>
-<p>Den samlede skadesmodel som funktion af beviskravet. Minimumspunktet flytter sig, nÃ¥r du Ã¦ndrer skadesparametrene.</p>
+<p>Den samlede skadesmodel som funktion af beviskravet. Minimumspunktet flytter sig, når du ændrer skadesparametrene.</p>
 </div>
 </div>
 <div class="curve-shell damage-curve-shell">
@@ -1711,12 +1711,12 @@
 <div class="curve-summary-card">
 <div class="label">Aktuel skade</div>
 <div class="value" id="damageCurveCurrentHarm">0</div>
-<div class="note">Ved nuvÃ¦rende beviskrav</div>
+<div class="note">Ved nuværende beviskrav</div>
 </div>
 <div class="curve-summary-card">
 <div class="label">Laveste skade</div>
 <div class="value" id="damageCurveOptimalHarm">0</div>
-<div class="note">Minimum pÃ¥ skadeskurven</div>
+<div class="note">Minimum på skadeskurven</div>
 </div>
 <div class="curve-summary-card">
 <div class="label">Laveste ved krav</div>
@@ -1738,13 +1738,13 @@
 <h2 class="section-title">Confusion matrix</h2>
 <div class="matrix-grid">
 <div class="matrix-card" style="--cell-color: var(--tp);">
-<div class="cell-kicker">DÃ¸mt + faktisk skyldig</div>
+<div class="cell-kicker">Dømt + faktisk skyldig</div>
 <div class="cell-title">Rigtig positiv</div>
 <div class="cell-number" id="tpCount">0</div>
 <div class="cell-sub" id="tpPercent">0%</div>
 </div>
 <div class="matrix-card" style="--cell-color: var(--fp);">
-<div class="cell-kicker">DÃ¸mt + faktisk uskyldig</div>
+<div class="cell-kicker">Dømt + faktisk uskyldig</div>
 <div class="cell-title">Falsk positiv</div>
 <div class="cell-number" id="fpCount">0</div>
 <div class="cell-sub" id="fpPercent">0%</div>
@@ -1781,7 +1781,7 @@
 <h2 class="section-title">Konfiguration</h2>
 <div class="analysis-grid">
 <div class="analysis-card">
-<div class="label">DÃ¸mte uskyldige</div>
+<div class="label">Dømte uskyldige</div>
 <div class="value" id="innocentConvicted">0</div>
 <div class="note">Falske positive</div>
 </div>
@@ -1791,18 +1791,18 @@
 <div class="note">Falske negative</div>
 </div>
 <div class="analysis-card">
-<div class="label">Dom prÃ¦cision</div>
+<div class="label">Dom præcision</div>
 <div class="value" id="precisionValue">0%</div>
-<div class="note">Andel dÃ¸mte, der faktisk er skyldige</div>
+<div class="note">Andel dømte, der faktisk er skyldige</div>
 </div>
-<div class="analysis-card"><div class="label">Fangstrate</div><div class="value" id="recallValue">0%</div><div class="note">Recall: andel faktisk skyldige, der dÃ¸mmes</div></div>
+<div class="analysis-card"><div class="label">Fangstrate</div><div class="value" id="recallValue">0%</div><div class="note">Recall: andel faktisk skyldige, der dømmes</div></div>
 <div class="analysis-card"><div class="label">Fejlrate</div><div class="value" id="errorRateValue">0%</div><div class="note">Falske positive + falske negative</div></div>
-<div class="analysis-card"><div class="label">NÃ¸jagtighed</div><div class="value" id="accuracyValue">0%</div><div class="note">Accuracy: rigtige positive + rigtige negative</div></div></div>
+<div class="analysis-card"><div class="label">Nøjagtighed</div><div class="value" id="accuracyValue">0%</div><div class="note">Accuracy: rigtige positive + rigtige negative</div></div></div>
 <div class="verdict">
 <h3 id="verdictTitle">Argumentet</h3>
 <p id="verdictText">
-                Flyt beviskravet for at se tradeoffet mellem at dÃ¸mme uskyldige
-                og at lade skyldige gÃ¥ fri.
+                Flyt beviskravet for at se tradeoffet mellem at dømme uskyldige
+                og at lade skyldige gå fri.
               </p>
 </div>
 </div>
@@ -2357,7 +2357,7 @@
             repeatCrimeShare: 0.40,
             deterrableCrimeShare: 0.25,
             crimeDamageUnit: 10,
-            explanation: "Blandet kriminalitet med middel stÃ¸j, middel gentagelsesrisiko og middel skade ved nye ofre."
+            explanation: "Blandet kriminalitet med middel støj, middel gentagelsesrisiko og middel skade ved nye ofre."
           },
           murder: {
             label: "Drab",
@@ -2371,10 +2371,10 @@
             repeatCrimeShare: 0.25,
             deterrableCrimeShare: 0.25,
             crimeDamageUnit: 10,
-            explanation: "Drab har meget hÃ¸j skade i begge fejlretninger. Derfor stÃ¥r bÃ¥de falske positive og falske negative tungt i skadesmodellen."
+            explanation: "Drab har meget høj skade i begge fejlretninger. Derfor står både falske positive og falske negative tungt i skadesmodellen."
           },
           rape: {
-            label: "VoldtÃ¦gt",
+            label: "Voldtægt",
             threshold: 0.78,
             prevalence: 0.38,
             evidenceQuality: 0.35,
@@ -2385,7 +2385,7 @@
             repeatCrimeShare: 0.35,
             deterrableCrimeShare: 0.20,
             crimeDamageUnit: 10,
-            explanation: "VoldtÃ¦gt er et af de mest usikre scenarier i modellen. Mange sager afhÃ¦nger af forklaringer, samtykkespÃ¸rgsmÃ¥l, kontekst, manglende tekniske beviser og stÃ¦rk social skade i begge retninger. Derfor er bÃ¥de falske positive og falske negative sat hÃ¸jt, og stÃ¸jen hÃ¸jere end i mere tekniske sager."
+            explanation: "Voldtægt er et af de mest usikre scenarier i modellen. Mange sager afhænger af forklaringer, samtykkespørgsmål, kontekst, manglende tekniske beviser og stærk social skade i begge retninger. Derfor er både falske positive og falske negative sat højt, og støjen højere end i mere tekniske sager."
           },
           violence: {
             label: "Grov vold",
@@ -2399,10 +2399,10 @@
             repeatCrimeShare: 0.50,
             deterrableCrimeShare: 0.20,
             crimeDamageUnit: 10,
-            explanation: "Grov vold har relativt hÃ¸j gentagelsesrisiko og ofte mere direkte bevismateriale end forklaringsbaserede sager."
+            explanation: "Grov vold har relativt høj gentagelsesrisiko og ofte mere direkte bevismateriale end forklaringsbaserede sager."
           },
           economic: {
-            label: "Ã˜konomisk kriminalitet",
+            label: "Økonomisk kriminalitet",
             threshold: 0.74,
             prevalence: 0.56,
             evidenceQuality: 0.66,
@@ -2413,7 +2413,7 @@
             repeatCrimeShare: 0.20,
             deterrableCrimeShare: 0.35,
             crimeDamageUnit: 10,
-            explanation: "Ã˜konomisk kriminalitet har ofte dokumentbaserede beviser, men hÃ¸j kompleksitet. Derfor er stÃ¸jen relativt lav, mens fejl stadig kan opstÃ¥ gennem tolkning og modelkompleksitet."
+            explanation: "Økonomisk kriminalitet har ofte dokumentbaserede beviser, men høj kompleksitet. Derfor er støjen relativt lav, mens fejl stadig kan opstå gennem tolkning og modelkompleksitet."
           },
           burglary: {
             label: "Indbrud",
@@ -2427,7 +2427,7 @@
             repeatCrimeShare: 0.55,
             deterrableCrimeShare: 0.20,
             crimeDamageUnit: 10,
-            explanation: "Indbrud har lavere skade pr. sag end drab og voldtÃ¦gt, men hÃ¸j volumen og hÃ¸j gentagelsesrisiko kan gÃ¸re falske negativer dyre samlet set."
+            explanation: "Indbrud har lavere skade pr. sag end drab og voldtægt, men høj volumen og høj gentagelsesrisiko kan gøre falske negativer dyre samlet set."
           },
           gang: {
             label: "Bandevold",
@@ -2441,7 +2441,7 @@
             repeatCrimeShare: 0.45,
             deterrableCrimeShare: 0.35,
             crimeDamageUnit: 10,
-            explanation: "Bandevold kombinerer hÃ¸j skade, hÃ¸j gentagelsesrisiko og lavere vidnesamarbejde. Svagt vidnesamarbejde kan gÃ¸re beviserne dÃ¥rligere trods hÃ¸j efterforskningsindsats."
+            explanation: "Bandevold kombinerer høj skade, høj gentagelsesrisiko og lavere vidnesamarbejde. Svagt vidnesamarbejde kan gøre beviserne dårligere trods høj efterforskningsindsats."
           },
           corruption: {
             label: "Korruption",
@@ -2455,7 +2455,7 @@
             repeatCrimeShare: 0.20,
             deterrableCrimeShare: 0.45,
             crimeDamageUnit: 10,
-            explanation: "Korruption er ofte svÃ¦r at opdage og bevise. Denne sagstype bÃ¸r lÃ¦ses som et scenarie for indirekte samfundsskade snarere end som et simpelt offer-gerningsmand-forhold."
+            explanation: "Korruption er ofte svær at opdage og bevise. Denne sagstype bør læses som et scenarie for indirekte samfundsskade snarere end som et simpelt offer-gerningsmand-forhold."
           }
         };
 
@@ -2478,8 +2478,8 @@
         if (this.elements.domainExplanation) {
           this.elements.domainExplanation.innerHTML =
             `<strong>${preset.label}:</strong> ${preset.explanation} ` +
-            `<br><br><strong>Enhed:</strong> Modellen bruger retlige sager, ikke alle begÃ¥ede forbrydelser. Det passer bedst til confusion matrixen, fordi den mÃ¥ler afgÃ¸relsen: dom eller frifindelse.` +
-            `<br><br><strong>ModelgrÃ¦nse:</strong> Den viser fejlbalancen og mekanikken, ikke en officiel statistik over konkrete domme.`;
+            `<br><br><strong>Enhed:</strong> Modellen bruger retlige sager, ikke alle begåede forbrydelser. Det passer bedst til confusion matrixen, fordi den måler afgørelsen: dom eller frifindelse.` +
+            `<br><br><strong>Modelgrænse:</strong> Den viser fejlbalancen og mekanikken, ikke en officiel statistik over konkrete domme.`;
         }
 
         this.syncSlidersFromSettings();
@@ -2697,18 +2697,18 @@
         if (falsePositivePressure > repeatCrimePressure * 1.25) {
           this.elements.verdictTitle.textContent = "Falske positive dominerer skaden";
           this.elements.verdictText.textContent =
-            `Med et beviskrav pÃ¥ ${thresholdText} dÃ¸mmes ${fpText} uskyldige i simuleringen. ` +
-            `Skaden fra uskyldige domme vejer hÃ¸jere end den beregnede skade fra skyldpuljen.`;
+            `Med et beviskrav på ${thresholdText} dømmes ${fpText} uskyldige i simuleringen. ` +
+            `Skaden fra uskyldige domme vejer højere end den beregnede skade fra skyldpuljen.`;
         } else if (repeatCrimePressure > falsePositivePressure * 1.25) {
           this.elements.verdictTitle.textContent = "Tilbagefaldsskaden dominerer";
           this.elements.verdictText.textContent =
-            `Med et beviskrav pÃ¥ ${thresholdText} gÃ¥r ${fnText} skyldige fri i simuleringen. ` +
-            `Den del af skadesmodellen lÃ¦gger falske negative og strafpÃ¥virkede rigtige positive oven i skyldpuljen.`;
+            `Med et beviskrav på ${thresholdText} går ${fnText} skyldige fri i simuleringen. ` +
+            `Den del af skadesmodellen lægger falske negative og strafpåvirkede rigtige positive oven i skyldpuljen.`;
         } else {
-          this.elements.verdictTitle.textContent = "Tradeoffet er tÃ¦t pÃ¥ balance";
+          this.elements.verdictTitle.textContent = "Tradeoffet er tæt på balance";
           this.elements.verdictText.textContent =
-            `Med et beviskrav pÃ¥ ${thresholdText} ligger skaden fra uskyldige domme og den beregnede skyldpulje nogenlunde i samme omrÃ¥de. ` +
-            `VÃ¦gtene bestemmer hvordan skyldpuljen behandles: grundskade, tilbagefald og straffÃ¸lsom reduktion.`;
+            `Med et beviskrav på ${thresholdText} ligger skaden fra uskyldige domme og den beregnede skyldpulje nogenlunde i samme område. ` +
+            `Vægtene bestemmer hvordan skyldpuljen behandles: grundskade, tilbagefald og straffølsom reduktion.`;
         }
       }
 
@@ -2955,7 +2955,7 @@
             values: []
           },
           correct: {
-            name: "NÃ¸jagtighed",
+            name: "Nøjagtighed",
             color: "rgba(255, 255, 255, 0.96)",
             values: []
           },
@@ -2965,7 +2965,7 @@
             values: []
           },
           precision: {
-            name: "PrÃ¦cision",
+            name: "Præcision",
             color: "rgba(125, 211, 252, 0.96)",
             values: []
           },

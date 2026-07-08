@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="da">
 <head>
   <meta charset="utf-8" />
@@ -406,19 +406,19 @@
     }
 
     .sort-header::after {
-      content: "↕";
+      content: "â†•";
       color: var(--muted-2);
       font-size: 11px;
       line-height: 1;
     }
 
     .sort-header.sorted-asc::after {
-      content: "↑";
+      content: "â†‘";
       color: var(--yellow);
     }
 
     .sort-header.sorted-desc::after {
-      content: "↓";
+      content: "â†“";
       color: var(--yellow);
     }
 
@@ -874,7 +874,7 @@
 
   <div aria-hidden="false" class="intro-overlay" id="introOverlay">
     <div class="intro-backdrop"></div>
-    <button aria-label="Åbn siden" class="intro-logo-button" id="introLogoButton" type="button">
+    <button aria-label="Ã…bn siden" class="intro-logo-button" id="introLogoButton" type="button">
       <img alt="Logo" class="intro-logo" draggable="false" height="750" src="../logo.png" width="750" />
     </button>
   </div>
@@ -884,8 +884,8 @@
         <div class="eyebrow">IQ normalfordeling</div>
       </div>
       <div class="hero-actions">
-        <button class="btn primary" id="addGroupButton" type="button">Tilføj gruppe</button>
-        <button class="btn" id="exportCsvButton" type="button">Eksportér CSV</button>
+        <button class="btn primary" id="addGroupButton" type="button">TilfÃ¸j gruppe</button>
+        <button class="btn" id="exportCsvButton" type="button">EksportÃ©r CSV</button>
         <button class="btn danger" id="resetButton" type="button">Nulstil data</button>
       </div>
       <img alt="Logo" class="app-logo" height="128" src="../logo.png" width="128" />
@@ -896,12 +896,12 @@
         <article class="panel">
           <div class="panel-inner">
             <h2 class="section-title">Grupper</h2>
-            <p class="section-note">Alle værdier kan ændres direkte. Aktiv styrer om gruppen indgår i plot og tærskelberegning.</p>
+            <p class="section-note">Alle vÃ¦rdier kan Ã¦ndres direkte. Aktiv styrer om gruppen indgÃ¥r i plot og tÃ¦rskelberegning.</p>
             <div class="group-action-bar" aria-label="Gruppehandlinger">
-              <button class="btn" id="collapseAllGroupsButton" type="button">Kollapsér alle</button>
+              <button class="btn" id="collapseAllGroupsButton" type="button">KollapsÃ©r alle</button>
               <button class="btn" id="expandAllGroupsButton" type="button">Udvid alle</button>
-              <button class="btn" id="selectAllGroupsButton" type="button">Vælg alle</button>
-              <button class="btn" id="deselectAllGroupsButton" type="button">Fravælg alle</button>
+              <button class="btn" id="selectAllGroupsButton" type="button">VÃ¦lg alle</button>
+              <button class="btn" id="deselectAllGroupsButton" type="button">FravÃ¦lg alle</button>
             </div>
             <div class="group-list" id="groupList"></div>
           </div>
@@ -916,8 +916,8 @@
         <div class="legend" id="legend"></div>
 
         <div class="panel-inner">
-          <h2 class="section-title">Tærskelresultat</h2>
-          <p class="section-note">Resultatet viser andel under tærsklen som percentil, andel over tærsklen og eventuelt antal personer over tærsklen. IQ-linjen kan trækkes direkte i både PDF- og CDF-grafen.</p>
+          <h2 class="section-title">TÃ¦rskelresultat</h2>
+          <p class="section-note">Resultatet viser andel under tÃ¦rsklen som percentil, andel over tÃ¦rsklen og eventuelt antal personer over tÃ¦rsklen. IQ-linjen kan trÃ¦kkes direkte i bÃ¥de PDF- og CDF-grafen.</p>
           <div class="summary-grid">
             <div class="summary-card">
               <div class="label">Aktive kurver</div>
@@ -928,7 +928,7 @@
               <div class="value" id="overallPercentile">-</div>
             </div>
             <div class="summary-card">
-              <div class="label">Over tærskel</div>
+              <div class="label">Over tÃ¦rskel</div>
               <div class="value" id="overallAbove">-</div>
             </div>
           </div>
@@ -940,9 +940,9 @@
                   <th><button class="sort-header" data-result-sort="mean" type="button">Mean</button></th>
                   <th><button class="sort-header" data-result-sort="sd" type="button">SD</button></th>
                   <th><button class="sort-header" data-result-sort="population" type="button">Befolkning</button></th>
-                  <th><button class="sort-header" data-result-sort="percentile" type="button">Percentil ved tærskel</button></th>
-                  <th><button class="sort-header" data-result-sort="above" type="button">Over tærskel</button></th>
-                  <th><button class="sort-header" data-result-sort="countAbove" type="button">Antal over tærskel</button></th>
+                  <th><button class="sort-header" data-result-sort="percentile" type="button">Percentil ved tÃ¦rskel</button></th>
+                  <th><button class="sort-header" data-result-sort="above" type="button">Over tÃ¦rskel</button></th>
+                  <th><button class="sort-header" data-result-sort="countAbove" type="button">Antal over tÃ¦rskel</button></th>
                 </tr>
               </thead>
               <tbody id="resultTableBody"></tbody>
@@ -955,15 +955,15 @@
         <article class="panel">
           <div class="panel-inner">
             <h2 class="section-title">Settings</h2>
-            <p class="section-note">Indstillingerne her styrer graf, tærskel, kønsvarians og zoom. Automatisk zoom kan slås fra for manuel x- og y-skala.</p>
+            <p class="section-note">Indstillingerne her styrer graf, tÃ¦rskel, kÃ¸nsvarians og zoom. Automatisk zoom kan slÃ¥s fra for manuel x- og y-skala.</p>
             <div class="settings-grid">
               <div class="settings-row">
                 <div class="field">
-                  <label for="thresholdInput">IQ-tærskel</label>
+                  <label for="thresholdInput">IQ-tÃ¦rskel</label>
                   <input id="thresholdInput" type="number" min="0" max="200" step="0.1" value="140" />
                 </div>
                 <div class="field">
-                  <label for="sexVarianceInput">Kønsvarians %</label>
+                  <label for="sexVarianceInput">KÃ¸nsvarians %</label>
                   <input id="sexVarianceInput" type="number" min="0" max="100" step="0.1" value="13.333" />
                 </div>
               </div>
@@ -978,11 +978,11 @@
               <div class="settings-toggles">
                 <label class="toggle-pill">
                   <input id="populationToggle" type="checkbox" checked />
-                  Vægt med befolkning
+                  VÃ¦gt med befolkning
                 </label>
                 <label class="toggle-pill">
                   <input id="sexSplitToggle" type="checkbox" />
-                  Split mænd og kvinder
+                  Split mÃ¦nd og kvinder
                 </label>
                 <label class="toggle-pill">
                   <input id="overallCurveToggle" type="checkbox" checked />
@@ -1040,7 +1040,7 @@
             <p class="section-note">CSV-formatet er: id, name, mean, sd, population, color, active.</p>
             <div class="csv-area">
               <input class="file-input" id="csvFileInput" type="file" accept=".csv,text/csv" />
-              <button class="btn" id="applyCsvButton" type="button">Indlæs CSV fra tekstfelt</button>
+              <button class="btn" id="applyCsvButton" type="button">IndlÃ¦s CSV fra tekstfelt</button>
               <textarea class="csv-preview" id="csvTextArea" spellcheck="false"></textarea>
             </div>
           </div>
@@ -1169,9 +1169,9 @@
         this.thresholds = [
           { id: "genius", name: "Geni", value: 140, description: "IQ 140 og derover." },
           { id: "mensa", name: "Mensa", value: 130, description: "IQ 130 og derover." },
-          { id: "productivity", name: "Produktivitetstærskel", value: 87, description: "IQ 87 og derover." }
+          { id: "productivity", name: "ProduktivitetstÃ¦rskel", value: 87, description: "IQ 87 og derover." }
         ];
-        this.defaultCsv = `id,name,mean,sd,population,color,active\nwhite,Hvide,100,15,700000000,#48d4ff,1\nblack,Sorte,72,15,1000000000,#ff4f7a,1\njewish,Jøder,114,15,16000000,#ffc14d,1\nmuslim,Muslimer,83,15,16000000,#2ee59d,1\n`;
+        this.defaultCsv = `id,name,mean,sd,population,color,active\nwhite,Hvide,100,15,700000000,#48d4ff,1\nblack,Sorte,72,15,1000000000,#ff4f7a,1\njewish,JÃ¸der,114,15,16000000,#ffc14d,1\nmuslim,Muslimer,83,15,16000000,#2ee59d,1\n`;
       }
 
       initialize() {
@@ -1183,7 +1183,7 @@
         try {
           return window.localStorage.getItem(this.storageKey) || "";
         } catch (error) {
-          console.warn("Kunne ikke læse localStorage", error);
+          console.warn("Kunne ikke lÃ¦se localStorage", error);
           return "";
         }
       }
@@ -1263,9 +1263,9 @@
           .toLowerCase()
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
-          .replace(/æ/g, "ae")
-          .replace(/ø/g, "oe")
-          .replace(/å/g, "aa")
+          .replace(/Ã¦/g, "ae")
+          .replace(/Ã¸/g, "oe")
+          .replace(/Ã¥/g, "aa")
           .replace(/[^a-z0-9]+/g, "_")
           .replace(/^_+|_+$/g, "");
       }
@@ -1391,7 +1391,7 @@
             const femaleSd = this.getSexAdjustedSd(group.sd, sexVariancePercent, -0.5);
             const maleSd = this.getSexAdjustedSd(group.sd, sexVariancePercent, 0.5);
             components.push(this.createComponentFromGroup(group, "female", "kvinder", femaleSd, group.population * 0.5, baseWeight * 0.5, [7, 5]));
-            components.push(this.createComponentFromGroup(group, "male", "mænd", maleSd, group.population * 0.5, baseWeight * 0.5, []));
+            components.push(this.createComponentFromGroup(group, "male", "mÃ¦nd", maleSd, group.population * 0.5, baseWeight * 0.5, []));
           } else {
             components.push(this.createComponentFromGroup(group, "combined", "samlet", group.sd, group.population, baseWeight, []));
           }
@@ -1731,7 +1731,7 @@
         ctx.fillText("Ingen aktive grupper", width * 0.5, height * 0.5 - 12);
         ctx.fillStyle = "rgba(154, 167, 188, 0.95)";
         ctx.font = "13px Inter, system-ui, sans-serif";
-        ctx.fillText("Slå mindst én gruppe til for at vise PDF og CDF.", width * 0.5, height * 0.5 + 18);
+        ctx.fillText("SlÃ¥ mindst Ã©n gruppe til for at vise PDF og CDF.", width * 0.5, height * 0.5 + 18);
         ctx.restore();
       }
 
@@ -2219,8 +2219,8 @@
         const toggle = document.createElement("button");
         toggle.className = "collapsible-section-toggle";
         toggle.type = "button";
-        toggle.textContent = "▾";
-        toggle.setAttribute("aria-label", "Kollapsér sektion");
+        toggle.textContent = "â–¾";
+        toggle.setAttribute("aria-label", "KollapsÃ©r sektion");
 
         const body = document.createElement("div");
         body.className = "collapsible-section-body";
@@ -2238,8 +2238,8 @@
         toggle.addEventListener("click", () => {
           const collapsed = !section.classList.contains("collapsed");
           section.classList.toggle("collapsed", collapsed);
-          toggle.textContent = collapsed ? "▸" : "▾";
-          toggle.setAttribute("aria-label", collapsed ? "Udvid sektion" : "Kollapsér sektion");
+          toggle.textContent = collapsed ? "â–¸" : "â–¾";
+          toggle.setAttribute("aria-label", collapsed ? "Udvid sektion" : "KollapsÃ©r sektion");
         });
       }
     }
@@ -2482,7 +2482,7 @@
         const isSelected = this.state.selectedGroupId === group.id;
         card.className = "group-card" + (isCollapsed ? " collapsed" : "") + (isSelected ? " selected" : "");
         card.dataset.groupId = group.id;
-        card.title = "Klik for at vælge gruppen";
+        card.title = "Klik for at vÃ¦lge gruppen";
         card.addEventListener("click", (event) => {
           if (event.target.closest(".group-collapse-button, .active-checkbox, .color-input, .small-danger")) {
             return;
@@ -2496,8 +2496,8 @@
         const collapse = document.createElement("button");
         collapse.className = "group-collapse-button";
         collapse.type = "button";
-        collapse.textContent = isCollapsed ? "▸" : "▾";
-        collapse.title = isCollapsed ? "Udvid gruppe" : "Kollapsér gruppe";
+        collapse.textContent = isCollapsed ? "â–¸" : "â–¾";
+        collapse.title = isCollapsed ? "Udvid gruppe" : "KollapsÃ©r gruppe";
         collapse.addEventListener("click", () => {
           this.toggleGroupCollapsed(group.id);
         });
@@ -2812,7 +2812,7 @@
           this.state.selectedGroupId = this.getInitialSelectedGroupId();
           this.render();
         } catch (error) {
-          alert(error.message || "CSV kunne ikke indlæses.");
+          alert(error.message || "CSV kunne ikke indlÃ¦ses.");
         }
       }
 
@@ -2826,7 +2826,7 @@
           this.elements.csvTextArea.value = String(reader.result || "");
           this.applyCsvText();
         };
-        reader.onerror = () => alert("Kunne ikke læse CSV-filen.");
+        reader.onerror = () => alert("Kunne ikke lÃ¦se CSV-filen.");
         reader.readAsText(file, "utf-8");
       }
 
@@ -2887,7 +2887,7 @@
         status.innerHTML = "";
 
         const message = document.createElement("span");
-        message.textContent = "Hvis Brave blokerer automatisk download fra file://, så klik manuelt: ";
+        message.textContent = "Hvis Brave blokerer automatisk download fra file://, sÃ¥ klik manuelt: ";
 
         const link = document.createElement("a");
         link.className = "btn primary";
@@ -2901,7 +2901,7 @@
         const copyButton = document.createElement("button");
         copyButton.className = "btn";
         copyButton.type = "button";
-        copyButton.textContent = "Kopiér CSV";
+        copyButton.textContent = "KopiÃ©r CSV";
         copyButton.style.marginLeft = "8px";
         copyButton.addEventListener("click", () => this.copyCsvToClipboard(csv));
 
