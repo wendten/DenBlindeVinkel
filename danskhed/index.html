@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="da">
 <head>
   <meta charset="utf-8" />
@@ -1247,23 +1247,23 @@
 <body class="intro-active">
   <div aria-hidden="false" class="intro-overlay" id="introOverlay">
     <div class="intro-backdrop"></div>
-    <button aria-label="Åbn siden" class="intro-logo-button" id="introLogoButton" type="button">
-      <img alt="Logo" class="intro-logo" draggable="false" height="750" src="logo.png" width="750" />
+    <button aria-label="Ã…bn siden" class="intro-logo-button" id="introLogoButton" type="button">
+      <img alt="Logo" class="intro-logo" draggable="false" height="750" src="../logo.png" width="750" />
     </button>
   </div>
   <main class="app" id="app">
     <header class="hero">
       <div class="hero-spacer" aria-hidden="true"></div>
       <div class="hero-actions">
-        <button class="btn primary" id="stabilizeButton" type="button">Stabilisér cluster</button>
+        <button class="btn primary" id="stabilizeButton" type="button">StabilisÃ©r cluster</button>
         <button class="btn" id="gridButton" type="button">Grid punkter</button>
         <button class="btn" id="virtualEllipseButton" type="button">Vis virtuelle ellipser</button>
-        <button class="btn" id="exportCsvButton" type="button">Eksportér CSV</button>
+        <button class="btn" id="exportCsvButton" type="button">EksportÃ©r CSV</button>
         <button class="btn" id="selectAllDefinitionsButton" type="button">Alle definitioner</button>
         <button class="btn" id="clearDefinitionsButton" type="button">Ryd definitioner</button>
         <button class="btn danger" id="resetButton" type="button">Nulstil data</button>
       </div>
-      <img alt="Logo" class="app-logo" height="128" src="logo.png" width="128" />
+      <img alt="Logo" class="app-logo" height="128" src="../logo.png" width="128" />
     </header>
 <br>
     <section class="layout">
@@ -1271,7 +1271,7 @@
         <article class="panel">
           <div class="panel-inner">
             <h2 class="section-title">Definitioner</h2>
-            <p class="section-note">Slå flere definitioner til samtidig. En case påvirkes kun af en ellipse, hvis den ligger udenfor en definition den opfylder, eller indenfor en definition den ikke opfylder.</p>
+            <p class="section-note">SlÃ¥ flere definitioner til samtidig. En case pÃ¥virkes kun af en ellipse, hvis den ligger udenfor en definition den opfylder, eller indenfor en definition den ikke opfylder.</p>
             
             <div class="toolbar definition-toolbar">
               <label class="definition-short-toggle">
@@ -1301,9 +1301,9 @@
 
         <div class="panel-inner">
           <h2 class="section-title">Definition x case</h2>
-          <p class="section-note">Binært resultat. Ja betyder at casen opfylder definitionens krav. Nej betyder at mindst ét krav mangler. Dansk-status kan klikkes direkte i tabellen.</p>
+          <p class="section-note">BinÃ¦rt resultat. Ja betyder at casen opfylder definitionens krav. Nej betyder at mindst Ã©t krav mangler. Dansk-status kan klikkes direkte i tabellen.</p>
           <div class="matrix-policy-toolbar" aria-label="Uklar-status i evalueringen" role="group">
-            <span class="matrix-policy-label">Uklare cases tælles som</span>
+            <span class="matrix-policy-label">Uklare cases tÃ¦lles som</span>
             <div class="matrix-policy-buttons">
               <button class="matrix-policy-button active" data-unclear-policy="unclear" type="button">Uklar</button>
               <button class="matrix-policy-button" data-unclear-policy="danish" type="button">Dansk</button>
@@ -1318,7 +1318,7 @@
         <article class="panel">
           <div class="panel-inner">
             <h2 class="section-title">Confusion matrix</h2>
-            <p class="section-note">Aktive definitioner samles som én model: matcher mindst én aktiv definition betyder predikeret dansk. Uklar dansk-status tælles udenfor matrixen.</p>
+            <p class="section-note">Aktive definitioner samles som Ã©n model: matcher mindst Ã©n aktiv definition betyder predikeret dansk. Uklar dansk-status tÃ¦lles udenfor matrixen.</p>
             <div class="confusion-grid">
               <div class="confusion-card" data-confusion-cell="tp" style="--cell-color: var(--green);">
                 <div class="cell-kicker">Predikeret dansk + dansk</div>
@@ -1347,7 +1347,7 @@
             </div>
             <div class="summary-grid confusion-summary">
               <div class="summary-card">
-                <div class="label">Nøjagtighed</div>
+                <div class="label">NÃ¸jagtighed</div>
                 <div class="value" id="cmAccuracyValue">-</div>
               </div>
               <div class="summary-card">
@@ -1359,7 +1359,7 @@
                 <div class="value" id="cmUnclearCount">0</div>
               </div>
             </div>
-            <div class="confusion-note" id="cmNote">Slå en definition til for at evaluere modellen.</div>
+            <div class="confusion-note" id="cmNote">SlÃ¥ en definition til for at evaluere modellen.</div>
           </div>
         </article>
 
@@ -1367,8 +1367,8 @@
           <div class="panel-inner">
             <div class="inspector-title">
               <div>
-                <h2 id="inspectorName">Vælg en case</h2>
-                <p id="inspectorDescription">Klik på en case i listen eller på grafen.</p>
+                <h2 id="inspectorName">VÃ¦lg en case</h2>
+                <p id="inspectorDescription">Klik pÃ¥ en case i listen eller pÃ¥ grafen.</p>
               </div>
               <span class="status-badge unclear" id="inspectorStatus">Uklar</span>
             </div>
@@ -1386,7 +1386,7 @@
                 <div class="value" id="definitionRejectCount">0</div>
               </div>
             </div>
-            <h2 class="section-title" style="margin-top: 16px;">Binære premisser</h2>
+            <h2 class="section-title" style="margin-top: 16px;">BinÃ¦re premisser</h2>
             <div class="premise-list" id="premiseList"></div>
           </div>
         </article>
@@ -1394,7 +1394,7 @@
         <article class="panel">
           <div class="panel-inner">
             <h2 class="section-title">Inde og ude</h2>
-            <p class="section-note">For hver aktiv definition vises hvem der går ind i definitionen, og hvem der falder udenfor.</p>
+            <p class="section-note">For hver aktiv definition vises hvem der gÃ¥r ind i definitionen, og hvem der falder udenfor.</p>
             <div class="result-list" id="resultList"></div>
           </div>
         </article>
@@ -1440,7 +1440,7 @@
       async fetchCsvText(csvPath) {
         const response = await fetch(csvPath, { cache: "no-store" });
         if (!response.ok) {
-          throw new Error(`Kunne ikke indlæse CSV: ${csvPath}`);
+          throw new Error(`Kunne ikke indlÃ¦se CSV: ${csvPath}`);
         }
         return response.text();
       }
@@ -1473,7 +1473,7 @@
           throw new Error("CSV-filen har ingen kategori-kolonner.");
         }
         if (cases.length === 0) {
-          throw new Error("CSV-filen har ingen case-rækker.");
+          throw new Error("CSV-filen har ingen case-rÃ¦kker.");
         }
 
         return {
@@ -1747,7 +1747,7 @@
             this.unclearVerdictPolicy = this.normalizeUnclearVerdictPolicy(saved.unclearVerdictPolicy);
           }
         } catch (error) {
-          console.warn("Kunne ikke indlæse gemte data", error);
+          console.warn("Kunne ikke indlÃ¦se gemte data", error);
         }
       }
 
@@ -3296,10 +3296,10 @@
         this.elements.cmClearCount.textContent = denominator.toString();
         this.elements.cmUnclearCount.textContent = stats.unclear.toString();
         if (!stats.hasActiveModel) {
-          this.elements.cmNote.textContent = `Ingen aktive definitioner. Matrixen venter på en model, og punkterne accelererer ikke. Uklare cases tolkes som: ${unclearPolicyLabel}.`;
+          this.elements.cmNote.textContent = `Ingen aktive definitioner. Matrixen venter pÃ¥ en model, og punkterne accelererer ikke. Uklare cases tolkes som: ${unclearPolicyLabel}.`;
         } else {
           const names = activeDefinitions.map((definition) => definition.shortName).join(", ");
-          this.elements.cmNote.textContent = `Aktiv model: ${names}. En case predikeres som dansk, hvis den matcher mindst én aktiv definition. Uklare cases tolkes som: ${unclearPolicyLabel}.`;
+          this.elements.cmNote.textContent = `Aktiv model: ${names}. En case predikeres som dansk, hvis den matcher mindst Ã©n aktiv definition. Uklare cases tolkes som: ${unclearPolicyLabel}.`;
         }
         this.updateUnclearPolicyButtons();
         this.updateConfusionCardHoverState();
@@ -3396,7 +3396,7 @@
         if (activeDefinitions.length === 0) {
           const empty = document.createElement("div");
           empty.className = "empty-state";
-          empty.textContent = "Ingen aktive definitioner. Slå mindst én definition til for at se inde og ude.";
+          empty.textContent = "Ingen aktive definitioner. SlÃ¥ mindst Ã©n definition til for at se inde og ude.";
           this.elements.resultList.appendChild(empty);
           return;
         }
@@ -3541,7 +3541,7 @@
               button.type = "button";
               button.className = result ? "matrix-toggle yes" : "matrix-toggle no";
               button.textContent = result ? "Ja" : "Nej";
-              button.title = `Klik for at ændre ${caseItem.shortName} / ${definition.shortName}`;
+              button.title = `Klik for at Ã¦ndre ${caseItem.shortName} / ${definition.shortName}`;
               button.addEventListener("click", (event) => {
                 event.stopPropagation();
                 this.selectedCaseId = caseItem.id;
@@ -3703,15 +3703,15 @@
         const technicalMessage = error && error.message ? `<p class="section-note">Teknisk fejl: ${escapeHtml(error.message)}</p>` : "";
         panel.innerHTML = `
           <div class="panel-inner">
-            <h2 class="section-title">Vælg CSV</h2>
-            <p class="section-note">Når siden åbnes direkte som lokal fil, må browseren ikke selv hente danskhed_data.csv. Vælg filen her. Panelet ligger over intro-sløringen og kan bruges med det samme.</p>
+            <h2 class="section-title">VÃ¦lg CSV</h2>
+            <p class="section-note">NÃ¥r siden Ã¥bnes direkte som lokal fil, mÃ¥ browseren ikke selv hente danskhed_data.csv. VÃ¦lg filen her. Panelet ligger over intro-slÃ¸ringen og kan bruges med det samme.</p>
             <div class="toolbar">
-              <label class="btn primary" for="csvFileInput">Vælg danskhed_data.csv</label>
-              <button class="btn" id="copyServerCommandButton" type="button">Kopiér server-kommando</button>
+              <label class="btn primary" for="csvFileInput">VÃ¦lg danskhed_data.csv</label>
+              <button class="btn" id="copyServerCommandButton" type="button">KopiÃ©r server-kommando</button>
             </div>
             <input id="csvFileInput" type="file" accept=".csv,text/csv" style="display: none;" />
             <p class="section-note" id="csvLoadStatus">Forventet filnavn: ${csvPath}</p>
-            <p class="section-note">Server-kommando i mappen: <code>python -m http.server 8000</code>. Åbn derefter <code>http://localhost:8000/index_snappy_hooke_clickable_matrix.html</code>.</p>
+            <p class="section-note">Server-kommando i mappen: <code>python -m http.server 8000</code>. Ã…bn derefter <code>http://localhost:8000/index_snappy_hooke_clickable_matrix.html</code>.</p>
             ${technicalMessage}
           </div>
         `;
@@ -3728,13 +3728,13 @@
             return;
           }
           try {
-            status.textContent = `Indlæser ${file.name}...`;
+            status.textContent = `IndlÃ¦ser ${file.name}...`;
             const csvText = await file.text();
             const dataStore = DanskhedDataStore.createFromCsvText(csvText, file.name);
             startApp(dataStore);
           } catch (fileError) {
             console.error(fileError);
-            status.textContent = `CSV kunne ikke indlæses: ${fileError.message}`;
+            status.textContent = `CSV kunne ikke indlÃ¦ses: ${fileError.message}`;
           }
         });
 
