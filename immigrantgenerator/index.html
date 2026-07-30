@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Persongenerator · Samfundsøkonomisk model</title>
+  <style>
+    :root {
+      --bg: #070a12;
+      --panel: rgba(14, 20, 34, 0.88);
+      --panel-strong: rgba(20, 29, 48, 0.98);
+      --line: rgba(255, 255, 255, 0.12);
+      --line-strong: rgba(255, 255, 255, 0.28);
+      --text: #f4f7fb;
+      --muted: #9aa7bc;
+      --muted-2: #6f7e96;
+      --blue: #48d4ff;
+      --orange: #ff8a4c;
+      --pink: #ff4f7a;
+      --yellow: #ffc14d;
+      --green: #2ee59d;
+      --purple: #c084fc;
+      --red: #ff6b7d;
+      --radius: 22px;
+      --shadow: 0 26px 80px rgba(0, 0, 0, 0.45);
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(72, 212, 255, 0.16), transparent 28%),
+        radial-gradient(circle at 82% 10%, rgba(255, 79, 122, 0.16), transparent 30%),
+        radial-gradient(circle at 58% 88%, rgba(255, 193, 77, 0.10), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    .app {
+      width: min(1960px, calc(100vw - 18px));
+      margin: 0 auto;
+      padding: 22px 0 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      color: var(--yellow);
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: clamp(40px, 5.4vw, 82px);
+      line-height: 0.91;
+      margin: 0;
+      letter-spacing: -0.065em;
+      max-width: 1180px;
+    }
+
+    .hero p {
+      margin: 14px 0 0;
+      max-width: 1000px;
+      color: var(--muted);
+      font-size: clamp(15px, 1.2vw, 19px);
+      line-height: 1.5;
+    }
+
+    .hero-actions,
+    .button-row,
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .hero-actions {
+      justify-content: flex-end;
+      min-width: 430px;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+      user-select: none;
+      white-space: nowrap;
+      font-weight: 750;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.24);
+    }
+
+    .btn.primary {
+      background: var(--text);
+      color: #07101f;
+      border-color: var(--text);
+      font-weight: 950;
+    }
+
+    .btn.accent {
+      background: rgba(72, 212, 255, 0.16);
+      border-color: rgba(72, 212, 255, 0.42);
+      color: #dff7ff;
+    }
+
+    .btn.danger {
+      background: rgba(255, 79, 122, 0.14);
+      border-color: rgba(255, 79, 122, 0.36);
+      color: #ffd5df;
+    }
+
+    .btn.small {
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(340px, 430px) minmax(720px, 1fr) minmax(340px, 430px);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .column {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+    }
+
+    .panel-inner {
+      padding: 18px;
+    }
+
+    .section-title {
+      margin: 0 0 11px;
+      font-size: 21px;
+      letter-spacing: -0.03em;
+    }
+
+    .section-note {
+      margin: -4px 0 14px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+
+    .settings-grid {
+      display: grid;
+      gap: 11px;
+    }
+
+    .settings-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .field label {
+      color: var(--muted-2);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      font-weight: 900;
+    }
+
+    .field input,
+    .field select,
+    .csv-preview {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text);
+      padding: 9px 10px;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .csv-preview:focus {
+      border-color: rgba(72, 212, 255, 0.55);
+      box-shadow: 0 0 0 3px rgba(72, 212, 255, 0.08);
+    }
+
+    .field input[type="color"] {
+      min-height: 40px;
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    .field select option {
+      background: #101827;
+      color: #ffffff;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .toggle input {
+      width: 17px;
+      height: 17px;
+      accent-color: #ffffff;
+    }
+
+    .group-list,
+    .rate-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .group-actions,
+    .rate-actions {
+      margin: 0 0 12px;
+    }
+
+    .group-card,
+    .rate-card {
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.045);
+      overflow: hidden;
+    }
+
+    .group-head,
+    .rate-head {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      gap: 9px;
+      align-items: center;
+      padding: 11px 12px;
+      cursor: pointer;
+    }
+
+    .rate-head {
+      grid-template-columns: auto minmax(0, 1fr) minmax(96px, 142px) auto;
+    }
+
+    .rate-inline-input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text);
+      padding: 8px 9px;
+      outline: none;
+      text-align: right;
+    }
+
+    .rate-inline-input:focus {
+      border-color: rgba(72, 212, 255, 0.55);
+      box-shadow: 0 0 0 3px rgba(72, 212, 255, 0.08);
+    }
+
+    .group-active-toggle {
+      margin: 0;
+      padding: 3px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.045);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .group-active-toggle input {
+      cursor: pointer;
+    }
+
+    .group-card.inactive {
+      opacity: 0.55;
+    }
+
+    .group-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-shadow: 0 0 18px currentColor;
+    }
+
+    .group-title,
+    .rate-title {
+      min-width: 0;
+    }
+
+    .group-title strong,
+    .rate-title strong {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .group-title span,
+    .rate-title span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .chevron {
+      color: var(--muted);
+      font-weight: 950;
+    }
+
+    .group-body,
+    .rate-body {
+      display: grid;
+      gap: 9px;
+      padding: 0 12px 12px;
+    }
+
+    .group-card.collapsed .group-body,
+    .rate-card.collapsed .rate-body {
+      display: none;
+    }
+
+    .three-cols {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .two-cols {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .probability-note {
+      color: var(--muted-2);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+
+    .source-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .source-list li {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 11px 12px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .source-list strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .source-list a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .source-list a:hover {
+      text-decoration: underline;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi {
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.045);
+      padding: 13px;
+      min-width: 0;
+    }
+
+    .kpi .label {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 900;
+    }
+
+    .kpi .value {
+      margin-top: 8px;
+      font-size: clamp(20px, 2vw, 31px);
+      font-weight: 950;
+      letter-spacing: -0.045em;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .kpi .sub {
+      margin-top: 7px;
+      color: var(--muted-2);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .positive {
+      color: var(--red) !important;
+    }
+
+    .negative {
+      color: var(--green) !important;
+    }
+
+    .neutral {
+      color: var(--yellow) !important;
+    }
+
+    .chart-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .chart-heading h3 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -0.025em;
+    }
+
+    .chart-heading p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+
+    .histogram-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-top: 11px;
+      min-height: 22px;
+    }
+
+    .histogram-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .histogram-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      flex: 0 0 auto;
+    }
+
+    .chart-shell {
+      margin-top: 10px;
+      height: 360px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05), transparent 34%),
+        linear-gradient(120deg, rgba(84, 183, 255, 0.07), transparent 46%, rgba(255, 79, 122, 0.07)),
+        rgba(2, 6, 14, 0.52);
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .table-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.035);
+      max-height: 520px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1080px;
+      font-size: 11px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 9px 8px;
+      vertical-align: middle;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(20, 29, 48, 0.98);
+      color: var(--text);
+      font-weight: 900;
+      text-align: right;
+    }
+
+    th:first-child,
+    td:first-child,
+    th:nth-child(2),
+    td:nth-child(2) {
+      text-align: left;
+    }
+
+    td {
+      color: var(--muted);
+    }
+
+    .total-row td {
+      color: #fff7dc;
+      background: rgba(255, 193, 77, 0.09);
+      font-weight: 950;
+    }
+
+    .crime-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .group-results-table {
+      min-width: 1640px;
+    }
+
+    .crime-card {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px;
+      outline: none;
+      transition: border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .crime-card:hover,
+    .crime-card:focus-visible,
+    .crime-card:focus-within {
+      border-color: rgba(255, 255, 255, 0.30);
+      background: rgba(255, 255, 255, 0.075);
+      z-index: 8;
+    }
+
+    .crime-card strong {
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    .crime-card .crime-count {
+      color: var(--yellow);
+      font-size: 24px;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+    }
+
+    .crime-card .crime-cost {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .crime-demography-popover {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .crime-card:hover .crime-demography-popover,
+    .crime-card:focus-visible .crime-demography-popover,
+    .crime-card:focus-within .crime-demography-popover {
+      display: grid;
+      grid-template-columns: minmax(96px, 124px) minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    .crime-pie {
+      width: min(100%, 124px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.20);
+    }
+
+    .crime-pie.empty {
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--muted-2);
+      font-size: 10px;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .crime-demography-legend {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .crime-demography-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 6px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.25;
+    }
+
+    .crime-demography-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .crime-demography-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .crime-demography-value {
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 980px) {
+      .crime-card:hover .crime-demography-popover,
+      .crime-card:focus-visible .crime-demography-popover,
+      .crime-card:focus-within .crime-demography-popover {
+        grid-template-columns: 100px minmax(0, 1fr);
+      }
+    }
+
+    .csv-preview {
+      min-height: 190px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      border-radius: 16px;
+    }
+
+    .status-line {
+      margin-top: 10px;
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-line.error {
+      color: #ffbac9;
+    }
+
+    .status-line.success {
+      color: #a8f5d5;
+    }
+
+    .empty-state {
+      padding: 44px 18px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    @media (max-width: 1500px) {
+      .layout {
+        grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+      }
+
+      .right-column {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout,
+      .right-column {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        justify-content: flex-start;
+        min-width: 0;
+      }
+
+      .settings-row,
+      .two-cols,
+      .three-cols,
+      .kpi-grid,
+      .crime-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-shell {
+        height: 360px;
+      }
+    }
+
+
+    /* Intro med stort logo, blur og flyvning til øverste venstre hjørne. */
+    .app {
+      position: relative;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 80px;
+      padding-left: 158px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .app-logo {
+      position: absolute;
+      top: -30px;
+      left: 8px;
+      width: 138px;
+      height: 138px;
+      object-fit: contain;
+      display: block;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      z-index: 30;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    body.intro-done .app-logo {
+      opacity: 1;
+    }
+
+    body.intro-active .app {
+      filter: blur(18px);
+      transition: filter 1s ease;
+    }
+
+    body.intro-complete .app {
+      filter: blur(0);
+    }
+
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    .intro-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 10, 18, 0.38);
+      backdrop-filter: blur(18px);
+      opacity: 1;
+      transition: opacity 1.05s ease, backdrop-filter 1.05s ease;
+    }
+
+    body.intro-complete .intro-backdrop {
+      opacity: 0;
+      backdrop-filter: blur(0);
+    }
+
+    .intro-logo-button {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: min(750px, 82vmin);
+      height: min(750px, 82vmin);
+      transform: translate(-50%, -50%);
+      display: block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      cursor: pointer;
+      z-index: 220;
+      pointer-events: auto;
+      transition:
+        left 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        top 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        width 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        height 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        transform 1.05s cubic-bezier(0.22, 0.78, 0.17, 1),
+        opacity 0.24s ease;
+    }
+
+    .intro-logo-button:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: 6px;
+      border-radius: 18px;
+    }
+
+    body.intro-complete .intro-logo-button {
+      cursor: default;
+    }
+
+    body.intro-done .intro-logo-button {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.intro-done .intro-overlay {
+      visibility: hidden;
+    }
+
+    .intro-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      filter: drop-shadow(0 30px 80px rgba(0, 0, 0, 0.35));
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        min-height: 112px;
+        padding-left: 126px;
+        justify-content: flex-start;
+      }
+
+      .app-logo {
+        width: 108px;
+        height: 108px;
+        top: 0;
+        left: 4px;
+      }
+    }
+  </style>
+</head>
+<body class="intro-active">
+
+  <div aria-hidden="false" class="intro-overlay" id="introOverlay">
+    <div class="intro-backdrop"></div>
+    <button aria-label="Åbn siden" class="intro-logo-button" id="introLogoButton" type="button">
+      <img alt="Logo" class="intro-logo" draggable="false" height="750" src="../logo.png" width="750" />
+    </button>
+  </div>
+  <main class="app" id="app">
+    <header class="hero">
+      <div class="hero-actions">
+        <button class="btn primary" id="generateButton" type="button">Generér personer</button>
+        <button class="btn accent" id="exportResultsButton" type="button">Eksportér resultat</button>
+        <button class="btn" id="exportPeopleButton" type="button">Eksportér personer</button>
+        <button class="btn danger" id="resetButton" type="button">Nulstil</button>
+      </div>
+      <img alt="Logo" class="app-logo" draggable="false" height="138" src="../logo.png" width="138" />
+    </header>
+
+    <section class="layout">
+      <aside class="column left-column">
+
+
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">Grupper</h2>
+            <p class="section-note">Beskæftigelsesfrekvensen afgør, hvor mange i gruppen der får løn fra den fælles Paretofordeling.</p>
+            <div class="button-row group-actions" aria-label="Gruppehandlinger">
+              <button class="btn small" id="addGroupButton" type="button">Tilføj gruppe</button>
+              <button class="btn small" id="expandGroupsButton" type="button">Udvid alle</button>
+              <button class="btn small" id="collapseGroupsButton" type="button">Kollapsér alle</button>
+            </div>
+            <div class="group-list" id="groupList"></div>
+          </div>
+        </article>
+      </aside>
+
+      <section class="column">
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">Samlet resultat</h2>
+            <p class="section-note" id="simulationMeta">Generér personer for at se et simuleret resultat.</p>
+            <div class="kpi-grid">
+              <div class="kpi">
+                <div class="label">Personer</div>
+                <div class="value" id="kpiPeople">0</div>
+                <div class="sub" id="kpiPeopleSub">0 aktive grupper</div>
+              </div>
+              <div class="kpi">
+                <div class="label">Samlede udgifter</div>
+                <div class="value positive" id="kpiExpenses">0 kr.</div>
+                <div class="sub">Basisudgift, arbejdsløshed og kriminalitetsomkostninger</div>
+              </div>
+              <div class="kpi">
+                <div class="label">Samlet skattebidrag</div>
+                <div class="value negative" id="kpiContribution">0 kr.</div>
+                <div class="sub">Effektiv skatteandel af simuleret årsindkomst</div>
+              </div>
+              <div class="kpi">
+                <div class="label">Samlet samfundspris</div>
+                <div class="value neutral" id="kpiNet">0 kr.</div>
+                <div class="sub" id="kpiNetSub">Positivt tal er nettoudgift</div>
+              </div>
+            </div>
+            <div class="chart-heading">
+              <div>
+                <h3>Samlet nettofordeling</h3>
+                <p>Ét samlet histogram, stablet efter demografisk gruppe. Hold musen over en søjle for præcise antal pr. gruppe.</p>
+              </div>
+            </div>
+            <div class="histogram-legend" id="histogramLegend" aria-label="Demografiske grupper i histogrammet"></div>
+            <div class="chart-shell">
+              <canvas id="costChart" width="1200" height="430" aria-label="Samlet stablet histogram over nettobidrag pr. borger og demografisk gruppe"></canvas>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-inner">
+            <div class="table-toolbar">
+              <div>
+                <h2 class="section-title">Resultat pr. gruppe</h2>
+                <p class="section-note">Simuleret antal, forventet nettopris og faktisk nettopris.</p>
+              </div>
+              <label class="toggle">
+                <input id="showExpectedToggle" type="checkbox" checked />
+                Vis forventede værdier
+              </label>
+            </div>
+            <div class="table-wrap">
+              <table class="group-results-table">
+                <thead>
+                  <tr>
+                    <th>Gruppe</th>
+                    <th>Personer</th>
+                    <th>Arbejde</th>
+                    <th>Arbejdsløse</th>
+                    <th>Tyveri</th>
+                    <th>Skattesvig</th>
+                    <th>Socialt bedrageri</th>
+                    <th>Grov vold</th>
+                    <th>Voldtægt</th>
+                    <th>Mord</th>
+                    <th>Årsindkomst</th>
+                    <th>Basisudgift</th>
+                    <th>Arbejdsløshed</th>
+                    <th>Skattebidrag</th>
+                    <th>Krim. omkostning</th>
+                    <th>Samfundspris</th>
+                    <th class="expected-column">Forventet pris</th>
+                    <th class="expected-column">Afvigelse</th>
+                  </tr>
+                </thead>
+                <tbody id="groupResultBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">Forbrydelser og omkostninger</h2>
+            <p class="section-note">Antal simulerede hændelser. Én person kan udløse flere hændelser.</p>
+            <div class="crime-grid" id="crimeGrid"></div>
+          </div>
+        </article>
+
+
+      </section>
+
+      <aside class="column right-column">
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">Samfundssatser</h2>
+            <p class="section-note">Basisudgift, arbejdsløshed, indkomstfordeling, effektiv skatteandel og kriminalitetsomkostninger kan redigeres.</p>
+            <div class="button-row rate-actions" aria-label="Handlinger for samfundssatser">
+              <button class="btn small" id="expandRatesButton" type="button">Udvid alle</button>
+              <button class="btn small" id="collapseRatesButton" type="button">Kollapsér alle</button>
+            </div>
+            <div class="rate-list" id="rateList"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">Kilder og metode</h2>
+            <p class="section-note">Dataversionen kombinerer direkte officielle tal med tydeligt markerede afledte estimater.</p>
+            <ul class="source-list">
+              <li>
+                <strong>Danmarks Statistik: Indvandrere i Danmark 2025</strong>
+                Beskæftigelse 2024, indkomstkvintiler 2023 og alderskorrigerede kriminalitetsindeks 2024.
+                <a href="https://www.dst.dk/Site/Dst/Udgivelser/GetPubFile.aspx?id=54707&amp;sid=__samlet%20publikation%202025" target="_blank" rel="noopener noreferrer">Åbn publikationen</a>
+              </li>
+              <li>
+                <strong>Beskæftigelsesministeriet og Danmarks Statistik</strong>
+                Beskæftigelsesfrekvens for 30-66-årige i november 2024, herunder Japan 61,3 pct.,
+                Libanon inklusive palæstinensere 49,9 pct. og Somalia 49,4 pct.
+                <a href="https://www.ft.dk/samling/20252/almdel/beu/spm/13/svar/2215986/3157841.pdf" target="_blank" rel="noopener noreferrer">Åbn tabelsvaret</a>
+              </li>
+              <li>
+                <strong>Statistikbanken: STRAFNA4</strong>
+                Officiel tabel over skyldige personer efter overtrædelsestype, oprindelsesland og år.
+                <a href="https://m.statbank.dk/TableInfo/STRAFNA4?lang=da" target="_blank" rel="noopener noreferrer">Åbn tabelinformationen</a>
+              </li>
+              <li>
+                <strong>Modelberegninger</strong>
+                Beskæftigelsesfrekvensen afgør, hvem der får løn. Beskæftigedes løn trækkes fra den
+                fælles generaliserede Paretofordeling. Kriminalitetstyperne er redigerbare
+                modelestimater skaleret med de relevante officielle kriminalitetsindeks.
+              </li>
+              <li>
+                <strong>Samfundssatser</strong>
+                Den faste basisudgift er sat til 150.000 kr. pr. borgerår ud fra modellens regnestykke
+                900 mia. kr. divideret med 6 mio. borgere. Arbejdsløshedsomkostningen,
+                Paretofordelingens parametre, den effektive skatteandel og kriminalitetsomkostningerne
+                er redigerbare scenarieantagelser.
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-inner">
+            <h2 class="section-title">CSV-data</h2>
+            <p class="section-note">
+              Indlæs den medfølgende CSV, redigér teksten direkte eller eksportér den aktuelle model.
+            </p>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="csvFileInput">Indlæs CSV-fil</label>
+                <input id="csvFileInput" type="file" accept=".csv,text/csv" />
+              </div>
+              <textarea class="csv-preview" id="csvTextArea" spellcheck="false"></textarea>
+              <div class="button-row">
+                <button class="btn small primary" id="applyCsvButton" type="button">Anvend CSV</button>
+                <button class="btn small" id="exportDataButton" type="button">Eksportér data-CSV</button>
+                <button class="btn small" id="copyCsvButton" type="button">Kopiér CSV</button>
+              </div>
+              <div class="status-line" id="csvStatus"></div>
+            </div>
+          </div>
+        </article>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const DEFAULT_CSV = "type,id,name,amount,active,color,p_work,p_theft,p_tax_fraud,p_welfare_fraud,p_aggravated_violence,p_rape,p_murder,value,unit,note\ngroup,danish_origin,Dansk oprindelse (DST-definition),10000,1,#48d4ff,0.812000,0.001305000,0.000072800,0.000091000,0.000090000,0.000023400,0.000003600,,,\ngroup,romania_origin,Rumænien,10000,1,#ff8a4c,0.770000,0.003675000,0.000095200,0.000119000,0.000046000,0.000011960,0.000001840,,,\ngroup,somalia_origin,Somalia,10000,1,#ff4f7a,0.494000,0.008190000,0.000286400,0.000358000,0.000622000,0.000161720,0.000024880,,,\ngroup,palestinian_lebanon_proxy,Palæstinensere (Libanon-proxy),10000,1,#c084fc,0.499000,0.005895000,0.000227200,0.000284000,0.000417000,0.000108420,0.000016680,,,\ngroup,japan_origin,Japan,10000,1,#2ee59d,0.613000,0.000555000,0.000029600,0.000037000,0.000037000,0.000009620,0.000001480,,,\nrate,base_public_cost,Offentlig basisudgift pr. borger,,1,,,,,,,,,150000,DKK pr. personår,SCENARIESATS. 900 mia. kr. divideret med 6 mio. borgere giver 150.000 kr. pr. borgerår.\nrate,unemployment_cost,Omkostning ved arbejdsløshed,,1,,,,,,,,,250000,DKK pr. arbejdsløs pr. år,SCENARIESATS. Ekstra omkostning pr. arbejdsløs personår ud over den almindelige offentlige basisudgift.\nrate,effective_tax_rate,Effektiv skatteandel,,1,,,,,,,,,37,Procent af årsindkomst,SCENARIESATS. Brug 37 for 37 procent. Skattebidraget beregnes kontinuerligt af hver persons simulerede årsindkomst.\nrate,income_mean,Gennemsnitlig årsløn,,1,,,,,,,,,480000,DKK pr. beskæftiget pr. år,SCENARIESATS. Det ønskede gennemsnit i den generaliserede Paretofordeling for beskæftigedes årsløn.\nrate,income_std,Lønnens standardafvigelse,,1,,,,,,,,,260000,DKK pr. år,SCENARIESATS. Styrer lønspredningen. Kombinationen med gennemsnit og halefaktor skal give en ikke-negativ minimumsløn.\nrate,income_pareto_shape,Pareto-halefaktor ξ,,1,,,,,,,,,0.12,\"Dimensionsløs, 0 til 0,32\",\"SCENARIESATS. 0 giver en eksponentiel hale. En højere positiv værdi giver en tungere Paretohale og flere meget høje lønninger. Værdien holdes under 1/3, så fordelingens skævhed er endelig.\"\nrate,theft,Tyveri,,1,,,,,,,,,50000,DKK pr. hændelse,SCENARIESATS. Der findes ikke én officiel universel dansk enhedspris for tyveri. Beløbet er fortsat redigerbart og må ikke præsenteres som officiel statistik.\nrate,tax_fraud,Skattesvig,,1,,,,,,,,,150000,DKK pr. hændelse,SCENARIESATS. Der findes ikke én officiel universel dansk enhedspris for skattesvig. Beløbet er fortsat redigerbart og må ikke præsenteres som officiel statistik.\nrate,welfare_fraud,Socialt bedrageri,,1,,,,,,,,,100000,DKK pr. hændelse,SCENARIESATS. Der findes ikke én officiel universel dansk enhedspris for socialt bedrageri. Beløbet er fortsat redigerbart og må ikke præsenteres som officiel statistik.\nrate,aggravated_violence,Grov vold,,1,,,,,,,,,1500000,DKK pr. hændelse,SCENARIESATS. Der findes ikke én officiel universel dansk enhedspris for grov vold. Beløbet er fortsat redigerbart og må ikke præsenteres som officiel statistik.\nrate,rape,Voldtægt,,1,,,,,,,,,2500000,DKK pr. hændelse,SCENARIESATS. Der findes ikke én officiel universel dansk enhedspris for voldtægt. Beløbet er fortsat redigerbart og må ikke præsenteres som officiel statistik.\nrate,murder,Mord,,1,,,,,,,,,15000000,DKK pr. hændelse,SCENARIESATS. Der findes ikke én officiel universel dansk enhedspris for mord. Beløbet er fortsat redigerbart og må ikke præsenteres som officiel statistik.\n";
+
+    class CsvUtility {
+      static parse(csvText) {
+        const text = String(csvText || "").replace(/^\uFEFF/, "");
+        const delimiter = CsvUtility.detectDelimiter(text);
+        const rows = [];
+        let row = [];
+        let cell = "";
+        let inQuotes = false;
+
+        for (let index = 0; index < text.length; index += 1) {
+          const char = text[index];
+          const next = text[index + 1];
+
+          if (char === '"') {
+            if (inQuotes && next === '"') {
+              cell += '"';
+              index += 1;
+            } else {
+              inQuotes = !inQuotes;
+            }
+            continue;
+          }
+
+          if (!inQuotes && char === delimiter) {
+            row.push(cell);
+            cell = "";
+            continue;
+          }
+
+          if (!inQuotes && (char === "\n" || char === "\r")) {
+            if (char === "\r" && next === "\n") {
+              index += 1;
+            }
+            row.push(cell);
+            if (row.some((value) => CsvUtility.clean(value) !== "")) {
+              rows.push(row);
+            }
+            row = [];
+            cell = "";
+            continue;
+          }
+
+          cell += char;
+        }
+
+        row.push(cell);
+        if (row.some((value) => CsvUtility.clean(value) !== "")) {
+          rows.push(row);
+        }
+
+        return rows;
+      }
+
+      static detectDelimiter(csvText) {
+        const firstLine = String(csvText || "").split(/\r?\n/, 1)[0] || "";
+        const semicolons = (firstLine.match(/;/g) || []).length;
+        const commas = (firstLine.match(/,/g) || []).length;
+        return semicolons > commas ? ";" : ",";
+      }
+
+      static clean(value) {
+        return String(value ?? "").replace(/^\uFEFF/, "").trim();
+      }
+
+      static recordsFromRows(rows) {
+        if (!Array.isArray(rows) || rows.length === 0) {
+          return [];
+        }
+
+        const headers = rows[0].map((header) => CsvUtility.clean(header));
+        return rows.slice(1).map((row) => {
+          const record = {};
+          for (let index = 0; index < headers.length; index += 1) {
+            record[headers[index]] = CsvUtility.clean(row[index] || "");
+          }
+          return record;
+        });
+      }
+
+      static stringify(records, headers) {
+        const rows = [headers];
+        for (const record of records) {
+          rows.push(headers.map((header) => record[header] ?? ""));
+        }
+        return rows.map((row) => row.map((value) => CsvUtility.escape(value)).join(",")).join("\r\n") + "\r\n";
+      }
+
+      static escape(value) {
+        const text = String(value ?? "");
+        if (text.includes('"') || text.includes(",") || text.includes("\n") || text.includes("\r")) {
+          return '"' + text.replace(/"/g, '""') + '"';
+        }
+        return text;
+      }
+    }
+
+    class SeededRandom {
+      constructor(seedText) {
+        this.state = SeededRandom.hash(String(seedText || "seed"));
+      }
+
+      static hash(text) {
+        let hash = 1779033703 ^ text.length;
+        for (let index = 0; index < text.length; index += 1) {
+          hash = Math.imul(hash ^ text.charCodeAt(index), 3432918353);
+          hash = (hash << 13) | (hash >>> 19);
+        }
+        return () => {
+          hash = Math.imul(hash ^ (hash >>> 16), 2246822507);
+          hash = Math.imul(hash ^ (hash >>> 13), 3266489909);
+          return (hash ^= hash >>> 16) >>> 0;
+        };
+      }
+
+      next() {
+        let value = this.state();
+        value += 0x6D2B79F5;
+        value = Math.imul(value ^ (value >>> 15), value | 1);
+        value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+        return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+      }
+
+      event(probability) {
+        return this.next() < probability;
+      }
+    }
+
+    class PersonModel {
+      constructor() {
+        this.storageKey = "person-generator-model-statistics-v4-unemployment-cost";
+        this.groups = [];
+        this.rates = [];
+        this.lastPeople = [];
+        this.lastSummary = null;
+      }
+
+      initialize() {
+        const stored = this.loadStoredCsv();
+        this.loadFromCsv(stored || DEFAULT_CSV);
+      }
+
+      loadStoredCsv() {
+        try {
+          return window.localStorage.getItem(this.storageKey) || "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      save() {
+        try {
+          window.localStorage.setItem(this.storageKey, this.toCsv());
+        } catch (error) {
+          console.warn("Kunne ikke gemme model i localStorage.", error);
+        }
+      }
+
+      reset() {
+        try {
+          window.localStorage.removeItem(this.storageKey);
+        } catch (error) {
+          console.warn("Kunne ikke nulstille localStorage.", error);
+        }
+        this.loadFromCsv(DEFAULT_CSV);
+        this.lastPeople = [];
+        this.lastSummary = null;
+      }
+
+      loadFromCsv(csvText) {
+        const rows = CsvUtility.parse(csvText);
+        const records = CsvUtility.recordsFromRows(rows);
+        const groups = records
+          .filter((record) => CsvUtility.clean(record.type).toLowerCase() === "group")
+          .map((record, index) => this.groupFromRecord(record, index));
+
+        const rates = records
+          .filter((record) => CsvUtility.clean(record.type).toLowerCase() === "rate")
+          .map((record, index) => this.rateFromRecord(record, index));
+
+        if (groups.length === 0) {
+          throw new Error("CSV-filen indeholder ingen rækker med type=group.");
+        }
+
+        const requiredRates = [
+          "base_public_cost", "unemployment_cost", "effective_tax_rate",
+          "income_mean", "income_std", "income_pareto_shape",
+          "theft", "tax_fraud", "welfare_fraud", "aggravated_violence", "rape", "murder"
+        ];
+        const rateIds = new Set(rates.map((rate) => rate.id));
+        const missing = requiredRates.filter((id) => !rateIds.has(id));
+        if (missing.length > 0) {
+          throw new Error("CSV-filen mangler satser: " + missing.join(", "));
+        }
+
+        this.groups = groups;
+        this.rates = rates;
+        this.lastPeople = [];
+        this.lastSummary = null;
+        this.save();
+      }
+
+      groupFromRecord(record, index) {
+        return {
+          id: this.slug(record.id || record.name || ("group_" + (index + 1))),
+          name: CsvUtility.clean(record.name) || "Gruppe " + (index + 1),
+          amount: this.clampInteger(record.amount, 0, 10000000, 1000),
+          active: this.parseBoolean(record.active, true),
+          color: this.parseColor(record.color, this.defaultColor(index)),
+          pWork: this.parseProbability(record.p_work, 0.75),
+          pTheft: this.parseProbability(record.p_theft, 0.01),
+          pTaxFraud: this.parseProbability(record.p_tax_fraud, 0.003),
+          pWelfareFraud: this.parseProbability(record.p_welfare_fraud, 0.004),
+          pAggravatedViolence: this.parseProbability(record.p_aggravated_violence, 0.001),
+          pRape: this.parseProbability(record.p_rape, 0.0003),
+          pMurder: this.parseProbability(record.p_murder, 0.00005),
+          note: CsvUtility.clean(record.note)
+        };
+      }
+
+      rateFromRecord(record, index) {
+        return {
+          id: this.slug(record.id || record.name || ("rate_" + (index + 1))),
+          name: CsvUtility.clean(record.name) || "Sats " + (index + 1),
+          value: this.parseNumber(record.value, 0),
+          unit: CsvUtility.clean(record.unit) || "DKK",
+          note: CsvUtility.clean(record.note)
+        };
+      }
+
+      parseNumber(value, fallback) {
+        const normalized = String(value ?? "")
+          .replace(/\s/g, "")
+          .replace(/\./g, "")
+          .replace(",", ".");
+        const number = Number(normalized);
+        return Number.isFinite(number) ? number : fallback;
+      }
+
+      parseProbability(value, fallback) {
+        const raw = String(value ?? "").trim().replace(",", ".");
+        const number = Number(raw);
+        if (!Number.isFinite(number)) {
+          return fallback;
+        }
+        const normalized = number > 1 ? number / 100 : number;
+        return Math.max(0, Math.min(1, normalized));
+      }
+
+      parseBoolean(value, fallback) {
+        const normalized = CsvUtility.clean(value).toLowerCase();
+        if (["1", "true", "ja", "yes", "y", "x", "active"].includes(normalized)) {
+          return true;
+        }
+        if (["0", "false", "nej", "no", "n", "inactive"].includes(normalized)) {
+          return false;
+        }
+        return fallback;
+      }
+
+      parseColor(value, fallback) {
+        const color = CsvUtility.clean(value);
+        return /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
+      }
+
+      clampInteger(value, min, max, fallback) {
+        const number = Math.round(this.parseNumber(value, fallback));
+        return Math.max(min, Math.min(max, number));
+      }
+
+      slug(value) {
+        return String(value || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/æ/g, "ae")
+          .replace(/ø/g, "oe")
+          .replace(/å/g, "aa")
+          .replace(/[^a-z0-9]+/g, "_")
+          .replace(/^_+|_+$/g, "");
+      }
+
+      defaultColor(index) {
+        const palette = ["#48d4ff", "#ff8a4c", "#ff4f7a", "#c084fc", "#2ee59d", "#ffc14d"];
+        return palette[index % palette.length];
+      }
+
+      getRate(id) {
+        const rate = this.rates.find((item) => item.id === id);
+        return rate ? rate.value : 0;
+      }
+
+      getActiveGroups() {
+        return this.groups.filter((group) => group.active && group.amount > 0);
+      }
+
+      getTotalRequested() {
+        return this.getActiveGroups().reduce((sum, group) => sum + group.amount, 0);
+      }
+
+      addGroup() {
+        const index = this.groups.length;
+        this.groups.push({
+          id: "gruppe_" + (index + 1),
+          name: "Ny gruppe " + (index + 1),
+          amount: 1000,
+          active: true,
+          color: this.defaultColor(index),
+          pWork: 0.75,
+          pTheft: 0.01,
+          pTaxFraud: 0.003,
+          pWelfareFraud: 0.004,
+          pAggravatedViolence: 0.001,
+          pRape: 0.0003,
+          pMurder: 0.00005,
+          note: ""
+        });
+        this.save();
+      }
+
+      deleteGroup(id) {
+        if (this.groups.length <= 1) {
+          throw new Error("Modellen skal indeholde mindst én gruppe.");
+        }
+        this.groups = this.groups.filter((group) => group.id !== id);
+        this.save();
+      }
+
+      updateGroup(id, property, value) {
+        const group = this.groups.find((item) => item.id === id);
+        if (!group) {
+          return;
+        }
+
+        if (property === "name") {
+          group.name = String(value || "").trim() || group.name;
+        } else if (property === "amount") {
+          group.amount = this.clampInteger(value, 0, 10000000, group.amount);
+        } else if (property === "active") {
+          group.active = Boolean(value);
+        } else if (property === "color") {
+          group.color = this.parseColor(value, group.color);
+        } else if (property.startsWith("p")) {
+          const percentage = Number(String(value ?? "").replace(",", "."));
+          if (Number.isFinite(percentage)) {
+            group[property] = Math.max(0, Math.min(1, percentage / 100));
+          }
+        }
+        this.save();
+      }
+
+      updateRate(id, value) {
+        const rate = this.rates.find((item) => item.id === id);
+        if (!rate) {
+          return;
+        }
+        rate.value = this.parseNumber(value, rate.value);
+        this.save();
+      }
+
+      toCsv() {
+        const headers = [
+          "type", "id", "name", "amount", "active", "color",
+          "p_work", "p_theft", "p_tax_fraud",
+          "p_welfare_fraud", "p_aggravated_violence", "p_rape", "p_murder",
+          "value", "unit", "note"
+        ];
+        const records = [];
+
+        for (const group of this.groups) {
+          records.push({
+            type: "group",
+            id: group.id,
+            name: group.name,
+            amount: group.amount,
+            active: group.active ? "1" : "0",
+            color: group.color,
+            p_work: group.pWork,
+            p_theft: group.pTheft,
+            p_tax_fraud: group.pTaxFraud,
+            p_welfare_fraud: group.pWelfareFraud,
+            p_aggravated_violence: group.pAggravatedViolence,
+            p_rape: group.pRape,
+            p_murder: group.pMurder,
+            value: "",
+            unit: "",
+            note: group.note
+          });
+        }
+
+        for (const rate of this.rates) {
+          records.push({
+            type: "rate",
+            id: rate.id,
+            name: rate.name,
+            amount: "",
+            active: "1",
+            color: "",
+            p_work: "",
+            p_theft: "",
+            p_tax_fraud: "",
+            p_welfare_fraud: "",
+            p_aggravated_violence: "",
+            p_rape: "",
+            p_murder: "",
+            value: rate.value,
+            unit: rate.unit,
+            note: rate.note
+          });
+        }
+
+        return CsvUtility.stringify(records, headers);
+      }
+    }
+
+    class SimulationEngine {
+      constructor(model) {
+        this.model = model;
+      }
+
+      simulate(seedText) {
+        const groups = this.model.getActiveGroups();
+        const totalRequested = groups.reduce((sum, group) => sum + group.amount, 0);
+        if (totalRequested <= 0) {
+          throw new Error("Der er ingen aktive personer at generere.");
+        }
+        if (totalRequested > 10000000) {
+          throw new Error("Der kan højst genereres 10.000.000 personer ad gangen.");
+        }
+
+        const random = new SeededRandom(seedText);
+        const people = [];
+        const summaries = [];
+        let nextId = 1;
+
+        for (const group of groups) {
+          const summary = this.createEmptySummary(group);
+          for (let index = 0; index < group.amount; index += 1) {
+            const person = this.generatePerson(nextId, group, random);
+            people.push(person);
+            this.addPersonToSummary(summary, person);
+            nextId += 1;
+          }
+          summary.expected = this.calculateExpected(group);
+          summaries.push(summary);
+        }
+
+        const total = this.combineSummaries(summaries);
+        const crimeTotals = this.calculateCrimeTotals(people, summaries);
+
+        return {
+          seed: seedText,
+          generatedAt: new Date(),
+          people,
+          groups: summaries,
+          total,
+          crimeTotals
+        };
+      }
+
+      generatePerson(id, group, random) {
+        const employed = random.event(group.pWork);
+        const annualIncome = this.generateAnnualIncome(employed, random);
+        const publicCost = Math.max(0, this.model.getRate("base_public_cost"));
+        const unemploymentCost = employed
+          ? 0
+          : Math.max(0, this.model.getRate("unemployment_cost"));
+        const taxContribution = annualIncome * this.getEffectiveTaxRate();
+
+        const theft = random.event(group.pTheft);
+        const taxFraud = random.event(group.pTaxFraud);
+        const welfareFraud = random.event(group.pWelfareFraud);
+        const aggravatedViolence = random.event(group.pAggravatedViolence);
+        const rape = random.event(group.pRape);
+        const murder = random.event(group.pMurder);
+
+        const crimeCost =
+          (theft ? this.model.getRate("theft") : 0) +
+          (taxFraud ? this.model.getRate("tax_fraud") : 0) +
+          (welfareFraud ? this.model.getRate("welfare_fraud") : 0) +
+          (aggravatedViolence ? this.model.getRate("aggravated_violence") : 0) +
+          (rape ? this.model.getRate("rape") : 0) +
+          (murder ? this.model.getRate("murder") : 0);
+
+        return {
+          id,
+          groupId: group.id,
+          groupName: group.name,
+          employed,
+          unemployed: !employed,
+          annualIncome,
+          publicCost,
+          unemploymentCost,
+          taxContribution,
+          theft,
+          taxFraud,
+          welfareFraud,
+          aggravatedViolence,
+          rape,
+          murder,
+          generalCrime: theft || taxFraud || welfareFraud,
+          seriousCrime: aggravatedViolence || rape || murder,
+          employmentValue: -taxContribution,
+          crimeCost,
+          totalCost: publicCost + unemploymentCost - taxContribution + crimeCost
+        };
+      }
+
+      generateAnnualIncome(employed, random) {
+        if (!employed) {
+          return 0;
+        }
+
+        const parameters = this.getParetoIncomeParameters();
+        const u = Math.max(0, Math.min(1 - Number.EPSILON, random.next()));
+        const value = Math.abs(parameters.shape) < 1e-9
+          ? parameters.location - parameters.scale * Math.log(1 - u)
+          : parameters.location +
+            (parameters.scale / parameters.shape) *
+            (Math.pow(1 - u, -parameters.shape) - 1);
+
+        return Math.max(0, Math.round(value));
+      }
+
+      getParetoIncomeParameters() {
+        const mean = Math.max(0, this.model.getRate("income_mean"));
+        const standardDeviation = Math.max(1, this.model.getRate("income_std"));
+        const shape = Math.max(0, Math.min(0.32, this.model.getRate("income_pareto_shape")));
+        const scale = standardDeviation * (1 - shape) * Math.sqrt(1 - 2 * shape);
+        const location = mean - scale / (1 - shape);
+
+        if (location < 0) {
+          throw new Error(
+            "Lønparametrene giver en negativ minimumsløn. Sænk standardafvigelsen, hæv gennemsnittet eller hæv Pareto-halefaktoren."
+          );
+        }
+
+        return {
+          mean,
+          standardDeviation,
+          shape,
+          scale,
+          location
+        };
+      }
+
+      getEffectiveTaxRate() {
+        const value = this.model.getRate("effective_tax_rate");
+        const normalized = value > 1 ? value / 100 : value;
+        return Math.max(0, Math.min(1, normalized));
+      }
+
+      createEmptySummary(group) {
+        return {
+          groupId: group.id,
+          groupName: group.name,
+          color: group.color,
+          people: 0,
+          employed: 0,
+          unemployed: 0,
+          generalCrime: 0,
+          seriousCrime: 0,
+          theft: 0,
+          taxFraud: 0,
+          welfareFraud: 0,
+          aggravatedViolence: 0,
+          rape: 0,
+          murder: 0,
+          annualIncome: 0,
+          publicCost: 0,
+          unemploymentCost: 0,
+          taxContribution: 0,
+          employmentValue: 0,
+          crimeCost: 0,
+          totalCost: 0,
+          expected: null
+        };
+      }
+
+      addPersonToSummary(summary, person) {
+        summary.people += 1;
+        summary.employed += person.employed ? 1 : 0;
+        summary.unemployed += person.unemployed ? 1 : 0;
+        summary.generalCrime += person.generalCrime ? 1 : 0;
+        summary.seriousCrime += person.seriousCrime ? 1 : 0;
+        summary.theft += person.theft ? 1 : 0;
+        summary.taxFraud += person.taxFraud ? 1 : 0;
+        summary.welfareFraud += person.welfareFraud ? 1 : 0;
+        summary.aggravatedViolence += person.aggravatedViolence ? 1 : 0;
+        summary.rape += person.rape ? 1 : 0;
+        summary.murder += person.murder ? 1 : 0;
+        summary.annualIncome += person.annualIncome;
+        summary.publicCost += person.publicCost;
+        summary.unemploymentCost += person.unemploymentCost;
+        summary.taxContribution += person.taxContribution;
+        summary.employmentValue += person.employmentValue;
+        summary.crimeCost += person.crimeCost;
+        summary.totalCost += person.totalCost;
+      }
+
+      calculateExpected(group) {
+        const employed = group.amount * group.pWork;
+        const unemployed = group.amount - employed;
+        const annualIncome = employed * Math.max(0, this.model.getRate("income_mean"));
+        const publicCost = group.amount * Math.max(0, this.model.getRate("base_public_cost"));
+        const unemploymentCost = unemployed * Math.max(0, this.model.getRate("unemployment_cost"));
+        const taxContribution = annualIncome * this.getEffectiveTaxRate();
+
+        const theft = group.amount * group.pTheft;
+        const taxFraud = group.amount * group.pTaxFraud;
+        const welfareFraud = group.amount * group.pWelfareFraud;
+        const aggravatedViolence = group.amount * group.pAggravatedViolence;
+        const rape = group.amount * group.pRape;
+        const murder = group.amount * group.pMurder;
+
+        const crimeCost =
+          theft * this.model.getRate("theft") +
+          taxFraud * this.model.getRate("tax_fraud") +
+          welfareFraud * this.model.getRate("welfare_fraud") +
+          aggravatedViolence * this.model.getRate("aggravated_violence") +
+          rape * this.model.getRate("rape") +
+          murder * this.model.getRate("murder");
+
+        return {
+          employed,
+          unemployed,
+          theft,
+          taxFraud,
+          welfareFraud,
+          aggravatedViolence,
+          rape,
+          murder,
+          annualIncome,
+          publicCost,
+          unemploymentCost,
+          taxContribution,
+          employmentValue: -taxContribution,
+          crimeCost,
+          totalCost: publicCost + unemploymentCost - taxContribution + crimeCost
+        };
+      }
+
+      combineSummaries(summaries) {
+        const total = {
+          people: 0,
+          employed: 0,
+          unemployed: 0,
+          generalCrime: 0,
+          seriousCrime: 0,
+          theft: 0,
+          taxFraud: 0,
+          welfareFraud: 0,
+          aggravatedViolence: 0,
+          rape: 0,
+          murder: 0,
+          annualIncome: 0,
+          publicCost: 0,
+          unemploymentCost: 0,
+          taxContribution: 0,
+          employmentValue: 0,
+          crimeCost: 0,
+          totalCost: 0,
+          expectedTotalCost: 0
+        };
+
+        for (const summary of summaries) {
+          for (const key of Object.keys(total)) {
+            if (key === "expectedTotalCost") {
+              continue;
+            }
+            total[key] += Number(summary[key] || 0);
+          }
+          total.expectedTotalCost += Number(summary.expected.totalCost || 0);
+        }
+        return total;
+      }
+
+      calculateCrimeTotals(people, summaries) {
+        const definitions = [
+          ["theft", "Tyveri", "theft"],
+          ["tax_fraud", "Skattesvig", "taxFraud"],
+          ["welfare_fraud", "Socialt bedrageri", "welfareFraud"],
+          ["aggravated_violence", "Grov vold", "aggravatedViolence"],
+          ["rape", "Voldtægt", "rape"],
+          ["murder", "Mord", "murder"]
+        ];
+
+        return definitions.map(([rateId, name, personProperty]) => {
+          const count = people.reduce((sum, person) => sum + (person[personProperty] ? 1 : 0), 0);
+          const unitCost = this.model.getRate(rateId);
+          const demographics = summaries.map((summary) => ({
+            groupId: summary.groupId,
+            groupName: summary.groupName,
+            color: summary.color,
+            count: Number(summary[personProperty] || 0)
+          }));
+
+          return {
+            id: rateId,
+            name,
+            count,
+            unitCost,
+            totalCost: count * unitCost,
+            demographics
+          };
+        });
+      }
+    }
+
+    class NetContributionHistogram {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.context = canvas.getContext("2d");
+        this.pixelRatio = window.devicePixelRatio || 1;
+        this.people = [];
+        this.groups = [];
+        this.binCount = 38;
+        this.hoverBinIndex = null;
+        this.lastLayout = null;
+        this.resizeObserver = new ResizeObserver(() => this.resize());
+        this.resizeObserver.observe(this.canvas.parentElement);
+        this.canvas.addEventListener("mousemove", (event) => this.handlePointerMove(event));
+        this.canvas.addEventListener("mouseleave", () => this.clearHover());
+        this.resize();
+      }
+
+      setData(people, groups) {
+        this.people = Array.isArray(people) ? people : [];
+        this.groups = Array.isArray(groups) ? groups : [];
+        this.hoverBinIndex = null;
+        this.render();
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        const width = Math.max(320, Math.floor(rect.width));
+        const height = Math.max(280, Math.floor(rect.height));
+        this.canvas.width = Math.floor(width * this.pixelRatio);
+        this.canvas.height = Math.floor(height * this.pixelRatio);
+        this.canvas.style.width = width + "px";
+        this.canvas.style.height = height + "px";
+        this.context.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+        this.render();
+      }
+
+      render() {
+        const ctx = this.context;
+        const width = this.canvas.width / this.pixelRatio;
+        const height = this.canvas.height / this.pixelRatio;
+        ctx.clearRect(0, 0, width, height);
+
+        if (this.people.length === 0) {
+          this.lastLayout = null;
+          ctx.fillStyle = "rgba(154, 167, 188, 0.92)";
+          ctx.font = "800 15px Inter, system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("Generér personer for at vise nettohistogrammet", width / 2, height / 2);
+          return;
+        }
+
+        const margin = {
+          left: width < 620 ? 58 : 78,
+          right: 22,
+          top: 40,
+          bottom: 58
+        };
+        const area = {
+          x: margin.left,
+          y: margin.top,
+          width: width - margin.left - margin.right,
+          height: height - margin.top - margin.bottom
+        };
+
+        const values = this.people.map((person) => this.getNetContribution(person));
+        const sortedValues = [...values].sort((left, right) => left - right);
+        const robustMinimum = Math.min(0, this.percentile(sortedValues, 0.005));
+        const robustMaximum = Math.max(0, this.percentile(sortedValues, 0.995));
+        const bounds = this.createNiceBounds(robustMinimum, robustMaximum);
+        const bins = this.createStackedBins(this.people, bounds.minimum, bounds.maximum);
+        const totals = bins.map((bin) => Object.values(bin).reduce((sum, count) => sum + count, 0));
+        const maximumCount = Math.max(1, ...totals);
+        const yMaximum = this.createNiceCountMaximum(maximumCount);
+
+        this.lastLayout = {
+          area,
+          bins,
+          minimum: bounds.minimum,
+          maximum: bounds.maximum,
+          yMaximum
+        };
+
+        this.drawGrid(ctx, area, bounds.minimum, bounds.maximum, yMaximum);
+        this.drawStackedBars(ctx, area, bins, yMaximum);
+        this.drawDirectionLabels(ctx, area);
+
+        if (this.hoverBinIndex !== null) {
+          this.drawHover(ctx, this.lastLayout, this.hoverBinIndex);
+        }
+      }
+
+      getNetContribution(person) {
+        const taxContribution = Number(person.taxContribution) || 0;
+        const publicCost = Number(person.publicCost) || 0;
+        const unemploymentCost = Number(person.unemploymentCost) || 0;
+        const crimeCost = Number(person.crimeCost) || 0;
+        return taxContribution - publicCost - unemploymentCost - crimeCost;
+      }
+
+      createStackedBins(people, minimum, maximum) {
+        const bins = Array.from({ length: this.binCount }, () => ({}));
+        const range = Math.max(1, maximum - minimum);
+
+        for (const person of people) {
+          const value = this.getNetContribution(person);
+          const normalized = (value - minimum) / range;
+          const clamped = Math.max(0, Math.min(0.999999, normalized));
+          const index = Math.floor(clamped * this.binCount);
+          const groupId = person.groupId || "unknown";
+          bins[index][groupId] = (bins[index][groupId] || 0) + 1;
+        }
+
+        return bins;
+      }
+
+      percentile(sortedValues, percentile) {
+        if (sortedValues.length === 0) {
+          return 0;
+        }
+
+        const position = Math.max(0, Math.min(sortedValues.length - 1, (sortedValues.length - 1) * percentile));
+        const lowerIndex = Math.floor(position);
+        const upperIndex = Math.ceil(position);
+        const interpolation = position - lowerIndex;
+        const lowerValue = sortedValues[lowerIndex];
+        const upperValue = sortedValues[upperIndex];
+        return lowerValue + (upperValue - lowerValue) * interpolation;
+      }
+
+      createNiceBounds(minimum, maximum) {
+        const rawRange = Math.max(1, maximum - minimum);
+        const step = this.createNiceAxisStep(rawRange / 6);
+        let niceMinimum = Math.floor(minimum / step) * step;
+        let niceMaximum = Math.ceil(maximum / step) * step;
+
+        if (niceMinimum === niceMaximum) {
+          niceMinimum -= step;
+          niceMaximum += step;
+        }
+
+        return {
+          minimum: niceMinimum,
+          maximum: niceMaximum,
+          step
+        };
+      }
+
+      createNiceAxisStep(value) {
+        const safeValue = Math.max(1, value);
+        const magnitude = Math.pow(10, Math.floor(Math.log10(safeValue)));
+        const normalized = safeValue / magnitude;
+        const niceNormalized = normalized <= 1
+          ? 1
+          : normalized <= 2
+            ? 2
+            : normalized <= 5
+              ? 5
+              : 10;
+        return niceNormalized * magnitude;
+      }
+
+      createNiceCountMaximum(value) {
+        const magnitude = Math.pow(10, Math.floor(Math.log10(Math.max(1, value))));
+        const normalized = value / magnitude;
+        const nice = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+        return nice * magnitude;
+      }
+
+      drawGrid(ctx, area, minimum, maximum, yMaximum) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.10)";
+        ctx.fillStyle = "rgba(154, 167, 188, 0.94)";
+        ctx.lineWidth = 1;
+        ctx.font = "11px Inter, system-ui, sans-serif";
+
+        const yTicks = 5;
+        for (let index = 0; index <= yTicks; index += 1) {
+          const share = index / yTicks;
+          const y = area.y + area.height - share * area.height;
+          const value = yMaximum * share;
+          ctx.beginPath();
+          ctx.moveTo(area.x, y);
+          ctx.lineTo(area.x + area.width, y);
+          ctx.stroke();
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          ctx.fillText(Math.round(value).toLocaleString("da-DK"), area.x - 9, y);
+        }
+
+        const xTicks = area.width < 560 ? 4 : 6;
+        for (let index = 0; index <= xTicks; index += 1) {
+          const share = index / xTicks;
+          const x = area.x + share * area.width;
+          const value = minimum + (maximum - minimum) * share;
+          ctx.beginPath();
+          ctx.moveTo(x, area.y);
+          ctx.lineTo(x, area.y + area.height);
+          ctx.stroke();
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          ctx.fillText(NetContributionHistogram.shortMoney(value), x, area.y + area.height + 10);
+        }
+
+        if (minimum < 0 && maximum > 0) {
+          const zeroShare = (0 - minimum) / (maximum - minimum);
+          const zeroX = area.x + zeroShare * area.width;
+          ctx.save();
+          ctx.strokeStyle = "rgba(244, 247, 251, 0.72)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(zeroX, area.y);
+          ctx.lineTo(zeroX, area.y + area.height);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.fillStyle = "rgba(244, 247, 251, 0.92)";
+        ctx.font = "800 11px Inter, system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Nettobidrag pr. borger: skat minus udgifter", area.x + area.width / 2, area.y + area.height + 38);
+
+        ctx.save();
+        ctx.translate(16, area.y + area.height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText("Personer", 0, 0);
+        ctx.restore();
+        ctx.restore();
+      }
+
+      drawStackedBars(ctx, area, bins, yMaximum) {
+        const binWidth = area.width / this.binCount;
+        const gap = Math.max(1, Math.min(3, binWidth * 0.12));
+
+        for (let index = 0; index < this.binCount; index += 1) {
+          let stackBottom = area.y + area.height;
+          for (const group of this.groups) {
+            const count = Number(bins[index][group.groupId] || 0);
+            if (count <= 0) {
+              continue;
+            }
+
+            const segmentHeight = (count / yMaximum) * area.height;
+            const x = area.x + index * binWidth + gap / 2;
+            const y = stackBottom - segmentHeight;
+            const barWidth = Math.max(1, binWidth - gap);
+
+            ctx.save();
+            ctx.fillStyle = group.color || "#9aa7bc";
+            ctx.globalAlpha = 0.88;
+            ctx.fillRect(x, y, barWidth, segmentHeight);
+            if (segmentHeight > 1.5) {
+              ctx.strokeStyle = "rgba(7, 10, 18, 0.52)";
+              ctx.lineWidth = 0.6;
+              ctx.strokeRect(x, y, barWidth, segmentHeight);
+            }
+            ctx.restore();
+            stackBottom = y;
+          }
+        }
+      }
+
+      drawDirectionLabels(ctx, area) {
+        ctx.save();
+        ctx.font = "800 11px Inter, system-ui, sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(154, 167, 188, 0.96)";
+        ctx.textAlign = "left";
+        ctx.fillText("← Nettoudgift", area.x, area.y - 18);
+        ctx.textAlign = "right";
+        ctx.fillText("Nettobidrag →", area.x + area.width, area.y - 18);
+        ctx.restore();
+      }
+
+      handlePointerMove(event) {
+        if (!this.lastLayout) {
+          return;
+        }
+
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const area = this.lastLayout.area;
+
+        if (x < area.x || x > area.x + area.width || y < area.y || y > area.y + area.height) {
+          this.clearHover();
+          return;
+        }
+
+        const index = Math.max(
+          0,
+          Math.min(this.binCount - 1, Math.floor(((x - area.x) / area.width) * this.binCount))
+        );
+        if (index !== this.hoverBinIndex) {
+          this.hoverBinIndex = index;
+          this.render();
+        }
+      }
+
+      clearHover() {
+        if (this.hoverBinIndex === null) {
+          return;
+        }
+        this.hoverBinIndex = null;
+        this.render();
+      }
+
+      drawHover(ctx, layout, index) {
+        const { area, bins, minimum, maximum } = layout;
+        const binWidth = area.width / this.binCount;
+        const x = area.x + index * binWidth;
+        const startValue = minimum + (index / this.binCount) * (maximum - minimum);
+        const endValue = minimum + ((index + 1) / this.binCount) * (maximum - minimum);
+        const groupLines = this.groups
+          .map((group) => ({
+            name: group.groupName,
+            color: group.color,
+            count: Number(bins[index][group.groupId] || 0)
+          }))
+          .filter((line) => line.count > 0);
+        const total = groupLines.reduce((sum, line) => sum + line.count, 0);
+
+        ctx.save();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+        ctx.fillRect(x, area.y, binWidth, area.height);
+
+        const tooltipWidth = Math.min(270, Math.max(205, area.width * 0.31));
+        const lineHeight = 19;
+        const tooltipHeight = 54 + Math.max(1, groupLines.length) * lineHeight;
+        let tooltipX = x + binWidth + 10;
+        if (tooltipX + tooltipWidth > area.x + area.width) {
+          tooltipX = x - tooltipWidth - 10;
+        }
+        tooltipX = Math.max(area.x + 4, tooltipX);
+        const tooltipY = area.y + 8;
+
+        ctx.fillStyle = "rgba(12, 18, 31, 0.97)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+        ctx.lineWidth = 1;
+        this.roundedRect(ctx, tooltipX, tooltipY, tooltipWidth, tooltipHeight, 10);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(244, 247, 251, 0.98)";
+        ctx.font = "800 11px Inter, system-ui, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+          NetContributionHistogram.shortMoney(startValue) + " til " + NetContributionHistogram.shortMoney(endValue),
+          tooltipX + 12,
+          tooltipY + 16
+        );
+        ctx.fillStyle = "rgba(154, 167, 188, 0.98)";
+        ctx.font = "11px Inter, system-ui, sans-serif";
+        ctx.fillText("I alt: " + total.toLocaleString("da-DK") + " personer", tooltipX + 12, tooltipY + 35);
+
+        const visibleLines = groupLines.length > 0
+          ? groupLines
+          : [{ name: "Ingen personer", color: "#9aa7bc", count: 0 }];
+        visibleLines.forEach((line, lineIndex) => {
+          const lineY = tooltipY + 55 + lineIndex * lineHeight;
+          ctx.fillStyle = line.color || "#9aa7bc";
+          ctx.fillRect(tooltipX + 12, lineY - 5, 9, 9);
+          ctx.fillStyle = "rgba(244, 247, 251, 0.96)";
+          ctx.textAlign = "left";
+          ctx.fillText(line.name, tooltipX + 28, lineY);
+          ctx.textAlign = "right";
+          ctx.fillText(line.count.toLocaleString("da-DK"), tooltipX + tooltipWidth - 12, lineY);
+        });
+        ctx.restore();
+      }
+
+      roundedRect(ctx, x, y, width, height, radius) {
+        const safeRadius = Math.min(radius, width / 2, height / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + safeRadius, y);
+        ctx.arcTo(x + width, y, x + width, y + height, safeRadius);
+        ctx.arcTo(x + width, y + height, x, y + height, safeRadius);
+        ctx.arcTo(x, y + height, x, y, safeRadius);
+        ctx.arcTo(x, y, x + width, y, safeRadius);
+        ctx.closePath();
+      }
+
+      static shortMoney(value) {
+        const absolute = Math.abs(value);
+        const sign = value < 0 ? "-" : value > 0 ? "+" : "";
+        if (absolute >= 1000000) {
+          return sign + (absolute / 1000000).toLocaleString("da-DK", { maximumFractionDigits: 1 }) + " mio.";
+        }
+        if (absolute >= 1000) {
+          return sign + (absolute / 1000).toLocaleString("da-DK", { maximumFractionDigits: 0 }) + " t.";
+        }
+        return sign + Math.round(absolute).toLocaleString("da-DK");
+      }
+    }
+
+    class PersonGeneratorApp {
+      constructor() {
+        this.model = new PersonModel();
+        this.engine = new SimulationEngine(this.model);
+        this.chart = null;
+        this.elements = {};
+      }
+
+      initialize() {
+        this.captureElements();
+        this.model.initialize();
+        this.chart = new NetContributionHistogram(this.elements.costChart);
+        this.bindEvents();
+        this.renderAll();
+        this.generate();
+      }
+
+      captureElements() {
+        const ids = [
+          "generateButton", "exportResultsButton", "exportPeopleButton", "resetButton",
+          "addGroupButton",
+          "expandGroupsButton", "collapseGroupsButton", "expandRatesButton", "collapseRatesButton",
+          "groupList", "simulationMeta",
+          "kpiPeople", "kpiPeopleSub", "kpiExpenses", "kpiContribution", "kpiNet",
+          "kpiNetSub", "costChart", "histogramLegend", "showExpectedToggle", "groupResultBody",
+          "crimeGrid", "rateList",
+          "csvFileInput", "csvTextArea", "applyCsvButton", "exportDataButton",
+          "copyCsvButton", "csvStatus"
+        ];
+
+        for (const id of ids) {
+          this.elements[id] = document.getElementById(id);
+        }
+      }
+
+      bindEvents() {
+        this.elements.generateButton.addEventListener("click", () => this.generate());
+        this.elements.exportResultsButton.addEventListener("click", () => this.exportResults());
+        this.elements.exportPeopleButton.addEventListener("click", () => this.exportPeople());
+        this.elements.resetButton.addEventListener("click", () => this.reset());
+        this.elements.addGroupButton.addEventListener("click", () => this.addGroup());
+        this.elements.expandGroupsButton.addEventListener("click", () => this.setAllGroupsCollapsed(false));
+        this.elements.collapseGroupsButton.addEventListener("click", () => this.setAllGroupsCollapsed(true));
+        this.elements.expandRatesButton.addEventListener("click", () => this.setAllRatesCollapsed(false));
+        this.elements.collapseRatesButton.addEventListener("click", () => this.setAllRatesCollapsed(true));
+        this.elements.applyCsvButton.addEventListener("click", () => this.applyCsv());
+        this.elements.exportDataButton.addEventListener("click", () => this.exportData());
+        this.elements.copyCsvButton.addEventListener("click", () => this.copyCsv());
+        this.elements.showExpectedToggle.addEventListener("change", () => this.updateExpectedColumnVisibility());
+        this.elements.csvFileInput.addEventListener("change", (event) => this.readCsvFile(event));
+      }
+
+      renderAll() {
+        this.renderGroups();
+        this.renderRates();
+        this.elements.csvTextArea.value = this.model.toCsv();
+        this.renderSummary();
+      }
+
+      renderGroups() {
+        this.elements.groupList.innerHTML = "";
+        for (const group of this.model.groups) {
+          this.elements.groupList.appendChild(this.createGroupCard(group));
+        }
+      }
+
+      createGroupCard(group) {
+        const card = document.createElement("div");
+        card.className = "group-card";
+        if (!group.active) {
+          card.classList.add("inactive");
+        }
+        card.dataset.groupId = group.id;
+
+        card.innerHTML = `
+          <div class="group-head">
+            <span class="group-dot" style="color:${this.escapeHtml(group.color)};background:${this.escapeHtml(group.color)}"></span>
+            <div class="group-title">
+              <strong>${this.escapeHtml(group.name)}</strong>
+              <span>${this.formatInteger(group.amount)} personer</span>
+            </div>
+            <label class="toggle group-active-toggle" title="Slå gruppen til eller fra">
+              <input type="checkbox" data-property="active" ${group.active ? "checked" : ""} />
+              Aktiv
+            </label>
+            <span class="chevron">⌄</span>
+          </div>
+          <div class="group-body">
+            <div class="field">
+              <label>Farve</label>
+              <input type="color" data-property="color" value="${this.escapeHtml(group.color)}" />
+            </div>
+            <div class="field">
+              <label>Gruppenavn</label>
+              <input type="text" data-property="name" value="${this.escapeHtml(group.name)}" />
+            </div>
+            <div class="field">
+              <label>Antal personer</label>
+              <input type="number" min="0" max="10000000" step="1" data-property="amount" value="${group.amount}" />
+            </div>
+            ${this.probabilityField("Sandsynlighed for arbejde", "pWork", group.pWork)}
+            <div class="three-cols">
+              ${this.probabilityField("Tyveri", "pTheft", group.pTheft)}
+              ${this.probabilityField("Skattesvig", "pTaxFraud", group.pTaxFraud)}
+              ${this.probabilityField("Socialt bedrageri", "pWelfareFraud", group.pWelfareFraud)}
+            </div>
+            <div class="three-cols">
+              ${this.probabilityField("Grov vold", "pAggravatedViolence", group.pAggravatedViolence)}
+              ${this.probabilityField("Voldtægt", "pRape", group.pRape)}
+              ${this.probabilityField("Mord", "pMurder", group.pMurder)}
+            </div>
+            <div class="probability-note">
+              Procenterne simuleres som uafhængige hændelser. En person kan derfor udløse flere typer.
+            </div>
+            <div class="button-row">
+              <button class="btn small danger" type="button" data-action="delete">Slet gruppe</button>
+            </div>
+          </div>
+        `;
+
+        card.querySelector(".group-head").addEventListener("click", (event) => {
+          if (event.target.closest("input, label, button")) {
+            return;
+          }
+          card.classList.toggle("collapsed");
+        });
+
+        card.querySelectorAll("[data-property]").forEach((input) => {
+          const eventName = input.type === "checkbox" || input.type === "color" ? "change" : "input";
+          input.addEventListener(eventName, () => {
+            const property = input.dataset.property;
+            const value = input.type === "checkbox" ? input.checked : input.value;
+            this.model.updateGroup(group.id, property, value);
+            const updated = this.model.groups.find((item) => item.id === group.id);
+            card.classList.toggle("inactive", !updated.active);
+            card.querySelector(".group-title strong").textContent = updated.name;
+            card.querySelector(".group-title span").textContent = this.formatInteger(updated.amount) + " personer";
+            card.querySelector(".group-dot").style.background = updated.color;
+            card.querySelector(".group-dot").style.color = updated.color;
+            this.elements.csvTextArea.value = this.model.toCsv();
+          });
+        });
+
+        card.querySelector('[data-action="delete"]').addEventListener("click", () => {
+          try {
+            this.model.deleteGroup(group.id);
+            this.renderGroups();
+            this.elements.csvTextArea.value = this.model.toCsv();
+          } catch (error) {
+            window.alert(error.message);
+          }
+        });
+
+        return card;
+      }
+
+      probabilityField(label, property, probability) {
+        return `
+          <div class="field">
+            <label>${this.escapeHtml(label)}</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.001"
+              data-property="${this.escapeHtml(property)}"
+              value="${this.probabilityToPercent(probability)}"
+            />
+          </div>
+        `;
+      }
+
+      renderRates() {
+        this.elements.rateList.innerHTML = "";
+        for (const rate of this.model.rates) {
+          const card = document.createElement("div");
+          card.className = "rate-card";
+          const isTaxRate = rate.id === "effective_tax_rate";
+          const isParetoShape = rate.id === "income_pareto_shape";
+          const step = isTaxRate || isParetoShape ? "0.01" : "1000";
+          const label = isTaxRate
+            ? "Procent, eksempelvis 37"
+            : isParetoShape
+              ? "Halefaktor fra 0 til 0,32"
+              : "Værdi i DKK";
+          card.innerHTML = `
+            <div class="rate-head">
+              <span class="group-dot" style="color:${rate.value < 0 ? "var(--green)" : "var(--pink)"};background:currentColor"></span>
+              <div class="rate-title">
+                <strong>${this.escapeHtml(rate.name)}</strong>
+                <span>${this.escapeHtml(rate.unit)}</span>
+              </div>
+              <input
+                class="rate-inline-input"
+                type="number"
+                step="${step}"
+                value="${rate.value}"
+                aria-label="${this.escapeHtml(rate.name)}: ${this.escapeHtml(label)}"
+                title="${this.escapeHtml(label)}"
+              />
+              <span class="chevron">⌄</span>
+            </div>
+            <div class="rate-body">
+              <div class="probability-note">${this.escapeHtml(rate.note)}</div>
+            </div>
+          `;
+
+          card.querySelector(".rate-head").addEventListener("click", (event) => {
+            if (event.target.closest("input, label, button")) {
+              return;
+            }
+            card.classList.toggle("collapsed");
+          });
+
+          card.querySelector(".rate-inline-input").addEventListener("input", (event) => {
+            this.model.updateRate(rate.id, event.target.value);
+            this.elements.csvTextArea.value = this.model.toCsv();
+          });
+
+          this.elements.rateList.appendChild(card);
+        }
+      }
+
+      addGroup() {
+        this.model.addGroup();
+        this.renderGroups();
+        this.elements.csvTextArea.value = this.model.toCsv();
+      }
+
+      setAllGroupsCollapsed(collapsed) {
+        this.elements.groupList.querySelectorAll(".group-card").forEach((card) => {
+          card.classList.toggle("collapsed", collapsed);
+        });
+      }
+
+      setAllRatesCollapsed(collapsed) {
+        this.elements.rateList.querySelectorAll(".rate-card").forEach((card) => {
+          card.classList.toggle("collapsed", collapsed);
+        });
+      }
+
+      generate() {
+        try {
+          const seed = this.createRandomSeed();
+          const summary = this.engine.simulate(seed);
+          this.model.lastPeople = summary.people;
+          this.model.lastSummary = summary;
+          this.renderSummary();
+          this.setStatus(this.elements.csvStatus, "Ny simulering genereret.", "success");
+        } catch (error) {
+          this.setStatus(this.elements.csvStatus, error.message, "error");
+          window.alert(error.message);
+        }
+      }
+
+      createRandomSeed() {
+        const timestamp = Date.now().toString(36);
+        if (window.crypto && typeof window.crypto.getRandomValues === "function") {
+          const values = new Uint32Array(4);
+          window.crypto.getRandomValues(values);
+          const randomPart = Array.from(values, (value) => value.toString(36)).join("-");
+          return timestamp + "-" + randomPart;
+        }
+
+        return timestamp + "-" + Math.random().toString(36).slice(2) + "-" + Math.random().toString(36).slice(2);
+      }
+
+      renderSummary() {
+        const summary = this.model.lastSummary;
+        if (!summary) {
+          this.renderEmptySummary();
+          return;
+        }
+
+        const expenses = summary.total.publicCost + summary.total.unemploymentCost + summary.total.crimeCost;
+        const contribution = summary.total.taxContribution;
+
+        this.elements.simulationMeta.textContent =
+          "Seed: " + summary.seed + " · Genereret " +
+          summary.generatedAt.toLocaleString("da-DK");
+
+        this.elements.kpiPeople.textContent = this.formatInteger(summary.total.people);
+        this.elements.kpiPeopleSub.textContent =
+          this.formatInteger(summary.groups.length) + " aktive grupper";
+        this.elements.kpiExpenses.textContent = this.formatMoney(expenses);
+        this.elements.kpiContribution.textContent = this.formatMoney(contribution);
+        this.elements.kpiNet.textContent = this.formatMoney(summary.total.totalCost);
+        this.elements.kpiNet.classList.toggle("positive", summary.total.totalCost > 0);
+        this.elements.kpiNet.classList.toggle("negative", summary.total.totalCost < 0);
+        this.elements.kpiNet.classList.toggle("neutral", summary.total.totalCost === 0);
+        this.elements.kpiNetSub.textContent =
+          "Forventet: " + this.formatMoney(summary.total.expectedTotalCost);
+
+        this.chart.setData(summary.people, summary.groups);
+        this.renderHistogramLegend(summary);
+        this.renderGroupResults(summary);
+        this.renderCrimeGrid(summary);
+        this.updateExpectedColumnVisibility();
+      }
+
+      renderEmptySummary() {
+        this.elements.kpiPeople.textContent = "0";
+        this.elements.kpiPeopleSub.textContent = "0 aktive grupper";
+        this.elements.kpiExpenses.textContent = "0 kr.";
+        this.elements.kpiContribution.textContent = "0 kr.";
+        this.elements.kpiNet.textContent = "0 kr.";
+        this.elements.groupResultBody.innerHTML =
+          '<tr><td colspan="18" class="empty-state">Generér personer for at se resultater.</td></tr>';
+        this.elements.crimeGrid.innerHTML = "";
+        this.elements.histogramLegend.innerHTML = "";
+        if (this.chart) {
+          this.chart.setData([], []);
+        }
+      }
+
+      renderGroupResults(summary) {
+        const rows = [...summary.groups, {
+          groupName: "TOTAL",
+          people: summary.total.people,
+          employed: summary.total.employed,
+          unemployed: summary.total.unemployed,
+          theft: summary.total.theft,
+          taxFraud: summary.total.taxFraud,
+          welfareFraud: summary.total.welfareFraud,
+          aggravatedViolence: summary.total.aggravatedViolence,
+          rape: summary.total.rape,
+          murder: summary.total.murder,
+          annualIncome: summary.total.annualIncome,
+          publicCost: summary.total.publicCost,
+          unemploymentCost: summary.total.unemploymentCost,
+          taxContribution: summary.total.taxContribution,
+          employmentValue: summary.total.employmentValue,
+          crimeCost: summary.total.crimeCost,
+          totalCost: summary.total.totalCost,
+          expected: { totalCost: summary.total.expectedTotalCost },
+          isTotal: true
+        }];
+
+        this.elements.groupResultBody.innerHTML = rows.map((row) => {
+          const deviation = row.totalCost - row.expected.totalCost;
+          return `
+            <tr class="${row.isTotal ? "total-row" : ""}">
+              <td>${this.escapeHtml(row.groupName)}</td>
+              <td>${this.formatInteger(row.people)}</td>
+              <td>${this.formatInteger(row.employed)}</td>
+              <td>${this.formatInteger(row.unemployed)}</td>
+              <td>${this.formatInteger(row.theft)}</td>
+              <td>${this.formatInteger(row.taxFraud)}</td>
+              <td>${this.formatInteger(row.welfareFraud)}</td>
+              <td>${this.formatInteger(row.aggravatedViolence)}</td>
+              <td>${this.formatInteger(row.rape)}</td>
+              <td>${this.formatInteger(row.murder)}</td>
+              <td>${this.formatMoney(row.annualIncome)}</td>
+              <td class="positive">${this.formatMoney(row.publicCost)}</td>
+              <td class="positive">${this.formatMoney(row.unemploymentCost)}</td>
+              <td class="negative">${this.formatMoney(row.taxContribution)}</td>
+              <td class="${this.costClass(row.crimeCost)}">${this.formatMoney(row.crimeCost)}</td>
+              <td class="${this.costClass(row.totalCost)}">${this.formatMoney(row.totalCost)}</td>
+              <td class="expected-column ${this.costClass(row.expected.totalCost)}">${this.formatMoney(row.expected.totalCost)}</td>
+              <td class="expected-column ${this.costClass(deviation)}">${this.formatMoney(deviation)}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      renderCrimeGrid(summary) {
+        this.elements.crimeGrid.innerHTML = summary.crimeTotals.map((crime) => {
+          const chart = this.createCrimeDemographyChart(crime);
+          return `
+            <div class="crime-card" tabindex="0" aria-label="${this.escapeHtml(crime.name)}. Hold musen over eller fokusér for demografisk fordeling.">
+              <strong>${this.escapeHtml(crime.name)}</strong>
+              <div class="crime-count">${this.formatInteger(crime.count)}</div>
+              <div class="crime-cost">
+                ${this.formatMoney(crime.totalCost)} samlet · ${this.formatMoney(crime.unitCost)} pr. hændelse
+              </div>
+              <div class="crime-demography-popover">
+                ${chart}
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      createCrimeDemographyChart(crime) {
+        const demographics = Array.isArray(crime.demographics) ? crime.demographics : [];
+        const total = demographics.reduce((sum, item) => sum + Number(item.count || 0), 0);
+
+        if (total <= 0) {
+          return `
+            <div class="crime-pie empty" role="img" aria-label="Ingen simulerede hændelser">Ingen hændelser</div>
+            <div class="crime-demography-legend">
+              <div class="crime-demography-row">
+                <span></span>
+                <span class="crime-demography-name">Ingen demografisk fordeling</span>
+                <span class="crime-demography-value">0</span>
+              </div>
+            </div>
+          `;
+        }
+
+        let cursor = 0;
+        const segments = [];
+        const ariaParts = [];
+        const legendRows = demographics.map((item) => {
+          const count = Number(item.count || 0);
+          const percentage = count / total * 100;
+          const start = cursor;
+          const end = cursor + percentage;
+          if (count > 0) {
+            segments.push(`${item.color} ${start.toFixed(4)}% ${end.toFixed(4)}%`);
+          }
+          cursor = end;
+          ariaParts.push(`${item.groupName}: ${this.formatInteger(count)} (${percentage.toLocaleString("da-DK", { maximumFractionDigits: 1 })} %)`);
+
+          return `
+            <div class="crime-demography-row">
+              <span class="crime-demography-dot" style="background:${this.escapeHtml(item.color)}"></span>
+              <span class="crime-demography-name" title="${this.escapeHtml(item.groupName)}">${this.escapeHtml(item.groupName)}</span>
+              <span class="crime-demography-value">${this.formatInteger(count)} · ${percentage.toLocaleString("da-DK", { maximumFractionDigits: 1 })} %</span>
+            </div>
+          `;
+        }).join("");
+
+        const gradient = segments.length > 0
+          ? `conic-gradient(${segments.join(", ")})`
+          : "rgba(255, 255, 255, 0.055)";
+
+        return `
+          <div
+            class="crime-pie"
+            role="img"
+            aria-label="${this.escapeHtml(ariaParts.join(". "))}"
+            style="background:${gradient}"
+          ></div>
+          <div class="crime-demography-legend">${legendRows}</div>
+        `;
+      }
+
+      renderHistogramLegend(summary) {
+        this.elements.histogramLegend.innerHTML = summary.groups.map((group) => `
+          <span class="histogram-legend-item">
+            <span class="histogram-legend-dot" style="background:${this.escapeHtml(group.color)}"></span>
+            ${this.escapeHtml(group.groupName)} (${this.formatInteger(group.people)})
+          </span>
+        `).join("");
+      }
+
+      updateExpectedColumnVisibility() {
+        const show = this.elements.showExpectedToggle.checked;
+        document.querySelectorAll(".expected-column").forEach((element) => {
+          element.style.display = show ? "" : "none";
+        });
+      }
+
+      applyCsv() {
+        try {
+          this.model.loadFromCsv(this.elements.csvTextArea.value);
+          this.renderAll();
+          this.generate();
+          this.setStatus(this.elements.csvStatus, "CSV-data anvendt.", "success");
+        } catch (error) {
+          this.setStatus(this.elements.csvStatus, error.message, "error");
+        }
+      }
+
+      readCsvFile(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.elements.csvTextArea.value = String(reader.result || "");
+          this.setStatus(this.elements.csvStatus, "CSV-filen er indlæst. Tryk Anvend CSV.", "success");
+        };
+        reader.onerror = () => {
+          this.setStatus(this.elements.csvStatus, "CSV-filen kunne ikke læses.", "error");
+        };
+        reader.readAsText(file, "utf-8");
+      }
+
+      exportData() {
+        this.downloadText("persongenerator_data.csv", this.model.toCsv(), "text/csv;charset=utf-8");
+      }
+
+      exportResults() {
+        const summary = this.model.lastSummary;
+        if (!summary) {
+          window.alert("Generér personer først.");
+          return;
+        }
+
+        const headers = [
+          "group", "people", "employed", "unemployed",
+          "general_crime_persons", "serious_crime_persons", "theft",
+          "tax_fraud", "welfare_fraud", "aggravated_violence", "rape",
+          "murder", "annual_income", "public_cost", "unemployment_cost", "tax_contribution",
+          "crime_cost", "total_cost", "expected_total_cost", "deviation"
+        ];
+
+        const records = summary.groups.map((row) => ({
+          group: row.groupName,
+          people: row.people,
+          employed: row.employed,
+          unemployed: row.unemployed,
+          general_crime_persons: row.generalCrime,
+          serious_crime_persons: row.seriousCrime,
+          theft: row.theft,
+          tax_fraud: row.taxFraud,
+          welfare_fraud: row.welfareFraud,
+          aggravated_violence: row.aggravatedViolence,
+          rape: row.rape,
+          murder: row.murder,
+          annual_income: row.annualIncome,
+          public_cost: row.publicCost,
+          unemployment_cost: row.unemploymentCost,
+          tax_contribution: row.taxContribution,
+          crime_cost: row.crimeCost,
+          total_cost: row.totalCost,
+          expected_total_cost: row.expected.totalCost,
+          deviation: row.totalCost - row.expected.totalCost
+        }));
+
+        records.push({
+          group: "TOTAL",
+          people: summary.total.people,
+          employed: summary.total.employed,
+          unemployed: summary.total.unemployed,
+          general_crime_persons: summary.total.generalCrime,
+          serious_crime_persons: summary.total.seriousCrime,
+          theft: summary.total.theft,
+          tax_fraud: summary.total.taxFraud,
+          welfare_fraud: summary.total.welfareFraud,
+          aggravated_violence: summary.total.aggravatedViolence,
+          rape: summary.total.rape,
+          murder: summary.total.murder,
+          annual_income: summary.total.annualIncome,
+          public_cost: summary.total.publicCost,
+          unemployment_cost: summary.total.unemploymentCost,
+          tax_contribution: summary.total.taxContribution,
+          crime_cost: summary.total.crimeCost,
+          total_cost: summary.total.totalCost,
+          expected_total_cost: summary.total.expectedTotalCost,
+          deviation: summary.total.totalCost - summary.total.expectedTotalCost
+        });
+
+        this.downloadText(
+          "persongenerator_resultat.csv",
+          CsvUtility.stringify(records, headers),
+          "text/csv;charset=utf-8"
+        );
+      }
+
+      exportPeople() {
+        const people = this.model.lastPeople;
+        if (!people || people.length === 0) {
+          window.alert("Generér personer først.");
+          return;
+        }
+
+        const headers = [
+          "person_id", "group_id", "group_name", "employed",
+          "unemployed", "annual_income", "public_cost", "unemployment_cost", "tax_contribution",
+          "theft", "tax_fraud", "welfare_fraud", "aggravated_violence",
+          "rape", "murder", "general_crime", "serious_crime", "crime_cost",
+          "total_cost"
+        ];
+
+        const records = people.map((person) => ({
+          person_id: person.id,
+          group_id: person.groupId,
+          group_name: person.groupName,
+          employed: person.employed ? 1 : 0,
+          unemployed: person.unemployed ? 1 : 0,
+          annual_income: person.annualIncome,
+          public_cost: person.publicCost,
+          unemployment_cost: person.unemploymentCost,
+          tax_contribution: person.taxContribution,
+          theft: person.theft ? 1 : 0,
+          tax_fraud: person.taxFraud ? 1 : 0,
+          welfare_fraud: person.welfareFraud ? 1 : 0,
+          aggravated_violence: person.aggravatedViolence ? 1 : 0,
+          rape: person.rape ? 1 : 0,
+          murder: person.murder ? 1 : 0,
+          general_crime: person.generalCrime ? 1 : 0,
+          serious_crime: person.seriousCrime ? 1 : 0,
+          crime_cost: person.crimeCost,
+          total_cost: person.totalCost
+        }));
+
+        this.downloadText(
+          "persongenerator_personer.csv",
+          CsvUtility.stringify(records, headers),
+          "text/csv;charset=utf-8"
+        );
+      }
+
+      async copyCsv() {
+        try {
+          await navigator.clipboard.writeText(this.elements.csvTextArea.value);
+          this.setStatus(this.elements.csvStatus, "CSV kopieret til udklipsholderen.", "success");
+        } catch (error) {
+          this.elements.csvTextArea.select();
+          document.execCommand("copy");
+          this.setStatus(this.elements.csvStatus, "CSV kopieret til udklipsholderen.", "success");
+        }
+      }
+
+      reset() {
+        const confirmed = window.confirm("Nulstil grupper og satser til de illustrative standardværdier?");
+        if (!confirmed) {
+          return;
+        }
+        this.model.reset();
+        this.renderAll();
+        this.generate();
+        this.setStatus(this.elements.csvStatus, "Modellen er nulstillet.", "success");
+      }
+
+      downloadText(filename, text, mimeType) {
+        const blob = new Blob(["\uFEFF", text], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      setStatus(element, message, type) {
+        element.textContent = message;
+        element.classList.remove("error", "success");
+        if (type) {
+          element.classList.add(type);
+        }
+      }
+
+      probabilityToPercent(value) {
+        return Number(value * 100).toLocaleString("en-US", {
+          maximumFractionDigits: 5,
+          useGrouping: false
+        });
+      }
+
+      formatInteger(value) {
+        return Number(value || 0).toLocaleString("da-DK", {
+          maximumFractionDigits: 0
+        });
+      }
+
+      formatMoney(value) {
+        return Number(value || 0).toLocaleString("da-DK", {
+          maximumFractionDigits: 0
+        }) + " kr.";
+      }
+
+      costClass(value) {
+        if (value > 0) {
+          return "positive";
+        }
+        if (value < 0) {
+          return "negative";
+        }
+        return "neutral";
+      }
+
+      escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const app = new PersonGeneratorApp();
+      app.initialize();
+      window.personGeneratorApp = app;
+
+      const body = document.body;
+      const introButton = document.getElementById("introLogoButton");
+      const introOverlay = document.getElementById("introOverlay");
+
+      const finishIntro = () => {
+        if (body.classList.contains("intro-complete")) {
+          return;
+        }
+
+        const targetLogo = document.querySelector(".app-logo");
+        if (introButton && targetLogo) {
+          const targetRect = targetLogo.getBoundingClientRect();
+          introButton.style.left = targetRect.left + "px";
+          introButton.style.top = targetRect.top + "px";
+          introButton.style.width = targetRect.width + "px";
+          introButton.style.height = targetRect.height + "px";
+          introButton.style.transform = "none";
+        }
+
+        body.classList.add("intro-complete");
+        window.setTimeout(() => {
+          body.classList.add("intro-done");
+          if (introOverlay) {
+            introOverlay.setAttribute("aria-hidden", "true");
+          }
+          if (app && app.chart && typeof app.chart.resize === "function") {
+            app.chart.resize();
+          }
+        }, 1080);
+      };
+
+      if (introButton) {
+        introButton.addEventListener("click", finishIntro);
+        introButton.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            finishIntro();
+          }
+        });
+      } else {
+        body.classList.remove("intro-active");
+      }
+    });
+  </script>
+</body>
+</html>
